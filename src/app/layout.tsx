@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${arimo.variable} antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${arimo.variable} antialiased`}>
       <body className="min-h-screen w-full flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
         <SmoothScroll>{children}</SmoothScroll>
       </body>
