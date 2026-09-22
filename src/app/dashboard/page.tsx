@@ -21,6 +21,12 @@ import {
 export default function DashboardPage() {
   const [activeRole, setActiveRole] = useState<"candidate" | "recruiter">("candidate");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-surface font-sans selection:bg-secondary/20 selection:text-primary">
@@ -261,7 +267,7 @@ export default function DashboardPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => alert("Technical interview dispatch initiated with ScaleOps")}
+                      onClick={() => triggerToast("Direct technical interview dispatch requested with ScaleOps Lead.")}
                       className="px-3 py-1 rounded-lg bg-primary-container text-white text-xs font-bold hover:bg-primary-hover transition-colors"
                     >
                       Schedule Interview
@@ -289,7 +295,7 @@ export default function DashboardPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => alert("Application packet forwarded to Veritas Tech Lead")}
+                      onClick={() => triggerToast("Application packet and AST vector telemetry forwarded to Veritas Lead.")}
                       className="px-3 py-1 rounded-lg border border-slate-200 text-on-surface hover:bg-surface-container-low text-xs font-bold transition-colors"
                     >
                       View Role
@@ -319,7 +325,7 @@ export default function DashboardPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => alert("Targeting Raft split-brain benchmark prep")}
+                      onClick={() => triggerToast("Raft split-brain benchmark prep module queued.")}
                       className="px-3 py-1 rounded-lg border border-slate-200 text-on-surface hover:bg-surface-container-low text-xs font-bold transition-colors"
                     >
                       Start Prep
@@ -348,7 +354,7 @@ export default function DashboardPage() {
 
               <button
                 type="button"
-                onClick={() => alert("Launching AST Code Sandbox Benchmark Environment...")}
+                onClick={() => triggerToast("Initializing ephemeral AST Code Sandbox benchmark...")}
                 className="px-4 py-2 rounded-lg bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors"
               >
                 Launch Sandbox Challenge
@@ -475,7 +481,7 @@ export default function DashboardPage() {
 
                     <button
                       type="button"
-                      onClick={() => alert(`Direct interview dispatched to ${cand.name}`)}
+                      onClick={() => triggerToast(`Direct interview dispatched to ${cand.name}.`)}
                       className="px-3.5 py-1.5 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-colors"
                     >
                       Dispatch Interview
@@ -487,6 +493,14 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Action Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-slate-900 text-white border border-slate-700 shadow-2xl flex items-center gap-3 text-xs animate-slideUp">
+          <CheckCircle2 className="w-4 h-4 text-secondary-container shrink-0" />
+          <span className="font-medium">{toastMessage}</span>
+        </div>
+      )}
 
       {/* Mini Footer */}
       <footer className="w-full py-4 text-center text-xs text-outline border-t border-stroke-card/60">

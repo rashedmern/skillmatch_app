@@ -61,6 +61,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,32 +225,26 @@ export default function LoginPage() {
 
               {/* Fast OAuth Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(
-                      `/auth/callback/github?role=${persona}&email=${encodeURIComponent(
-                        email || "alex.chen@berkeley.edu"
-                      )}`
-                    )
-                  }
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
+                <Link
+                  href={`/auth/callback/github?role=${persona}&email=${encodeURIComponent(
+                    email || "alex.chen@berkeley.edu"
+                  )}`}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group"
                 >
                   <GithubIcon className="w-4 h-4" />
-                  <span>GitHub</span>
+                  <span>Continue with GitHub</span>
                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-secondary/10 text-secondary-mint border border-secondary/20 ml-1">
                     AST
                   </span>
-                </button>
+                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => router.push(`/auth/google?role=${persona}`)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
+                <Link
+                  href={`/auth/google?role=${persona}`}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group"
                 >
                   <GoogleIcon className="w-4 h-4" />
                   <span>Google SSO</span>
-                </button>
+                </Link>
               </div>
 
               {/* Security Error Banner */}
@@ -312,10 +307,10 @@ export default function LoginPage() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => alert("Password reset link dispatched")}
+                      onClick={() => setResetSent(true)}
                       className="text-xs text-secondary-mint hover:underline font-medium"
                     >
-                      Forgot password?
+                      {resetSent ? "Reset instructions sent!" : "Forgot password?"}
                     </button>
                   </div>
                   <div className="relative">

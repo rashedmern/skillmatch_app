@@ -217,29 +217,23 @@ function RegisterFormContent() {
 
           {/* Fast OAuth Registration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              onClick={() =>
-                router.push(
-                  `/auth/callback/github?role=${role}&email=${encodeURIComponent(
-                    email || "alex.chen@berkeley.edu"
-                  )}`
-                )
-              }
-              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
+            <Link
+              href={`/auth/callback/github?role=${role}&email=${encodeURIComponent(
+                email || "alex.chen@berkeley.edu"
+              )}`}
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group"
             >
               <GithubIcon className="w-4 h-4" />
-              <span>Sign up with GitHub</span>
-            </button>
+              <span>Continue with GitHub</span>
+            </Link>
 
-            <button
-              type="button"
-              onClick={() => router.push(`/auth/google?role=${role}`)}
-              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
+            <Link
+              href={`/auth/google?role=${role}`}
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group"
             >
               <GoogleIcon className="w-4 h-4" />
               <span>Google SSO</span>
-            </button>
+            </Link>
           </div>
 
           {/* Security Error Banner */}
