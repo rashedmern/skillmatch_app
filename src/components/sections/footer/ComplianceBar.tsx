@@ -1,0 +1,45 @@
+import React from "react";
+import { ShieldCheck, Award, Lock } from "lucide-react";
+import { StatusDot } from "@/components/ui/StatusDot";
+
+export const ComplianceBar: React.FC = () => {
+  const currentYear = 2026;
+
+  return (
+    <div className="w-full pt-6 sm:pt-8 pb-8 sm:pb-10 border-t border-slate-200/80 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-5 text-xs text-on-surface-variant font-sans text-center md:text-left">
+      {/* Left: Copyright with tabular-nums year */}
+      <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-2.5 sm:gap-x-3 gap-y-1">
+        <span>
+          &copy; <span className="tabular-nums font-mono font-medium">{currentYear}</span> SkillMatch Systems Inc.
+        </span>
+        <span className="hidden sm:inline text-slate-300">•</span>
+        <span className="text-on-surface-variant/80">
+          Autonomous Skill Verification Engine
+        </span>
+      </div>
+
+      {/* Right: Security & Institutional Compliance Badges */}
+      <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-2.5 sm:gap-x-4 gap-y-2">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container-low border border-slate-200/70 text-on-surface-variant font-medium text-[11px] select-none">
+          <ShieldCheck className="w-3.5 h-3.5 text-primary-container" />
+          <span>SOC-2 Type II</span>
+        </div>
+
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container-low border border-slate-200/70 text-on-surface-variant font-medium text-[11px] select-none">
+          <Award className="w-3.5 h-3.5 text-secondary-mint" />
+          <span>ABET Aligned</span>
+        </div>
+
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container-low border border-slate-200/70 text-on-surface-variant font-medium text-[11px] select-none">
+          <Lock className="w-3.5 h-3.5 text-slate-600" />
+          <span>End-to-End Encrypted</span>
+        </div>
+
+        <div className="hidden lg:inline-flex items-center gap-1.5 pl-2 text-slate-500 text-[11px]">
+          <StatusDot size="sm" />
+          <span className="tabular-nums">99.99%</span> Uptime
+        </div>
+      </div>
+    </div>
+  );
+};
