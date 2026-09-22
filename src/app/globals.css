@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=swap');
 @import "tailwindcss";
-@config "../tailwind.config.ts";
+@config "../../tailwind.config.ts";
 
 /* ==========================================================================
    OCEANIC INTELLIGENCE DESIGN SYSTEM — CORE DESIGN TOKENS
