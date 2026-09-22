@@ -86,5 +86,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   trustHost: true,
-  secret: process.env.AUTH_SECRET || "skillmatch-dev-secret-32-character-salt-key-2026",
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "skillmatch-dev-secret-32-character-salt-key-2026",
 });

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from "react";
@@ -126,11 +127,10 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
               type="button"
               aria-pressed={selectedModel === model}
               onClick={() => setSelectedModel(model)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
-                selectedModel === model
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${selectedModel === model
                   ? "bg-primary-container text-white shadow-sm font-bold"
                   : "bg-surface-container-low text-slate-700 hover:text-on-surface hover:bg-surface-container-high"
-              }`}
+                }`}
             >
               {getModelLabel(model)}
             </button>
