@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -167,6 +167,33 @@ function RecruiterDashboardContent() {
   const [selectedUniversity, setSelectedUniversity] = useState("all");
   const [showNewJobModal, setShowNewJobModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [dismissedWarning, setDismissedWarning] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
+  // Auto-dismiss warning banner after 4 seconds
+  useEffect(() => {
+    if (!warning) return;
+
+    const fadeTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 3600);
+
+    const dismissTimer = setTimeout(() => {
+      setDismissedWarning(true);
+    }, 4000);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(dismissTimer);
+    };
+  }, [warning]);
+
+  const handleDismissWarning = () => {
+    setIsFadingOut(true);
+    setTimeout(() => {
+      setDismissedWarning(true);
+    }, 200);
+  };
 
   // New Job Modal Form State
   const [newTitle, setNewTitle] = useState("");
@@ -291,17 +318,33 @@ function RecruiterDashboardContent() {
       {/* Main Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Security Warning Banner (Triggered by RBAC Middleware) */}
-        {warning === "unauthorized_candidate_access" && (
-          <div className="p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start gap-3 text-xs shadow-sm">
-            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
-            <div>
-              <p className="font-bold text-sm">Access Denied: Candidate Dossier Restricted</p>
-              <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
-                Your account is currently registered with enterprise recruiter authorization. Student
-                examination dossiers and candidate private telemetry are restricted to authenticated
-                candidates. You have been redirected to your enterprise recruitment pool.
-              </p>
+        {warning === "unauthorized_candidate_access" && !dismissedWarning && (
+          <div
+            className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
+              isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
+              <div>
+                <p className="font-bold text-sm">Access Denied: Candidate Dossier Restricted</p>
+                <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
+                  Your account is currently registered with enterprise recruiter authorization. Student
+                  examination dossiers and candidate private telemetry are restricted to authenticated
+                  candidates. You have been redirected to your enterprise recruitment pool.
+                </p>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleDismissWarning}
+              aria-label="Dismiss security warning"
+              id="dismiss-warning-btn"
+              className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
