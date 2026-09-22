@@ -1,56 +1,107 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { BrandLogo } from "@/components/common/BrandLogo";
-import { StatusDot } from "@/components/ui/StatusDot";
+import { RecruiterSidebar } from "./components/RecruiterSidebar";
+import { RecruiterOverviewTab } from "./components/RecruiterOverviewTab";
+import { PostJobTab } from "./components/PostJobTab";
+import { AtsPipelineTab } from "./components/AtsPipelineTab";
+import { TalentSearchTab } from "./components/TalentSearchTab";
+import { RecruiterSettingsTab } from "./components/RecruiterSettingsTab";
 import {
-  Building2,
-  Code2,
-  Briefcase,
-  Users,
-  PlusCircle,
-  Search,
-  Filter,
-  SlidersHorizontal,
-  CheckCircle2,
-  LogOut,
-  Sparkles,
-  ArrowRight,
-  GraduationCap,
-  Terminal,
-  ShieldCheck,
+  RecruiterProfile,
+  JobPosting,
+  ApplicantCandidate,
+  RecruiterTabType,
+} from "./components/types";
+import {
+  Menu,
   ShieldAlert,
+  Sparkles,
   X,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  Send,
 } from "lucide-react";
+import { StatusDot } from "@/components/ui/StatusDot";
 
-interface CandidateApplicant {
-  id: string;
-  name: string;
-  initials: string;
-  university: string;
-  degree: string;
-  email: string;
-  matchScore: number;
-  astNodes: number;
-  highlightRepo: string;
-  stage: "New Applicant" | "AST Screen Passed" | "Interview Scheduled" | "Offer Stage";
-}
+const initialRecruiterProfile: RecruiterProfile = {
+  companyName: "CloudScale Infrastructure Labs",
+  companySlug: "cloudscale",
+  recruiterName: "Sarah Jenkins",
+  email: "s.jenkins@cloudscale.io",
+  roleTitle: "Lead Systems & Infrastructure Recruiter",
+  industry: "Distributed Cloud Infrastructure & Databases",
+  location: "San Francisco, CA (HQ)",
+  verifiedPartner: true,
+  avatarUrl: null,
+};
 
-interface JobPosting {
-  id: string;
-  title: string;
-  team: string;
-  location: string;
-  salary: string;
-  minMatch: number;
-  applicantsCount: number;
-  status: "Active" | "Paused" | "Draft";
-}
+const initialJobPostings: JobPosting[] = [
+  {
+    id: "job-rec-1",
+    title: "Staff Distributed Systems Engineer",
+    team: "Core Consensus & Storage Engine",
+    location: "San Francisco, CA",
+    workModel: "Hybrid",
+    salary: "$195,000 - $225,000",
+    minMatch: 90,
+    applicantsCount: 6,
+    status: "Active",
+    skills: ["Go", "Raft", "Distributed Systems", "gRPC", "RocksDB"],
+    description:
+      "Lead design and implementation of fault-tolerant replicated state machines using Raft in Go. Profile p99 tail latency and build zero-copy network pipelines.",
+    postedDate: "Sep 18, 2026",
+  },
+  {
+    id: "job-rec-2",
+    title: "Linux Kernel & eBPF Telemetry Specialist",
+    team: "Low-Level Networking & Observability",
+    location: "San Francisco, CA",
+    workModel: "On-site",
+    salary: "$185,000 - $215,000",
+    minMatch: 88,
+    applicantsCount: 4,
+    status: "Active",
+    skills: ["C", "Linux Kernel", "eBPF", "DPDK", "BCC"],
+    description:
+      "Write high-performance eBPF probes for kernel networking hooks. Trace socket packet drops, compute lock contention metrics, and build low-overhead monitoring daemons.",
+    postedDate: "Sep 14, 2026",
+  },
+  {
+    id: "job-rec-3",
+    title: "High-Throughput Network Architect (C++/DPDK)",
+    team: "High-Performance Data Plane",
+    location: "Remote (US)",
+    workModel: "Remote",
+    salary: "$190,000 - $220,000",
+    minMatch: 92,
+    applicantsCount: 3,
+    status: "Active",
+    skills: ["C++20", "DPDK", "Zero-Copy", "Ring Buffers", "TCP/IP"],
+    description:
+      "Architect microsecond-scale network proxy layers handling millions of concurrent persistent streaming connections with kernel-bypass networking.",
+    postedDate: "Sep 10, 2026",
+  },
+  {
+    id: "job-rec-4",
+    title: "Compilers & AST Optimization Engineer",
+    team: "Static Analysis & Tooling",
+    location: "Remote (US)",
+    workModel: "Remote",
+    salary: "$175,000 - $205,000",
+    minMatch: 85,
+    applicantsCount: 5,
+    status: "Paused",
+    skills: ["Rust", "LLVM", "Tree-sitter", "Static Analysis", "Compilers"],
+    description:
+      "Develop custom static analysis passes and Tree-sitter parsers for automated algorithmic AST code verification and safety checks.",
+    postedDate: "Aug 29, 2026",
+  },
+];
 
-const initialApplicants: CandidateApplicant[] = [
+const initialApplicantsData: ApplicantCandidate[] = [
   {
     id: "cand-1",
     name: "Alex Chen",
@@ -61,6 +112,9 @@ const initialApplicants: CandidateApplicant[] = [
     matchScore: 94.2,
     astNodes: 14280,
     highlightRepo: "distributed-kv-store (Raft in Go)",
+    jobId: "job-rec-1",
+    jobTitle: "Staff Distributed Systems Engineer",
+    appliedDate: "Sep 20, 2026",
     stage: "Interview Scheduled",
   },
   {
@@ -73,7 +127,10 @@ const initialApplicants: CandidateApplicant[] = [
     matchScore: 96.1,
     astNodes: 18400,
     highlightRepo: "raft-consensus-engine (Rust)",
-    stage: "AST Screen Passed",
+    jobId: "job-rec-1",
+    jobTitle: "Staff Distributed Systems Engineer",
+    appliedDate: "Sep 21, 2026",
+    stage: "Shortlisted",
   },
   {
     id: "cand-3",
@@ -85,6 +142,9 @@ const initialApplicants: CandidateApplicant[] = [
     matchScore: 92.4,
     astNodes: 11200,
     highlightRepo: "zero-copy-network-stack (C++)",
+    jobId: "job-rec-3",
+    jobTitle: "High-Throughput Network Architect (C++/DPDK)",
+    appliedDate: "Sep 19, 2026",
     stage: "New Applicant",
   },
   {
@@ -97,62 +157,40 @@ const initialApplicants: CandidateApplicant[] = [
     matchScore: 95.8,
     astNodes: 16900,
     highlightRepo: "eBPF-kernel-probe (C/Linux)",
+    jobId: "job-rec-2",
+    jobTitle: "Linux Kernel & eBPF Telemetry Specialist",
+    appliedDate: "Sep 17, 2026",
     stage: "Offer Stage",
   },
   {
     id: "cand-5",
     name: "David Kim",
     initials: "DK",
-    university: "Georgia Tech",
+    university: "UIUC",
     degree: "B.S. Computer Science ('26)",
-    email: "dkim42@gatech.edu",
-    matchScore: 89.7,
+    email: "dkim@illinois.edu",
+    matchScore: 89.5,
     astNodes: 9800,
-    highlightRepo: "b-tree-storage-engine (Go)",
+    highlightRepo: "distributed-cache-sync (TypeScript/Go)",
+    jobId: "job-rec-1",
+    jobTitle: "Staff Distributed Systems Engineer",
+    appliedDate: "Sep 16, 2026",
     stage: "New Applicant",
   },
-];
-
-const initialJobs: JobPosting[] = [
   {
-    id: "job-1",
-    title: "Staff Distributed Systems Engineer",
-    team: "Core Infrastructure",
-    location: "San Francisco, CA (Hybrid)",
-    salary: "$185,000 - $210,000",
-    minMatch: 90,
-    applicantsCount: 28,
-    status: "Active",
-  },
-  {
-    id: "job-2",
-    title: "Core Platform SRE Engineer",
-    team: "Cloud Operations",
-    location: "San Francisco, CA / Remote",
-    salary: "$175,000 - $195,000",
-    minMatch: 85,
-    applicantsCount: 42,
-    status: "Active",
-  },
-  {
-    id: "job-3",
-    title: "Systems Performance & Kernel Lead",
-    team: "Performance Architecture",
-    location: "Remote (US)",
-    salary: "$190,000 - $220,000",
-    minMatch: 88,
-    applicantsCount: 19,
-    status: "Active",
-  },
-  {
-    id: "job-4",
-    title: "Database Engine & Storage Developer",
-    team: "Data Tier",
-    location: "New York, NY",
-    salary: "$180,000 - $205,000",
-    minMatch: 87,
-    applicantsCount: 14,
-    status: "Active",
+    id: "cand-6",
+    name: "Zoe Martinez",
+    initials: "ZM",
+    university: "Caltech",
+    degree: "B.S. Applied Computation ('25)",
+    email: "zmartinez@caltech.edu",
+    matchScore: 97.4,
+    astNodes: 21400,
+    highlightRepo: "quantized-llm-kernel (C++/CUDA)",
+    jobId: "job-rec-3",
+    jobTitle: "High-Throughput Network Architect (C++/DPDK)",
+    appliedDate: "Sep 15, 2026",
+    stage: "Shortlisted",
   },
 ];
 
@@ -160,637 +198,400 @@ function RecruiterDashboardContent() {
   const searchParams = useSearchParams();
   const warning = searchParams.get("warning");
 
-  const [activeTab, setActiveTab] = useState<"pool" | "jobs" | "pipeline">("pool");
-  const [applicants] = useState<CandidateApplicant[]>(initialApplicants);
-  const [jobs, setJobs] = useState<JobPosting[]>(initialJobs);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUniversity, setSelectedUniversity] = useState("all");
-  const [showNewJobModal, setShowNewJobModal] = useState(false);
+  // State Management
+  const [activeTab, setActiveTab] = useState<RecruiterTabType>("overview");
+  const [profile, setProfile] = useState<RecruiterProfile>(initialRecruiterProfile);
+  const [jobs, setJobs] = useState<JobPosting[]>(initialJobPostings);
+  const [applicants, setApplicants] = useState<ApplicantCandidate[]>(initialApplicantsData);
+  const [selectedJobFilter, setSelectedJobFilter] = useState<string>("ALL");
+
+  // Layout responsiveness
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
+
+  // Modals & Notifications
+  const [scheduleCandidate, setScheduleCandidate] = useState<ApplicantCandidate | null>(null);
+  const [scheduleDate, setScheduleDate] = useState("2026-09-25");
+  const [scheduleTime, setScheduleTime] = useState("14:00");
+  const [scheduleFormat, setScheduleFormat] = useState("AST Code Deep-Dive & Systems Architecture");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [dismissedWarning, setDismissedWarning] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
 
-  // Auto-dismiss warning banner after 4 seconds
+  // Security warning dismissal with 4s auto-dismiss
+  const [dismissedWarning, setDismissedWarning] = useState<boolean>(false);
+  const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
+
   useEffect(() => {
-    if (!warning) return;
-
-    const fadeTimer = setTimeout(() => {
-      setIsFadingOut(true);
-    }, 3600);
-
-    const dismissTimer = setTimeout(() => {
-      setDismissedWarning(true);
-    }, 4000);
-
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(dismissTimer);
-    };
+    if (warning === "unauthorized_candidate_access") {
+      const fadeTimer = setTimeout(() => setIsFadingOut(true), 3700);
+      const dismissTimer = setTimeout(() => setDismissedWarning(true), 4000);
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(dismissTimer);
+      };
+    }
   }, [warning]);
 
   const handleDismissWarning = () => {
     setIsFadingOut(true);
-    setTimeout(() => {
-      setDismissedWarning(true);
-    }, 200);
+    setTimeout(() => setDismissedWarning(true), 300);
   };
-
-  // New Job Modal Form State
-  const [newTitle, setNewTitle] = useState("");
-  const [newTeam, setNewTeam] = useState("Core Infrastructure");
-  const [newLocation, setNewLocation] = useState("San Francisco, CA (Hybrid)");
-  const [newSalary, setNewSalary] = useState("$180,000 - $210,000");
-  const [newMinMatch, setNewMinMatch] = useState(90);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3800);
   };
 
-  const handleCreateJob = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle) return;
-
-    const createdJob: JobPosting = {
-      id: `job-${Date.now()}`,
-      title: newTitle,
-      team: newTeam,
-      location: newLocation,
-      salary: newSalary,
-      minMatch: Number(newMinMatch),
+  // Job Management Handlers
+  const handleCreateJob = (newJobData: Omit<JobPosting, "id" | "applicantsCount" | "postedDate">) => {
+    const newJob: JobPosting = {
+      ...newJobData,
+      id: `job-rec-${Date.now()}`,
       applicantsCount: 0,
-      status: "Active",
+      postedDate: "Just now",
     };
-
-    setJobs([createdJob, ...jobs]);
-    setShowNewJobModal(false);
-    setNewTitle("");
-    triggerToast(`New role '${createdJob.title}' published to verified ABET student network!`);
+    setJobs((prev) => [newJob, ...prev]);
+    triggerToast(`Published new opening: "${newJob.title}"!`);
   };
 
-  const filteredApplicants = applicants.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.highlightRepo.toLowerCase().includes(searchQuery.toLowerCase());
+  const handleToggleJobStatus = (id: string) => {
+    setJobs((prev) =>
+      prev.map((j) => {
+        if (j.id === id) {
+          const nextStatus = j.status === "Active" ? "Paused" : "Active";
+          triggerToast(`Job "${j.title}" is now ${nextStatus}.`);
+          return { ...j, status: nextStatus };
+        }
+        return j;
+      })
+    );
+  };
 
-    const matchesUni =
-      selectedUniversity === "all" ||
-      c.university.toLowerCase().includes(selectedUniversity.toLowerCase());
-
-    return matchesSearch && matchesUni;
-  });
-
-  const getStageBadge = (stage: CandidateApplicant["stage"]) => {
-    switch (stage) {
-      case "Offer Stage":
-        return "bg-secondary/15 text-secondary-mint border-secondary/30";
-      case "Interview Scheduled":
-        return "bg-primary/10 text-primary border-primary/20";
-      case "AST Screen Passed":
-        return "bg-blue-500/10 text-blue-600 border-blue-500/20";
-      default:
-        return "bg-slate-100 text-on-surface-variant border-slate-200";
+  const handleDeleteJob = (id: string) => {
+    const job = jobs.find((j) => j.id === id);
+    setJobs((prev) => prev.filter((j) => j.id !== id));
+    if (job) {
+      triggerToast(`Removed listing: "${job.title}".`);
     }
   };
 
+  // Pipeline Handlers
+  const handleShortlistCandidate = (id: string) => {
+    setApplicants((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, stage: "Shortlisted" as const } : c))
+    );
+  };
+
+  const handleRejectCandidate = (id: string) => {
+    setApplicants((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, stage: "Rejected" as const } : c))
+    );
+  };
+
+  const handleConfirmSchedule = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!scheduleCandidate) return;
+
+    setApplicants((prev) =>
+      prev.map((c) =>
+        c.id === scheduleCandidate.id ? { ...c, stage: "Interview Scheduled" as const } : c
+      )
+    );
+
+    triggerToast(`Interview confirmed with ${scheduleCandidate.name} on ${scheduleDate} at ${scheduleTime}!`);
+    setScheduleCandidate(null);
+  };
+
+  const handleNavigateToPipeline = (jobId?: string) => {
+    if (jobId) {
+      setSelectedJobFilter(jobId);
+    } else {
+      setSelectedJobFilter("ALL");
+    }
+    setActiveTab("pipeline");
+  };
+
+  // Computed metrics
+  const activeJobsCount = jobs.filter((j) => j.status === "Active").length;
+  const totalApplicantsCount = applicants.length;
+  const shortlistedCount = applicants.filter((a) => a.stage === "Shortlisted").length;
+
   return (
-    <div className="min-h-screen w-full flex flex-col bg-surface font-sans selection:bg-secondary/20 selection:text-primary">
+    <div className="min-h-screen bg-surface flex flex-col md:flex-row antialiased selection:bg-secondary-mint/20">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-primary-container text-white text-xs font-semibold shadow-level-3 flex items-center gap-3 border border-secondary-mint/30 animate-bounce">
-          <Sparkles className="w-4 h-4 text-secondary-container" />
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-primary-container text-white shadow-level-3 border border-secondary-mint/40 text-xs font-bold">
+            <CheckCircle2 className="w-4 h-4 text-secondary-mint shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
         </div>
       )}
 
-      {/* Top Header */}
-      <header className="w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <BrandLogo size="md" />
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-slate-200 text-xs text-on-surface-variant font-medium">
-              <StatusDot size="sm" />
-              <span>Recruiter Portal • Enterprise Talent Gateway</span>
-            </div>
-          </div>
+      {/* Recruiter Left Sidebar */}
+      <RecruiterSidebar
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab)}
+        profile={profile}
+        activeJobsCount={activeJobsCount}
+        totalApplicantsCount={totalApplicantsCount}
+        shortlistedCount={shortlistedCount}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
+      />
 
+      {/* Main Dynamic View Area (Full-Width Responsive) */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Header Bar */}
+        <header className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* RBAC Role Indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary">
-              <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>Role: Recruiter</span>
-            </div>
-
-            {/* Switch Role Test Link (Triggers RBAC Middleware Block) */}
-            <Link
-              href="/dashboard/candidate"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium text-outline hover:text-on-surface hover:bg-surface-container-low transition-all"
-              title="Test RBAC security enforcement"
-            >
-              <Code2 className="w-3 h-3" />
-              <span className="hidden md:inline">Test Candidate Route</span>
-            </Link>
-
-            {/* Post New Job Action Button */}
             <button
               type="button"
-              onClick={() => setShowNewJobModal(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              onClick={() => setIsMobileOpen(true)}
+              aria-label="Open navigation sidebar"
+              className="md:hidden p-2 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Post New Role</span>
+              <Menu className="w-5 h-5" />
             </button>
 
-            {/* Sign Out Button */}
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-on-surface-variant hover:text-accent-gap hover:border-accent-gap/30 hover:bg-accent-gap/5 transition-all cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Security Warning Banner (Triggered by RBAC Middleware) */}
-        {warning === "unauthorized_candidate_access" && !dismissedWarning && (
-          <div
-            className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
-              isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
-              <div>
-                <p className="font-bold text-sm">Access Denied: Candidate Dossier Restricted</p>
-                <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
-                  Your account is currently registered with enterprise recruiter authorization. Student
-                  examination dossiers and candidate private telemetry are restricted to authenticated
-                  candidates. You have been redirected to your enterprise recruitment pool.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleDismissWarning}
-              aria-label="Dismiss security warning"
-              id="dismiss-warning-btn"
-              className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Recruiter Overview Banner */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#002930] via-primary-container to-[#004049] text-white relative overflow-hidden shadow-level-2">
-          {/* Ambient Glows */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(10,136,125,0.35),transparent_70%)] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(141,206,218,0.2),transparent_70%)] pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container">
-                <StatusDot size="sm" />
-                <span>Verified Talent Sourcing Pool</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-2">
-                ScaleOps Talent Engineering Dashboard
-              </h1>
-              <p className="text-xs sm:text-sm text-white/80 mt-1 max-w-xl">
-                Source top-percentile engineering talent through verified AST syntax parsing, ABET university alignment, and direct candidate interview dispatch.
-              </p>
-            </div>
-
-            {/* Quick Metrics Pill */}
-            <div className="grid grid-cols-2 gap-3 self-stretch md:self-auto">
-              <div className="p-3 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md text-center">
-                <div className="text-[10px] uppercase tracking-wider text-white/70 font-semibold">
-                  Verified Candidates
-                </div>
-                <div className="text-2xl font-extrabold font-mono tabular-nums text-secondary-container">
-                  1,240
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md text-center">
-                <div className="text-[10px] uppercase tracking-wider text-white/70 font-semibold">
-                  Active Open Roles
-                </div>
-                <div className="text-2xl font-extrabold font-mono tabular-nums text-secondary-container">
-                  {jobs.length}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center justify-between border-b border-stroke-card pb-1">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab("pool")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "pool"
-                  ? "bg-primary-container text-white shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Verified Applicant Pool</span>
-              <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-mono">
-                {filteredApplicants.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("jobs")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "jobs"
-                  ? "bg-primary-container text-white shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              <span>Active Job Postings</span>
-              <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-mono">
-                {jobs.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("pipeline")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "pipeline"
-                  ? "bg-primary-container text-white shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-              }`}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Recruitment Funnel &amp; Pipeline</span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowNewJobModal(true)}
-            className="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-container text-white text-xs font-bold"
-          >
-            <PlusCircle className="w-3.5 h-3.5" />
-            <span>Post</span>
-          </button>
-        </div>
-
-        {/* TAB 1: APPLICANT POOL */}
-        {activeTab === "pool" && (
-          <div className="space-y-4">
-            {/* Search & Filter Toolbar */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 justify-between bg-white p-3 rounded-2xl border border-stroke-card shadow-sm">
-              <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
-                <input
-                  type="text"
-                  placeholder="Search candidate by name, repo, or tech..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Filter className="w-3.5 h-3.5 text-outline" />
-                <select
-                  value={selectedUniversity}
-                  onChange={(e) => setSelectedUniversity(e.target.value)}
-                  className="text-xs bg-surface-container-low border border-slate-200 rounded-lg px-2.5 py-1.5 text-on-surface focus:outline-none focus:border-secondary-mint"
-                >
-                  <option value="all">All ABET Universities</option>
-                  <option value="berkeley">UC Berkeley</option>
-                  <option value="stanford">Stanford University</option>
-                  <option value="mit">MIT</option>
-                  <option value="cmu">Carnegie Mellon</option>
-                  <option value="georgia">Georgia Tech</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Applicants Table */}
-            <div className="overflow-hidden rounded-2xl border border-stroke-card bg-white shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-surface-container-low border-b border-stroke-card text-on-surface-variant font-bold uppercase tracking-wider text-[11px]">
-                    <tr>
-                      <th className="py-3 px-4">Candidate &amp; University</th>
-                      <th className="py-3 px-4">AST Vector Match</th>
-                      <th className="py-3 px-4">Verified GitHub Codebase</th>
-                      <th className="py-3 px-4">Current Stage</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredApplicants.map((cand) => (
-                      <tr key={cand.id} className="hover:bg-surface-container-lowest/60 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20">
-                              {cand.initials}
-                            </div>
-                            <div>
-                              <div className="font-bold text-sm text-on-surface flex items-center gap-1.5">
-                                <span>{cand.name}</span>
-                                <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint" />
-                              </div>
-                              <div className="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5">
-                                <GraduationCap className="w-3 h-3 text-secondary-mint" />
-                                <span>{cand.university} • {cand.degree}</span>
-                              </div>
-                              <div className="text-[11px] font-mono text-outline">{cand.email}</div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4 font-mono">
-                          <div className="inline-flex items-center gap-1 font-bold text-secondary-mint bg-secondary/10 px-2 py-0.5 rounded text-xs">
-                            {cand.matchScore}% Match
-                          </div>
-                          <div className="text-[10px] text-outline mt-0.5">
-                            {cand.astNodes.toLocaleString()} AST Nodes
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="font-mono text-xs font-semibold text-primary flex items-center gap-1">
-                            <Terminal className="w-3.5 h-3.5 text-secondary-mint" />
-                            <span>{cand.highlightRepo}</span>
-                          </div>
-                          <div className="text-[10px] text-outline mt-0.5">
-                            Syntactic integrity verified with zero AI hallucinations
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${getStageBadge(
-                              cand.stage
-                            )}`}
-                          >
-                            {cand.stage}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => triggerToast(`Dossier opened for ${cand.name}. Direct candidate interview invite prepared.`)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
-                          >
-                            <span>Schedule</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: ACTIVE JOB POSTINGS */}
-        {activeTab === "jobs" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-extrabold text-on-surface tracking-tight">
-                  Active Engineering Positions
-                </h2>
-                <p className="text-xs text-on-surface-variant">
-                  Positions matched against real AST syntactic syntax models.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowNewJobModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Post New Position</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="p-5 rounded-2xl bg-white border border-stroke-card hover:border-secondary-mint/40 transition-all shadow-sm space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-secondary/15 text-secondary-mint text-[11px] font-bold border border-secondary/30">
-                      {job.team}
-                    </span>
-                    <span className="text-xs font-mono font-bold text-outline">
-                      Min {job.minMatch}% Match
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-extrabold text-on-surface">{job.title}</h3>
-                    <p className="text-xs text-outline font-mono mt-0.5">
-                      {job.salary} • {job.location}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="font-bold text-primary flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      {job.applicantsCount} Verified Applicants
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() => triggerToast(`Filtering candidate pool for ${job.title}...`)}
-                      className="px-3 py-1 rounded-lg border border-slate-200 hover:bg-surface-container-low text-xs font-bold text-on-surface transition-colors cursor-pointer"
-                    >
-                      View Pool
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: PIPELINE & FUNNEL */}
-        {activeTab === "pipeline" && (
-          <div className="space-y-6">
-            <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-6">
-              <div>
-                <h3 className="text-base font-extrabold text-on-surface">
-                  Autonomous Recruitment Funnel (ABET Sourcing)
-                </h3>
-                <p className="text-xs text-on-surface-variant mt-0.5">
-                  Visual breakdown of candidates moving from institutional verification to technical screen and hire.
-                </p>
-              </div>
-
-              {/* Visual Pipeline Funnel */}
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                {[
-                  { stage: "Sourced (.edu)", count: 42, rate: "100%", color: "border-slate-200 bg-surface-container-low" },
-                  { stage: "AST Screen", count: 28, rate: "66.7%", color: "border-blue-200 bg-blue-50/50" },
-                  { stage: "Technical Screen", count: 14, rate: "33.3%", color: "border-amber-200 bg-amber-50/50" },
-                  { stage: "Partner Final", count: 6, rate: "14.3%", color: "border-purple-200 bg-purple-50/50" },
-                  { stage: "Offer Accepted", count: 2, rate: "4.8%", color: "border-secondary/40 bg-secondary/10" },
-                ].map((step, idx) => (
-                  <div
-                    key={step.stage}
-                    className={`p-4 rounded-xl border text-center space-y-1 ${step.color}`}
-                  >
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-outline">
-                      Step {idx + 1}
-                    </div>
-                    <div className="text-2xl font-extrabold font-mono text-on-surface">
-                      {step.count}
-                    </div>
-                    <div className="text-xs font-bold text-on-surface">{step.stage}</div>
-                    <div className="text-[11px] font-mono text-secondary-mint font-semibold mt-1">
-                      {step.rate} conversion
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-4 rounded-xl bg-surface border border-stroke-card flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-secondary-mint" />
-                  <span className="text-on-surface font-medium">
-                    All candidates in this pipeline possess accredited institutional (.edu) email confirmation.
-                  </span>
-                </div>
-                <span className="font-mono text-outline text-[11px]">SOC-2 Audited Pipeline</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Post New Job Modal */}
-      {showNewJobModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white border border-stroke-card shadow-level-3 p-6 space-y-5 animate-scaleIn">
-            <div className="flex items-center justify-between border-b border-stroke-card pb-3">
               <div className="flex items-center gap-2">
-                <PlusCircle className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-extrabold text-on-surface">
-                  Post New Engineering Role
+                <span className="text-xs sm:text-sm font-extrabold text-on-surface tracking-tight">
+                  {profile.companyName}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[10px] font-bold">
+                  <Sparkles className="w-3 h-3 text-secondary-mint" />
+                  <span>Enterprise Recruiter Portal</span>
+                </span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
+                <StatusDot size="sm" />
+                <span>Verified Talent Acquisition Session</span>
+                <span>•</span>
+                <span className="font-mono text-primary-container font-semibold">{profile.recruiterName}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Verified Partner Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary-container">
+              <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
+              <span className="hidden sm:inline">Role: Recruiter</span>
+              <span className="sm:hidden font-mono">HIRING</span>
+            </div>
+
+            {/* Quick Profile Avatar Shortcut */}
+            <button
+              type="button"
+              onClick={() => setActiveTab("settings")}
+              title="Edit Recruiter Profile"
+              className="w-9 h-9 rounded-xl border border-slate-200 bg-primary-container text-white hover:border-secondary-mint flex items-center justify-center text-xs font-black transition-all overflow-hidden cursor-pointer shadow-xs"
+            >
+              {profile.avatarUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={profile.avatarUrl} alt={profile.recruiterName} className="w-full h-full object-cover" />
+              ) : (
+                <span>SJ</span>
+              )}
+            </button>
+          </div>
+        </header>
+
+        {/* Dynamic Full-Width Body Container */}
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* Security Warning Banner with 4s auto-dismiss & close button */}
+          {warning === "unauthorized_candidate_access" && !dismissedWarning && (
+            <div
+              className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
+                isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
+                <div>
+                  <p className="font-bold text-sm">Access Denied: Candidate Dossier Restricted</p>
+                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
+                    Your account is authenticated with recruiter credentials. Access to candidate job application portals
+                    and personal resumes is restricted by SkillMatch Role-Based Access Control.
+                    You have been safely redirected to your company recruitment console.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDismissWarning}
+                aria-label="Dismiss security warning"
+                id="dismiss-warning-btn"
+                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === "overview" && (
+            <RecruiterOverviewTab
+              profile={profile}
+              jobs={jobs}
+              applicants={applicants}
+              onNavigateToTab={(tab) => {
+                if (tab === "pipeline") handleNavigateToPipeline();
+                else setActiveTab(tab);
+              }}
+              onShortlistCandidate={handleShortlistCandidate}
+              onScheduleCandidate={(id) => {
+                const c = applicants.find((a) => a.id === id);
+                if (c) setScheduleCandidate(c);
+              }}
+              onTriggerToast={triggerToast}
+            />
+          )}
+
+          {/* TAB 2: POST JOB */}
+          {activeTab === "post-job" && (
+            <PostJobTab
+              jobs={jobs}
+              onCreateJob={handleCreateJob}
+              onToggleJobStatus={handleToggleJobStatus}
+              onDeleteJob={handleDeleteJob}
+              onNavigateToPipeline={handleNavigateToPipeline}
+              onTriggerToast={triggerToast}
+            />
+          )}
+
+          {/* TAB 3: CANDIDATE PIPELINE / ATS */}
+          {activeTab === "pipeline" && (
+            <AtsPipelineTab
+              applicants={applicants}
+              jobs={jobs}
+              selectedJobFilter={selectedJobFilter}
+              onFilterByJob={(jobId) => setSelectedJobFilter(jobId)}
+              onShortlistCandidate={handleShortlistCandidate}
+              onRejectCandidate={handleRejectCandidate}
+              onOpenScheduleModal={(cand) => setScheduleCandidate(cand)}
+              onTriggerToast={triggerToast}
+            />
+          )}
+
+          {/* TAB 4: TALENT SEARCH */}
+          {activeTab === "talent-search" && (
+            <TalentSearchTab jobs={jobs} onTriggerToast={triggerToast} />
+          )}
+
+          {/* TAB 5: SETTINGS */}
+          {activeTab === "settings" && (
+            <RecruiterSettingsTab
+              profile={profile}
+              onUpdateProfile={(updated) => setProfile(updated)}
+              onTriggerToast={triggerToast}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* SCHEDULE INTERVIEW MODAL */}
+      {scheduleCandidate && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold uppercase mb-1">
+                  <Calendar className="w-3 h-3 text-secondary-mint" />
+                  <span>Technical Evaluation Session</span>
+                </div>
+                <h3 className="text-base font-black text-on-surface">
+                  Schedule Interview with {scheduleCandidate.name}
                 </h3>
+                <p className="text-xs text-outline mt-0.5">
+                  {scheduleCandidate.university} • {scheduleCandidate.degree} • AST Match:{" "}
+                  <span className="font-mono font-bold text-primary-container">
+                    {scheduleCandidate.matchScore.toFixed(1)}%
+                  </span>
+                </p>
               </div>
               <button
                 type="button"
-                onClick={() => setShowNewJobModal(false)}
-                className="text-outline hover:text-on-surface transition-colors cursor-pointer"
+                onClick={() => setScheduleCandidate(null)}
+                className="text-outline hover:text-on-surface cursor-pointer text-sm font-bold"
               >
-                <X className="w-5 h-5" />
+                ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreateJob} className="space-y-4 text-xs">
+            <form onSubmit={handleConfirmSchedule} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                    Time (PST)
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={scheduleTime}
+                    onChange={(e) => setScheduleTime(e.target.value)}
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Job Title
+                  Interview Format &amp; Focus Area
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Distributed Database Engineer"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
-                />
+                <select
+                  value={scheduleFormat}
+                  onChange={(e) => setScheduleFormat(e.target.value)}
+                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                >
+                  <option value="AST Code Deep-Dive & Systems Architecture">
+                    AST Code Deep-Dive &amp; Systems Architecture (60 min)
+                  </option>
+                  <option value="Live Distributed Systems Coding & Concurrency">
+                    Live Distributed Systems Coding &amp; Concurrency (45 min)
+                  </option>
+                  <option value="Engineering VP & Team Cultural Fit Discussion">
+                    Engineering VP &amp; Team Cultural Fit Discussion (30 min)
+                  </option>
+                </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Engineering Team
-                  </label>
-                  <input
-                    type="text"
-                    value={newTeam}
-                    onChange={(e) => setNewTeam(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Location / Work Model
-                  </label>
-                  <input
-                    type="text"
-                    value={newLocation}
-                    onChange={(e) => setNewLocation(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Salary Range (USD)
-                  </label>
-                  <input
-                    type="text"
-                    value={newSalary}
-                    onChange={(e) => setNewSalary(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Min AST Match % Cutoff
-                  </label>
-                  <input
-                    type="number"
-                    min="70"
-                    max="99"
-                    value={newMinMatch}
-                    onChange={(e) => setNewMinMatch(Number(e.target.value))}
-                    className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint font-mono font-bold"
-                  />
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface-variant text-[11px]">
-                <span className="font-bold text-on-surface">Target Distribution:</span> Only candidates from ABET-accredited computer science departments meeting your AST match cutoff will be alerted.
+              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-outline text-[11px] leading-relaxed">
+                A calendar invitation with secure video conferencing link and AST syntax audit dossier will be automatically dispatched to <span className="font-mono text-on-surface font-semibold">{scheduleCandidate.email}</span>.
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowNewJobModal(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 text-on-surface font-semibold hover:bg-surface-container-low transition-colors cursor-pointer"
+                  onClick={() => setScheduleCandidate(null)}
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold transition-all cursor-pointer shadow-sm"
+                  className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  Publish Role
+                  <Send className="w-3.5 h-3.5 text-secondary-mint" />
+                  <span>Send Calendar Invite</span>
                 </button>
               </div>
             </form>
@@ -803,7 +604,13 @@ function RecruiterDashboardContent() {
 
 export default function RecruiterDashboardPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-outline">Loading recruiter portal...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-outline">
+          Loading enterprise recruiter portal...
+        </div>
+      }
+    >
       <RecruiterDashboardContent />
     </Suspense>
   );
