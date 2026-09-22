@@ -1,40 +1,6 @@
-export interface AstMetricItem {
-  id: string;
-  skillName: string;
-  percentile: number;
-  verifiedContext: string;
-  category: string;
-}
+import { AstMetricItem, CandidateSimulationData } from "@/types/landing";
 
-export interface CandidateSimulationData {
-  candidate: {
-    name: string;
-    handle: string;
-    institution: string;
-    gradTerm: string;
-    avatarUrl: string;
-    repoCount: number;
-  };
-  matchSummary: {
-    score: number;
-    tier: "High Confidence Match" | "Moderate Match" | "Developing";
-    statusColor: string;
-  };
-  targetRole: {
-    title: string;
-    company: string;
-    compensation: string;
-    location: string;
-    term: string;
-    companyLogoText: string;
-  };
-  astMetrics: AstMetricItem[];
-  gapAlert: {
-    missingSkill: string;
-    suggestedPrepTime: string;
-    actionLabel: string;
-  };
-}
+export type { AstMetricItem, CandidateSimulationData };
 
 export const HERO_SIMULATION_DATA: CandidateSimulationData = {
   candidate: {

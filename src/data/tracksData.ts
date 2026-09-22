@@ -1,22 +1,6 @@
-export type SkillMatchStatus = "matched" | "gap" | "neutral";
+import { SkillMatchStatus, TrackSkill, CseTrackItem } from "@/types/landing";
 
-export interface TrackSkill {
-  name: string;
-  status: SkillMatchStatus;
-  proficiency?: string;
-}
-
-export interface CseTrackItem {
-  id: string;
-  title: string;
-  category: string;
-  description: string;
-  iconName: "cpu" | "layout" | "server" | "database" | "brain";
-  skills: TrackSkill[];
-  colSpanDesktop: 2 | 3; // In a 6-col grid: 2 = 1/3 width (Top 3), 3 = 1/2 width (Bottom 2)
-  benchmarkMetric: string;
-  activeRolesCount: number;
-}
+export type { SkillMatchStatus, TrackSkill, CseTrackItem };
 
 export const CSE_TRACKS: CseTrackItem[] = [
   {

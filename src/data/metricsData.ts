@@ -1,23 +1,6 @@
-export interface PlatformMetricItem {
-  id: string;
-  value: string;
-  unit?: string;
-  label: string;
-  subtext: string;
-  trend?: string;
-  iconName: "clock" | "badgeCheck" | "gitBranch" | "shield";
-}
+import { PlatformMetricItem, TestimonialData } from "@/types/landing";
 
-export interface TestimonialData {
-  quote: string;
-  authorName: string;
-  authorRole: string;
-  company: string;
-  school: string;
-  avatarUrl: string;
-  verifiedRepo: string;
-  timeToOffer: string;
-}
+export type { PlatformMetricItem, TestimonialData };
 
 export const PLATFORM_METRICS: PlatformMetricItem[] = [
   {

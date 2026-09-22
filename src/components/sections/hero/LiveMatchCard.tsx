@@ -13,6 +13,7 @@ import {
   Cloud,
 } from "lucide-react";
 import { HERO_SIMULATION_DATA } from "@/data/heroSimulation";
+import { StatusDot } from "@/components/ui/StatusDot";
 
 export const LiveMatchCard: React.FC = () => {
   const data = HERO_SIMULATION_DATA;
@@ -85,10 +86,7 @@ export const LiveMatchCard: React.FC = () => {
 
             {/* High Match Score Badge */}
             <div className="shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/10 border border-secondary/30 text-primary-container font-bold text-xs sm:text-sm shadow-sm">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
-              </span>
+              <StatusDot size="sm" />
               <span className="tabular-nums font-mono">
                 {data.matchSummary.score}% Match
               </span>
@@ -165,7 +163,7 @@ export const LiveMatchCard: React.FC = () => {
                     </div>
 
                     <span className="font-bold text-primary-container tabular-nums font-mono whitespace-nowrap">
-                      {metric.percentile}th %ile
+                      {metric.percentile}%
                     </span>
                   </div>
 

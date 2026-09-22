@@ -1,13 +1,11 @@
-export interface FooterLink {
-  label: string;
-  href: string;
-  badge?: string;
-}
+import { NavItem, FooterColumn } from "@/types/landing";
 
-export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
-}
+export const NAV_ITEMS: NavItem[] = [
+  { label: "Tracks & Roles", href: "#tracks" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "For Recruiters", href: "#recruiters" },
+  { label: "Benchmarks", href: "#benchmarks" },
+];
 
 export const FOOTER_DIRECTORY: FooterColumn[] = [
   {
@@ -33,9 +31,9 @@ export const FOOTER_DIRECTORY: FooterColumn[] = [
   {
     title: "For Recruiters",
     links: [
-      { label: "Verified Candidate Dossiers", href: "#for-recruiters" },
-      { label: "Custom Tech Stack Mapping", href: "#for-recruiters" },
-      { label: "Direct Hiring Manager Screen", href: "#for-recruiters" },
+      { label: "Verified Candidate Dossiers", href: "#recruiters" },
+      { label: "Custom Tech Stack Mapping", href: "#recruiters" },
+      { label: "Direct Hiring Manager Screen", href: "#recruiters" },
       { label: "Employer Sign In", href: "#login" },
       { label: "Schedule Engineering Demo", href: "#demo" },
     ],

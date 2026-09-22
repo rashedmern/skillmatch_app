@@ -1,5 +1,6 @@
 import React from "react";
-import { ShieldCheck, Award, Lock, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Award, Lock } from "lucide-react";
+import { StatusDot } from "@/components/ui/StatusDot";
 
 export const ComplianceBar: React.FC = () => {
   const currentYear = 2026;
@@ -35,10 +36,7 @@ export const ComplianceBar: React.FC = () => {
         </div>
 
         <div className="hidden lg:inline-flex items-center gap-1.5 pl-2 text-slate-500 text-[11px]">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
-          </span>
+          <StatusDot size="sm" />
           <span className="tabular-nums">99.99%</span> Uptime
         </div>
       </div>

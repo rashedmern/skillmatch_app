@@ -17,6 +17,7 @@ export const Navbar: React.FC = () => {
       setIsScrolled(window.scrollY > 12);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -33,7 +34,10 @@ export const Navbar: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-200">
+    <header
+      style={{ position: "sticky", top: 0 }}
+      className="sticky top-0 z-50 w-full transition-all duration-200"
+    >
       {/* Global Sticky Navigation Bar */}
       <div
         className={`w-full transition-all duration-200 ${

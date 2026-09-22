@@ -1,4 +1,5 @@
 import React from "react";
+import { StatusDot } from "@/components/ui/StatusDot";
 
 interface SectionHeaderProps {
   badge?: string;
@@ -26,12 +27,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     <div className={`flex flex-col space-y-3 ${alignmentClasses} ${className}`}>
       {badge && (
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/25 text-xs font-semibold text-primary-container shadow-sm">
-          {badgeDot && (
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
-            </span>
-          )}
+          {badgeDot && <StatusDot size="sm" />}
           <span className="tracking-wide">{badge}</span>
         </div>
       )}

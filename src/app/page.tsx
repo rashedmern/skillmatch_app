@@ -8,28 +8,30 @@ import { Footer } from "@/components/sections/footer/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full overflow-x-hidden flex flex-col bg-surface">
+    <div className="min-h-screen w-full flex flex-col bg-surface">
       {/* 1. Global Sticky Navigation Header */}
       <Navbar />
 
-      {/* 2. Hero Section Organism */}
-      <HeroSection />
+      <main className="flex-1 w-full flex flex-col">
+        {/* 2. Hero Section Organism */}
+        <HeroSection />
 
-      {/* 3. Real-Time Talent Metrics & Proof Organism */}
-      <TalentMetrics />
+        {/* 3. Real-Time Talent Metrics & Proof Organism */}
+        <TalentMetrics />
 
-      {/* 4. CSE Specialization Tracks Bento Grid Organism */}
-      <TracksSection />
+        {/* 4. CSE Specialization Tracks Bento Grid Organism */}
+        <TracksSection />
 
-      {/* 5. How It Works 3-Step Pipeline Organism */}
-      <HowItWorks />
+        {/* 5. How It Works 3-Step Pipeline Organism */}
+        <HowItWorks />
 
-      {/* 6. Final Call-to-Action Banner Organism */}
-      <FinalCtaBanner />
+        {/* 6. Final Call-to-Action Banner Organism */}
+        <FinalCtaBanner />
+      </main>
 
       {/* 7. Institutional Directory & Compliance Footer */}
       <Footer />
-    </main>
+    </div>
   );
 }
 

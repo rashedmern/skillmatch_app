@@ -4,7 +4,7 @@ import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 
 export const FinalCtaBanner: React.FC = () => {
   return (
-    <section className="relative w-full py-16 sm:py-20 lg:py-24 bg-surface overflow-hidden">
+    <section id="recruiters" className="relative w-full py-16 sm:py-20 lg:py-24 bg-surface overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Banner Container with Oceanic Gradient */}
         <div className="relative rounded-3xl bg-gradient-to-br from-[#002930] via-primary-container to-[#004049] border border-white/10 p-6 sm:p-10 lg:p-16 text-white shadow-2xl overflow-hidden">

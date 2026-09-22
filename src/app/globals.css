@@ -230,3 +230,16 @@
     box-shadow: var(--focus-ring-coral);
   }
 }
+
+/* ==========================================================================
+   LENIS SMOOTH SCROLL & STICKY NAVIGATION COMPATIBILITY
+   ========================================================================== */
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+

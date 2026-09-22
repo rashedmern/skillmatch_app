@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Code2, ShieldCheck, Sparkles } from "lucide-react";
+import { StatusDot } from "@/components/ui/StatusDot";
 
 export const HeroContent: React.FC = () => {
   return (
@@ -8,10 +9,7 @@ export const HeroContent: React.FC = () => {
       {/* 1. Over-Title Real-Time Status Pill (Responsive Flex-Wrap) */}
       <div className="inline-flex items-center">
         <div className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-secondary/10 border border-secondary/25 text-xs font-semibold text-primary-container shadow-sm max-w-full">
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
-          </span>
+          <StatusDot size="sm" />
           <span className="tracking-wide">Live CSE Matching Engine</span>
           <span className="hidden sm:inline text-secondary/40">•</span>
           <span className="text-secondary-mint font-bold tracking-normal">

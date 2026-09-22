@@ -1,18 +1,8 @@
 import React from "react";
 import Link from "next/link";
-
-export interface NavItem {
-  label: string;
-  href: string;
-  badge?: string;
-}
-
-export const NAV_ITEMS: NavItem[] = [
-  { label: "Tracks & Roles", href: "#tracks" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "For Recruiters", href: "#for-recruiters" },
-  { label: "Benchmarks", href: "#benchmarks" },
-];
+import { NAV_ITEMS } from "@/data/navigation";
+export type { NavItem } from "@/types/landing";
+export { NAV_ITEMS };
 
 interface NavLinksProps {
   className?: string;

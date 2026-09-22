@@ -1,11 +1,6 @@
-export interface PipelineStepItem {
-  stepNumber: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  iconName: "gitBranch" | "network" | "calendarCheck";
-  tags: string[];
-}
+import { PipelineStepItem } from "@/types/landing";
+
+export type { PipelineStepItem };
 
 export const PIPELINE_STEPS: PipelineStepItem[] = [
   {
