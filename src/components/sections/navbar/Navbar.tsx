@@ -68,7 +68,7 @@ export const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center gap-2.5 lg:gap-3">
               {/* Log In Ghost Button */}
               <Link
-                href="#login"
+                href="/login"
                 className="px-3.5 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary-container hover:bg-primary/5 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
               >
                 Log In
@@ -76,7 +76,7 @@ export const Navbar: React.FC = () => {
 
               {/* Primary CTA: Get Started Free */}
               <Link
-                href="#signup"
+                href="/register"
                 className="group inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-primary-container hover:bg-primary-hover active:scale-[0.98] border border-[#07454e] shadow-sm transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
               >
                 <span>Get Started Free</span>
@@ -128,7 +128,7 @@ export const Navbar: React.FC = () => {
                 {/* 3. Mobile Action Buttons */}
                 <div className="pt-3 border-t border-stroke-card flex flex-col gap-2.5">
                   <Link
-                    href="#signup"
+                    href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white bg-primary-container hover:bg-primary-hover active:scale-[0.98] border border-[#07454e] shadow-sm transition-all"
                   >
@@ -136,7 +136,7 @@ export const Navbar: React.FC = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
-                    href="#login"
+                    href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-center py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-primary-container hover:bg-surface-container-low active:bg-surface-container transition-colors"
                   >

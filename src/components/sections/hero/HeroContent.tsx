@@ -41,7 +41,7 @@ export const HeroContent: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5 pt-1 sm:pt-2">
         {/* Primary CTA: Start Verification */}
         <Link
-          href="#signup"
+          href="/register"
           className="group inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-lg text-sm sm:text-base font-semibold text-white bg-primary-container hover:bg-primary-hover active:scale-[0.98] border border-[#07454e] shadow-sm hover:shadow-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-secondary/30"
         >
           <span>Start Skill Verification</span>

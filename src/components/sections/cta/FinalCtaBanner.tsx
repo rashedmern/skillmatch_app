@@ -45,7 +45,7 @@ export const FinalCtaBanner: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-3.5 pt-3 sm:pt-4">
               {/* Primary White CTA Button */}
               <Link
-                href="#signup"
+                href="/register"
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-lg text-sm sm:text-base font-bold text-primary-container bg-white hover:bg-surface-container-low active:scale-[0.98] shadow-lg hover:shadow-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-white/50"
               >
                 <span>Start Free Verification</span>
@@ -54,7 +54,7 @@ export const FinalCtaBanner: React.FC = () => {
 
               {/* Ghost / Outline Secondary CTA Button */}
               <Link
-                href="#demo"
+                href="/register?role=recruiter"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded-lg text-sm sm:text-base font-bold text-white bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/40 active:scale-[0.98] backdrop-blur-sm transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <span>Schedule Employer Demo</span>
