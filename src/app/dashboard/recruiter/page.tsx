@@ -25,6 +25,8 @@ import {
   Send,
 } from "lucide-react";
 import { StatusDot } from "@/components/ui/StatusDot";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 
 const initialRecruiterProfile: RecruiterProfile = {
   companyName: "CloudScale Infrastructure Labs",
@@ -197,6 +199,7 @@ const initialApplicantsData: ApplicantCandidate[] = [
 function RecruiterDashboardContent() {
   const searchParams = useSearchParams();
   const warning = searchParams.get("warning");
+  const { t, language } = useLanguage();
 
   // State Management
   const [activeTab, setActiveTab] = useState<RecruiterTabType>("overview");
@@ -364,12 +367,12 @@ function RecruiterDashboardContent() {
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[10px] font-bold">
                   <Sparkles className="w-3 h-3 text-secondary-mint" />
-                  <span>Enterprise Recruiter Portal</span>
+                  <span>{language === "bn" ? "এন্টারপ্রাইজ রিক্রুটার পোর্টাল" : "Enterprise Recruiter Portal"}</span>
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
                 <StatusDot size="sm" />
-                <span>Verified Talent Acquisition Session</span>
+                <span>{language === "bn" ? "যাচাইকৃত ট্যালেন্ট অ্যাকুইজিশন সেশন" : "Verified Talent Acquisition Session"}</span>
                 <span>•</span>
                 <span className="font-mono text-primary-container font-semibold">{profile.recruiterName}</span>
               </div>
@@ -377,10 +380,13 @@ function RecruiterDashboardContent() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Sleek Dual Language Switcher */}
+            <LanguageSwitcher variant="pill" />
+
             {/* Verified Partner Badge */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary-container">
               <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
-              <span className="hidden sm:inline">Role: Recruiter</span>
+              <span className="hidden sm:inline">{t.common.role}: {t.common.recruiter}</span>
               <span className="sm:hidden font-mono">HIRING</span>
             </div>
 
@@ -388,7 +394,7 @@ function RecruiterDashboardContent() {
             <button
               type="button"
               onClick={() => setActiveTab("settings")}
-              title="Edit Recruiter Profile"
+              title={t.sidebar.settings}
               className="w-9 h-9 rounded-xl border border-slate-200 bg-primary-container text-white hover:border-secondary-mint flex items-center justify-center text-xs font-black transition-all overflow-hidden cursor-pointer shadow-xs"
             >
               {profile.avatarUrl ? (
@@ -413,11 +419,15 @@ function RecruiterDashboardContent() {
               <div className="flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
                 <div>
-                  <p className="font-bold text-sm">Access Denied: Candidate Dossier Restricted</p>
+                  <p className="font-bold text-sm">
+                    {language === "bn"
+                      ? "প্রবেশাধিকার নিষিদ্ধ: ক্যান্ডিডেট ডজিয়ার সীমাবদ্ধ"
+                      : "Access Denied: Candidate Dossier Restricted"}
+                  </p>
                   <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
-                    Your account is authenticated with recruiter credentials. Access to candidate job application portals
-                    and personal resumes is restricted by SkillMatch Role-Based Access Control.
-                    You have been safely redirected to your company recruitment console.
+                    {language === "bn"
+                      ? "আপনার অ্যাকাউন্টটি রিক্রুটার পরিচয়পত্রে লগইন রয়েছে। সিকিউরিটি নীতির কারণে ক্যান্ডিডেট পোর্টালে প্রবেশাধিকার সীমিত। আপনাকে রিক্রুটার কনসোলে রিডাইরেক্ট করা হয়েছে।"
+                      : "Your account is authenticated with recruiter credentials. Access to candidate job application portals and personal resumes is restricted by SkillMatch Role-Based Access Control. You have been safely redirected to your company recruitment console."}
                   </p>
                 </div>
               </div>

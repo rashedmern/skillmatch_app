@@ -3,6 +3,7 @@ import { Arimo } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/common/SmoothScroll";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const arimo = Arimo({
   subsets: ["latin"],
@@ -25,7 +26,9 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth" className={`${arimo.variable} antialiased`}>
       <body className="min-h-screen w-full flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
         <AuthProvider>
-          <SmoothScroll>{children}</SmoothScroll>
+          <LanguageProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>

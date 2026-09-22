@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { CandidateProfile, CandidateTabType } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   LayoutDashboard,
   Briefcase,
@@ -42,30 +43,32 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
 }) => {
+  const { t } = useLanguage();
+
   const navItems = [
     {
       id: "overview" as CandidateTabType,
-      label: "Dashboard Overview",
+      label: t.sidebar.overview,
       icon: LayoutDashboard,
       badge: null,
     },
     {
       id: "all-jobs" as CandidateTabType,
-      label: "All Jobs",
+      label: t.sidebar.allJobs,
       icon: Briefcase,
       badge: totalJobsCount > 0 ? `${totalJobsCount}` : null,
       badgeColor: "bg-secondary-mint/15 text-secondary-mint border-secondary-mint/30",
     },
     {
       id: "applications" as CandidateTabType,
-      label: "My Applications",
+      label: t.sidebar.myApplications,
       icon: FileCheck2,
       badge: appliedCount > 0 ? `${appliedCount}` : null,
       badgeColor: "bg-primary/10 text-primary border-primary/20",
     },
     {
       id: "profile" as CandidateTabType,
-      label: "Profile Setup",
+      label: t.sidebar.profileSetup,
       icon: UserCheck,
       badge: "ABET",
       badgeColor: "bg-secondary-container/20 text-secondary-container border-secondary-container/30",
@@ -179,16 +182,16 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
           <Link
             href="/dashboard/recruiter"
             className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 text-[11px] font-medium text-outline hover:text-on-surface hover:bg-surface-container-low transition-all"
-            title="Tests role-based middleware security block"
+            title={t.sidebar.switchToRecruiter}
           >
             <Building2 className="w-3 h-3 text-outline" />
-            <span className="truncate">Switch to Recruiter View</span>
+            <span className="truncate">{t.sidebar.switchToRecruiter}</span>
           </Link>
         ) : (
           <Link
             href="/dashboard/recruiter"
             className="w-full flex justify-center py-2 text-outline hover:text-on-surface"
-            title="Switch to Recruiter View"
+            title={t.sidebar.switchToRecruiter}
           >
             <Building2 className="w-4 h-4" />
           </Link>
@@ -227,8 +230,8 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/login" })}
-              aria-label="Sign Out"
-              title="Sign Out"
+              aria-label={t.common.logOut}
+              title={t.common.logOut}
               className="text-outline hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -240,7 +243,7 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            title="Sign Out"
+            title={t.common.logOut}
             className="w-full flex items-center justify-center p-2 rounded-lg text-outline hover:text-accent-gap hover:bg-accent-gap/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />

@@ -21,6 +21,8 @@ import {
   Code2,
   AlertCircle,
 } from "lucide-react";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Crisp inline SVGs for OAuth providers
 const GithubIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -56,6 +58,7 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" })
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [persona, setPersona] = useState<"candidate" | "recruiter">("candidate");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -76,7 +79,9 @@ export default function LoginPage() {
       if (!isEdu) {
         setIsLoading(false);
         setErrorMessage(
-          "Candidate registration requires a valid university institutional (.edu) email."
+          language === "bn"
+            ? "ক্যান্ডিডেট অ্যাকাউন্টের জন্য অবশ্যই অনুমোদিত বিশ্ববিদ্যালয়ের (.edu) ইমেইল প্রয়োজন।"
+            : "Candidate registration requires a valid university institutional (.edu) email."
         );
         return;
       }
@@ -86,14 +91,23 @@ export default function LoginPage() {
       const result = await loginAction({ email, password, role: persona });
       if (!result.success || !result.data) {
         setIsLoading(false);
-        setErrorMessage(result.error || "Authentication failed. Please check your credentials.");
+        setErrorMessage(
+          result.error ||
+            (language === "bn"
+              ? "প্রবেশাধিকার ব্যর্থ হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।"
+              : "Authentication failed. Please check your credentials.")
+        );
         return;
       }
 
       router.push(result.data.redirectUrl);
     } catch {
       setIsLoading(false);
-      setErrorMessage("An unexpected network error occurred. Please try again.");
+      setErrorMessage(
+        language === "bn"
+          ? "একটি অপ্রত্যাশিত নেটওয়ার্ক ত্রুটি ঘটেছে। আবার চেষ্টা করুন।"
+          : "An unexpected network error occurred. Please try again."
+      );
     }
   };
 
@@ -119,14 +133,19 @@ export default function LoginPage() {
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-on-surface-variant hover:text-primary-container transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>Return to Home</span>
+            <span>{language === "bn" ? "হোমে ফিরে যান" : "Return to Home"}</span>
           </Link>
 
           <BrandLogo size="sm" />
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
-            <ShieldCheck className="w-4 h-4 text-secondary-mint" />
-            <span>256-Bit Encrypted Portal</span>
+          <div className="flex items-center gap-3">
+            {/* Sleek Language Switcher */}
+            <LanguageSwitcher variant="pill" />
+
+            <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
+              <ShieldCheck className="w-4 h-4 text-secondary-mint" />
+              <span>{language === "bn" ? "২৫৬-বিট এনক্রিপ্টেড পোর্টাল" : "256-Bit Encrypted Portal"}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -143,16 +162,19 @@ export default function LoginPage() {
             <div className="relative z-10 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-secondary-container backdrop-blur-sm">
                 <StatusDot size="sm" />
-                <span>Empirical Verification Hub</span>
+                <span>{language === "bn" ? "যাচাইকৃত ভেরিফিকেশন হাব" : "Empirical Verification Hub"}</span>
               </div>
 
               <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight leading-snug">
-                Connecting Verified CSE Engineers Directly to Core Tech Teams.
+                {language === "bn"
+                  ? "যাচাইকৃত সিএসই ইঞ্জিনিয়ারদের সরাসরি কোর টেক টিমের সাথে যুক্ত করুন।"
+                  : "Connecting Verified CSE Engineers Directly to Core Tech Teams."}
               </h2>
 
               <p className="text-sm text-white/80 font-normal leading-relaxed">
-                Skip standard ATS keyword filters. SkillMatch parses codebase AST structures,
-                benchmarking algorithmic complexity, concurrency, and architecture.
+                {language === "bn"
+                  ? "চিরাচরিত কীওয়ার্ড ফিল্টার বাদ দিন। স্কিলম্যাচ কোডবেস AST পার্সিংয়ের মাধ্যমে অ্যালগোরিদমিক জটিলতা ও স্থাপত্য পরিমাপ করে।"
+                  : "Skip standard ATS keyword filters. SkillMatch parses codebase AST structures, benchmarking algorithmic complexity, concurrency, and architecture."}
               </p>
 
               {/* Platform Telemetry Cards */}
@@ -160,7 +182,9 @@ export default function LoginPage() {
                 <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <Code2 className="w-4 h-4 text-secondary-container" />
-                    <span className="text-xs font-medium text-white/90">AST Parse Precision</span>
+                    <span className="text-xs font-medium text-white/90">
+                      {language === "bn" ? "AST পার্স নির্ভুলতা" : "AST Parse Precision"}
+                    </span>
                   </div>
                   <span className="text-xs font-bold font-mono tabular-nums text-secondary-container">
                     98.4% Accuracy
@@ -170,20 +194,24 @@ export default function LoginPage() {
                 <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <Sparkles className="w-4 h-4 text-secondary-container" />
-                    <span className="text-xs font-medium text-white/90">Avg. Time to Screen</span>
+                    <span className="text-xs font-medium text-white/90">
+                      {language === "bn" ? "গড় স্ক্রীনিং সময়" : "Avg. Time to Screen"}
+                    </span>
                   </div>
                   <span className="text-xs font-bold font-mono tabular-nums text-secondary-container">
-                    14 Days
+                    {language === "bn" ? "১৪ দিন" : "14 Days"}
                   </span>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <Building2 className="w-4 h-4 text-secondary-container" />
-                    <span className="text-xs font-medium text-white/90">Active Partner Teams</span>
+                    <span className="text-xs font-medium text-white/90">
+                      {language === "bn" ? "সক্রিয় পার্টনার দল" : "Active Partner Teams"}
+                    </span>
                   </div>
                   <span className="text-xs font-bold font-mono tabular-nums text-secondary-container">
-                    120+ Companies
+                    {language === "bn" ? "১২০+ কোম্পানি" : "120+ Companies"}
                   </span>
                 </div>
               </div>
@@ -202,10 +230,10 @@ export default function LoginPage() {
               {/* Heading */}
               <div className="space-y-1 text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-                  Welcome Back
+                  {t.auth.loginTitle}
                 </h1>
                 <p className="text-xs sm:text-sm text-on-surface-variant">
-                  Sign in to access your verified profile and candidate telemetry.
+                  {t.auth.loginSubtitle}
                 </p>
               </div>
 
@@ -214,27 +242,27 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setPersona("candidate")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 ${
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer ${
                     persona === "candidate"
                       ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
                       : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   <Code2 className="w-3.5 h-3.5" />
-                  <span>Candidate / Student</span>
+                  <span>{t.auth.asCandidate}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPersona("recruiter")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 ${
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer ${
                     persona === "recruiter"
                       ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
                       : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   <Building2 className="w-3.5 h-3.5" />
-                  <span>Recruiter / Lead</span>
+                  <span>{t.auth.asRecruiter}</span>
                 </button>
               </div>
 
@@ -247,7 +275,7 @@ export default function LoginPage() {
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
                 >
                   <GithubIcon className="w-4 h-4" />
-                  <span>Continue with GitHub</span>
+                  <span>{t.auth.githubAuth}</span>
                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-secondary/10 text-secondary-mint border border-secondary/20 ml-1">
                     OAuth
                   </span>
@@ -260,7 +288,7 @@ export default function LoginPage() {
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
                 >
                   <GoogleIcon className="w-4 h-4" />
-                  <span>Continue with Google</span>
+                  <span>{t.auth.googleSso}</span>
                 </button>
               </div>
 
@@ -271,7 +299,9 @@ export default function LoginPage() {
                   <div>
                     <p className="font-bold">{errorMessage}</p>
                     <p className="text-[11px] text-accent-gap/80 mt-0.5">
-                      Redirecting to university verification guidelines...
+                      {language === "bn"
+                        ? "বিশ্ববিদ্যালয় যাচাইকরণ নির্দেশিকায় রিডাইরেক্ট করা হচ্ছে..."
+                        : "Redirecting to university verification guidelines..."}
                     </p>
                   </div>
                 </div>
@@ -281,7 +311,7 @@ export default function LoginPage() {
               <div className="relative flex items-center justify-center">
                 <div className="border-t border-slate-200 w-full" />
                 <span className="bg-white px-3 text-[11px] font-medium text-outline uppercase tracking-wider">
-                  or continue with email
+                  {t.auth.orContinueWith}
                 </span>
               </div>
 
@@ -293,7 +323,7 @@ export default function LoginPage() {
                     htmlFor="email"
                     className="block text-xs font-bold uppercase tracking-wider text-on-surface"
                   >
-                    {persona === "candidate" ? "University / Personal Email" : "Work Email"}
+                    {t.auth.emailLabel}
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -320,14 +350,16 @@ export default function LoginPage() {
                       htmlFor="password"
                       className="block text-xs font-bold uppercase tracking-wider text-on-surface"
                     >
-                      Password
+                      {t.auth.passwordLabel}
                     </label>
                     <button
                       type="button"
                       onClick={() => setResetSent(true)}
-                      className="text-xs text-secondary-mint hover:underline font-medium"
+                      className="text-xs text-secondary-mint hover:underline font-medium cursor-pointer"
                     >
-                      {resetSent ? "Reset instructions sent!" : "Forgot password?"}
+                      {resetSent
+                        ? (language === "bn" ? "রিসেট নির্দেশিকা পাঠানো হয়েছে!" : "Reset instructions sent!")
+                        : t.auth.forgotPassword}
                     </button>
                   </div>
                   <div className="relative">
@@ -344,7 +376,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -359,10 +391,10 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-primary-container focus:ring-secondary/30"
+                    className="w-4 h-4 rounded border-slate-300 text-primary-container focus:ring-secondary/30 cursor-pointer"
                   />
-                  <label htmlFor="remember" className="text-xs text-on-surface-variant font-medium select-none">
-                    Remember me on this workstation
+                  <label htmlFor="remember" className="text-xs text-on-surface-variant font-medium select-none cursor-pointer">
+                    {t.auth.rememberMe}
                   </label>
                 </div>
 
@@ -370,15 +402,13 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60"
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 cursor-pointer"
                 >
                   {isLoading ? (
-                    <span>Authenticating...</span>
+                    <span>{t.common.loading}</span>
                   ) : (
                     <>
-                      <span>
-                        Sign In as {persona === "candidate" ? "Candidate" : "Recruiter"}
-                      </span>
+                      <span>{t.auth.signInBtn}</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -388,12 +418,12 @@ export default function LoginPage() {
               {/* Bottom Register Route Link */}
               <div className="text-center pt-2">
                 <p className="text-xs sm:text-sm text-on-surface-variant">
-                  Don&apos;t have an account yet?{" "}
+                  {t.auth.noAccount}{" "}
                   <Link
                     href="/register"
                     className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors"
                   >
-                    Create Free Profile
+                    {t.auth.signUpLink}
                   </Link>
                 </p>
               </div>
@@ -404,7 +434,7 @@ export default function LoginPage() {
 
       {/* Mini Footer */}
       <footer className="w-full py-4 text-center text-xs text-outline border-t border-stroke-card/60">
-        &copy; 2026 SkillMatch Systems Inc. All rights reserved.
+        &copy; 2026 SkillMatch Systems Inc. {language === "bn" ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}
       </footer>
     </div>
   );

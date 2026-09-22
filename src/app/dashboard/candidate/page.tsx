@@ -21,6 +21,8 @@ import {
   Code2,
 } from "lucide-react";
 import { StatusDot } from "@/components/ui/StatusDot";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 
 const initialProfile: CandidateProfile = {
   name: "Alex Chen",
@@ -224,16 +226,18 @@ const initialJobs: JobListing[] = [
 function CandidateDashboardContent() {
   const searchParams = useSearchParams();
   const warning = searchParams.get("warning");
+  const { t, language } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<CandidateTabType>("overview");
   const [profile, setProfile] = useState<CandidateProfile>(initialProfile);
   const [jobs, setJobs] = useState<JobListing[]>(initialJobs);
   const [applications, setApplications] = useState<AppliedJob[]>(initialAppliedJobs);
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Security warning banner states
   const [dismissedWarning, setDismissedWarning] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
@@ -295,13 +299,13 @@ function CandidateDashboardContent() {
   const getTabTitle = () => {
     switch (activeTab) {
       case "all-jobs":
-        return "Engineering Jobs Marketplace";
+        return t.sidebar.allJobs;
       case "applications":
-        return "My Applications Pipeline";
+        return t.sidebar.myApplications;
       case "profile":
-        return "Profile & Skill Management";
+        return t.sidebar.profileSetup;
       default:
-        return "Candidate Dossier Overview";
+        return t.sidebar.overview;
     }
   };
 
@@ -320,10 +324,10 @@ function CandidateDashboardContent() {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
         profile={profile}
-        appliedCount={applications.length}
         totalJobsCount={jobs.length}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        appliedCount={applications.length}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         isMobileOpen={isMobileOpen}
         onCloseMobile={() => setIsMobileOpen(false)}
       />
@@ -349,7 +353,7 @@ function CandidateDashboardContent() {
               </h2>
               <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
                 <StatusDot size="sm" />
-                <span>ABET Verified Student Session</span>
+                <span>{language === "bn" ? "ABET যাচাইকৃত শিক্ষার্থী সেশন" : "ABET Verified Student Session"}</span>
                 <span>•</span>
                 <span className="font-mono text-primary font-semibold">{profile.university}</span>
               </div>
@@ -357,10 +361,13 @@ function CandidateDashboardContent() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Sleek Dual Language Switcher */}
+            <LanguageSwitcher variant="pill" />
+
             {/* ABET Institutional Pill */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary">
               <Code2 className="w-3.5 h-3.5 text-secondary-mint" />
-              <span className="hidden sm:inline">Role: Candidate</span>
+              <span className="hidden sm:inline">{t.common.role}: {t.common.candidate}</span>
               <span className="sm:hidden font-mono">.EDU</span>
             </div>
 
@@ -368,7 +375,7 @@ function CandidateDashboardContent() {
             <button
               type="button"
               onClick={() => setActiveTab("profile")}
-              title="Edit Profile"
+              title={t.sidebar.profileSetup}
               className="w-9 h-9 rounded-xl border border-slate-200 bg-surface-container-low hover:border-secondary-mint flex items-center justify-center text-xs font-bold text-primary transition-all overflow-hidden cursor-pointer"
             >
               {profile.avatarUrl ? (
@@ -393,11 +400,15 @@ function CandidateDashboardContent() {
               <div className="flex items-start gap-3">
                 <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
                 <div>
-                  <p className="font-bold text-sm">Access Denied: Recruiter Portal Restricted</p>
+                  <p className="font-bold text-sm">
+                    {language === "bn"
+                      ? "প্রবেশাধিকার নিষিদ্ধ: রিক্রুটার পোর্টাল সীমাবদ্ধ"
+                      : "Access Denied: Recruiter Portal Restricted"}
+                  </p>
                   <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
-                    Your account is authenticated with candidate credentials. Access to company recruitment
-                    pipelines and employer job management is restricted by SkillMatch Role-Based Access Control.
-                    You have been safely redirected to your candidate dossier.
+                    {language === "bn"
+                      ? "আপনার অ্যাকাউন্টটি ক্যান্ডিডেট পরিচয়পত্রে লগইন রয়েছে। সিকিউরিটি নীতির কারণে রিক্রুটার পোর্টালে প্রবেশাধিকার সীমিত। আপনাকে ক্যান্ডিডেট ডজিয়ারে রিডাইরেক্ট করা হয়েছে।"
+                      : "Your account is authenticated with candidate credentials. Access to company recruitment pipelines and employer job management is restricted by SkillMatch Role-Based Access Control. You have been safely redirected to your candidate dossier."}
                   </p>
                 </div>
               </div>
