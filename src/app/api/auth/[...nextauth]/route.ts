@@ -5,7 +5,9 @@
  * Providers configured in @/auth:
  * - Google OAuth 2.0 (GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET)
  *   with prompt="select_account" for multi-account chooser.
- * - Strict Candidate institutional (.edu) validation in signIn callback.
+ * - GitHub OAuth (GITHUB_CLIENT_ID & GITHUB_CLIENT_SECRET)
+ *   for real developer authentication.
+ * - Strict Candidate institutional (.edu) validation in signIn callback for Google.
  */
 import { handlers } from "@/auth";
 

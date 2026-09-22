@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
 import { cookies } from "next/headers";
 import { ValidationService } from "@/server/services/validationService";
 
@@ -21,6 +22,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           response_type: "code",
         },
       },
+    }),
+    GitHub({
+      clientId:
+        process.env.GITHUB_CLIENT_ID ||
+        process.env.AUTH_GITHUB_ID ||
+        "demo-github-client-id",
+      clientSecret:
+        process.env.GITHUB_CLIENT_SECRET ||
+        process.env.AUTH_GITHUB_SECRET ||
+        "demo-github-client-secret",
     }),
   ],
   pages: {
