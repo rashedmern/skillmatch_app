@@ -409,7 +409,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                       key={suggested}
                       type="button"
                       onClick={() => handleAddSkill(suggested)}
-                      className="px-2 py-0.5 rounded-md bg-surface border border-slate-200 hover:border-secondary-mint text-[11px] font-mono text-on-surface-variant hover:text-secondary-mint transition-all cursor-pointer"
+                      className="px-2 py-0.5 rounded-md bg-surface border border-slate-200 hover:border-secondary-mint text-[11px] font-mono text-on-surface-variant hover:text-secondary-mint transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                     >
                       + {suggested}
                     </button>
@@ -419,101 +419,108 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Candidate Info Form (7 Cols) */}
+        {/* Right Column: Personal & Academic Details */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-5">
-            <div className="flex items-center justify-between border-b border-stroke-card pb-3">
-              <div className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-extrabold text-on-surface">
-                  {t.candidate.personalInfoTitle}
+          <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-on-surface">
+                  {language === "bn" ? "ব্যক্তিগত ও প্রাতিষ্ঠানিক তথ্য" : "Personal & Academic Credentials"}
                 </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {language === "bn" ? "নিরাপদ ভেরিফাইড প্রাতিষ্ঠানিক প্রোফাইল" : "Verified Institutional Profile Record"}
+                </p>
               </div>
-              <span className="text-xs font-mono font-bold text-secondary-mint flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                {language === "bn" ? "ABET সিঙ্ক্রোনাইজড" : "ABET Synchronized"}
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                ACTIVE
               </span>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-full-name" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.candidate.fullName}
                   </label>
                   <input
+                    id="profile-full-name"
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-headline" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.candidate.headline}
                   </label>
                   <input
+                    id="profile-headline"
                     type="text"
                     required
                     value={formData.headline}
                     onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-university" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.candidate.university}
                   </label>
                   <input
+                    id="profile-university"
                     type="text"
                     required
                     value={formData.university}
                     onChange={(e) => setFormData({ ...formData, university: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-gradyear" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.candidate.gradYear}
                   </label>
                   <input
+                    id="profile-gradyear"
                     type="text"
                     value={formData.graduationYear}
                     onChange={(e) => setFormData({ ...formData, graduationYear: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint font-mono"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint font-mono focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-degree" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.candidate.degree}
                   </label>
                   <input
+                    id="profile-degree"
                     type="text"
                     required
                     value={formData.degree}
                     onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="profile-email" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {language === "bn" ? "যাচাইকৃত প্রাতিষ্ঠানিক (.edu) ইমেইল" : "Verified Institutional (.edu) Email"}
                   </label>
                   <input
+                    id="profile-email"
                     type="email"
                     disabled
                     value={formData.email}
-                    className="w-full h-10 px-3 rounded-xl bg-slate-100 border border-slate-200 text-sm font-mono text-outline cursor-not-allowed"
+                    className="w-full h-10 px-3 rounded-xl bg-slate-100 border border-slate-200 text-sm font-mono text-slate-500 cursor-not-allowed"
                     title={
                       language === "bn"
                         ? "প্রাতিষ্ঠানিক ইমেইল যাচাইকৃত OAuth সেশনের সাথে লক করা রয়েছে।"
@@ -525,60 +532,64 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
               <div className="space-y-3 pt-2 border-t border-slate-100">
                 <div className="flex items-center gap-1.5 font-bold text-on-surface text-xs">
-                  <LinkIcon className="w-3.5 h-3.5 text-primary" />
+                  <LinkIcon className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
                   <span>{t.candidate.professionalLinks}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
-                      <GithubIcon className="w-3 h-3" />
+                    <label htmlFor="profile-github" className="block text-[11px] text-slate-600 font-semibold flex items-center gap-1">
+                      <GithubIcon className="w-3 h-3" aria-hidden="true" />
                       {language === "bn" ? "গিটহাব প্রোফাইল" : "GitHub Profile"}
                     </label>
                     <input
+                      id="profile-github"
                       type="url"
                       value={formData.githubUrl}
                       onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
                       placeholder="https://github.com/..."
-                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs focus:outline-none focus:bg-white focus:border-secondary-mint"
+                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
-                      <LinkedinIcon className="w-3 h-3" />
+                    <label htmlFor="profile-linkedin" className="block text-[11px] text-slate-600 font-semibold flex items-center gap-1">
+                      <LinkedinIcon className="w-3 h-3" aria-hidden="true" />
                       {language === "bn" ? "লিঙ্কডইন প্রোফাইল" : "LinkedIn Profile"}
                     </label>
                     <input
+                      id="profile-linkedin"
                       type="url"
                       value={formData.linkedinUrl}
                       onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                       placeholder="https://linkedin.com/in/..."
-                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs focus:outline-none focus:bg-white focus:border-secondary-mint"
+                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
-                      <Globe className="w-3 h-3" />
+                    <label htmlFor="profile-portfolio" className="block text-[11px] text-slate-600 font-semibold flex items-center gap-1">
+                      <Globe className="w-3 h-3" aria-hidden="true" />
                       {language === "bn" ? "পোর্টফোলিও সাইট" : "Portfolio Site"}
                     </label>
                     <input
+                      id="profile-portfolio"
                       type="url"
                       value={formData.portfolioUrl}
                       onChange={(e) => setFormData({ ...formData, portfolioUrl: e.target.value })}
                       placeholder="https://yourname.dev"
-                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs focus:outline-none focus:bg-white focus:border-secondary-mint"
+                      className="w-full h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 font-mono text-xs text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-1 pt-2">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="profile-bio" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.candidate.bio}
                 </label>
                 <textarea
+                  id="profile-bio"
                   rows={4}
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -587,7 +598,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                       ? "আপনার ডিস্ট্রিবিউটেড সিস্টেমস অভিজ্ঞতা, অ্যালগোরিদম দক্ষতা বা ওপেন সোর্স অবদান সংক্ষেপে লিখুন..."
                       : "Describe your distributed systems experience, core algorithms focus, or open source contributions..."
                   }
-                  className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed focus:outline-none focus:bg-white focus:border-secondary-mint"
+                  className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 />
               </div>
 
@@ -596,9 +607,10 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                   type="submit"
                   disabled={isSaving}
                   id="save-profile-btn"
-                  className="px-6 py-2.5 rounded-xl bg-primary-container hover:bg-primary-hover active:scale-95 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+                  aria-busy={isSaving}
+                  className="px-6 py-2.5 rounded-xl bg-primary-container hover:bg-primary-hover active:scale-95 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-4 h-4" aria-hidden="true" />
                   <span>{isSaving ? (language === "bn" ? "সংরক্ষণ করা হচ্ছে..." : "Saving...") : t.common.save}</span>
                 </button>
               </div>

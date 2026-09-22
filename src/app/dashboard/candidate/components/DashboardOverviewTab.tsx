@@ -150,13 +150,20 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
             <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
               96.0%
             </div>
-            <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed">
               {language === "bn"
                 ? "শীর্ষ ইঞ্জিনিয়ারিং মানের সাথে ডেটা স্ট্রাকচার ট্রাভার্সাল মানানসই।"
                 : "Data structure traversal benchmarks match Tier-1 engineering standards."}
             </p>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+          <div
+            role="progressbar"
+            aria-valuenow={96}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={language === "bn" ? "অ্যালগোরিদমিক দক্ষতা পার্সেন্টাইল" : "Algorithmic efficiency percentile"}
+            className="w-full bg-slate-100 rounded-full h-2 overflow-hidden"
+          >
             <div className="bg-secondary-mint h-full rounded-full" style={{ width: "96%" }} />
           </div>
         </div>
@@ -203,7 +210,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
             <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
               {profile.skills.length} {language === "bn" ? "দক্ষতা" : "Skills"}
             </div>
-            <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed">
               {language === "bn"
                 ? "সক্রিয় AST ভেক্টর টোকেনাইজারের সাথে রিজিউমে SHA-256 সিঙ্ক করা হয়েছে।"
                 : "Resume SHA-256 synced with active AST vector tokenizer."}
@@ -213,10 +220,11 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
             <button
               type="button"
               onClick={onNavigateToProfile}
-              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              aria-label={t.candidate.editProfileBtn}
+              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded px-1"
             >
               <span>{t.candidate.editProfileBtn}</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-3 h-3" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -247,7 +255,8 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                 : "Initializing ephemeral AST Code Sandbox benchmark..."
             )
           }
-          className="px-4 py-2 rounded-xl bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-sm"
+          aria-label={t.candidate.launchSandboxBtn}
+          className="px-4 py-2 rounded-xl bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap focus-visible:ring-offset-2"
         >
           {t.candidate.launchSandboxBtn}
         </button>
@@ -270,14 +279,19 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <button
             type="button"
             onClick={onNavigateToAllJobs}
-            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
+            aria-label={
+              language === "bn"
+                ? `সকল ${jobs.length}টি চাকরি দেখুন`
+                : `Browse All ${jobs.length} Jobs`
+            }
+            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded px-1.5 py-0.5"
           >
             <span>
               {language === "bn"
                 ? `সকল ${jobs.length}টি চাকরি দেখুন`
                 : `Browse All ${jobs.length} Jobs`}
             </span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         </div>
 
@@ -296,7 +310,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-on-surface line-clamp-1">{job.title}</h4>
-                  <p className="text-xs text-outline font-mono mt-0.5">
+                  <p className="text-xs text-slate-600 font-mono mt-0.5">
                     {job.salary} • {job.workModel}
                   </p>
                 </div>
@@ -304,7 +318,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
 
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-[11px] text-secondary-mint font-semibold flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
+                  <Sparkles className="w-3 h-3" aria-hidden="true" />
                   <span>{language === "bn" ? "ফাস্ট-ট্র্যাক" : "Fast-Tracked"}</span>
                 </span>
 
@@ -316,7 +330,8 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                   <button
                     type="button"
                     onClick={() => onApplyJob(job)}
-                    className="px-3 py-1 rounded-lg bg-primary-container text-white text-xs font-bold hover:bg-primary-hover transition-colors cursor-pointer"
+                    aria-label={`${language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}: ${job.title} at ${job.company}`}
+                    className="px-3 py-1 rounded-lg bg-primary-container text-white text-xs font-bold hover:bg-primary-hover transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
                     {language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}
                   </button>

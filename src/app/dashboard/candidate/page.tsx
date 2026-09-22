@@ -313,8 +313,12 @@ function CandidateDashboardContent() {
     <div className="min-h-screen w-full flex bg-[#F8FAFB] text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-primary-container text-white text-xs font-semibold shadow-level-3 flex items-center gap-3 border border-secondary-mint/30 animate-bounce">
-          <Sparkles className="w-4 h-4 text-secondary-container" />
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-primary-container text-white text-xs font-semibold shadow-level-3 flex items-center gap-3 border border-secondary-mint/30 animate-bounce"
+        >
+          <Sparkles className="w-4 h-4 text-secondary-container" aria-hidden="true" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -335,27 +339,31 @@ function CandidateDashboardContent() {
       {/* Main Full-Width Content View */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top Navbar */}
-        <header className="h-16 w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <header
+          role="banner"
+          className="h-16 w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8"
+        >
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Toggle */}
             <button
               type="button"
               onClick={() => setIsMobileOpen(true)}
               aria-label="Open navigation menu"
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors"
+              aria-expanded={isMobileOpen}
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-600 hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <div>
-              <h2 className="text-sm sm:text-base font-extrabold text-on-surface tracking-tight">
+              <h1 className="text-sm sm:text-base font-extrabold text-on-surface tracking-tight">
                 {getTabTitle()}
-              </h2>
-              <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
+              </h1>
+              <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-500 font-medium">
                 <StatusDot size="sm" />
                 <span>{language === "bn" ? "ABET যাচাইকৃত শিক্ষার্থী সেশন" : "ABET Verified Student Session"}</span>
-                <span>•</span>
-                <span className="font-mono text-primary font-semibold">{profile.university}</span>
+                <span aria-hidden="true">•</span>
+                <span className="font-mono text-primary font-bold">{profile.university}</span>
               </div>
             </div>
           </div>
@@ -365,8 +373,11 @@ function CandidateDashboardContent() {
             <LanguageSwitcher variant="pill" />
 
             {/* ABET Institutional Pill */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary">
-              <Code2 className="w-3.5 h-3.5 text-secondary-mint" />
+            <div
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary"
+              aria-label="Institutional status: Candidate"
+            >
+              <Code2 className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
               <span className="hidden sm:inline">{t.common.role}: {t.common.candidate}</span>
               <span className="sm:hidden font-mono">.EDU</span>
             </div>
@@ -376,7 +387,8 @@ function CandidateDashboardContent() {
               type="button"
               onClick={() => setActiveTab("profile")}
               title={t.sidebar.profileSetup}
-              className="w-9 h-9 rounded-xl border border-slate-200 bg-surface-container-low hover:border-secondary-mint flex items-center justify-center text-xs font-bold text-primary transition-all overflow-hidden cursor-pointer"
+              aria-label={`${t.sidebar.profileSetup} - ${profile.name}`}
+              className="w-9 h-9 rounded-xl border border-slate-200 bg-surface-container-low hover:border-secondary-mint flex items-center justify-center text-xs font-bold text-primary transition-all overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
               {profile.avatarUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -389,23 +401,25 @@ function CandidateDashboardContent() {
         </header>
 
         {/* Dynamic Full-Width Body Container */}
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
+        <main id="main-content" className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
           {/* Security Warning Banner with 4s auto-dismiss & close button */}
           {warning === "unauthorized_recruiter_access" && !dismissedWarning && (
             <div
+              role="alert"
+              aria-live="polite"
               className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
                 isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
               }`}
             >
               <div className="flex items-start gap-3">
-                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
+                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" aria-hidden="true" />
                 <div>
                   <p className="font-bold text-sm">
                     {language === "bn"
                       ? "প্রবেশাধিকার নিষিদ্ধ: রিক্রুটার পোর্টাল সীমাবদ্ধ"
                       : "Access Denied: Recruiter Portal Restricted"}
                   </p>
-                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
+                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed font-medium">
                     {language === "bn"
                       ? "আপনার অ্যাকাউন্টটি ক্যান্ডিডেট পরিচয়পত্রে লগইন রয়েছে। সিকিউরিটি নীতির কারণে রিক্রুটার পোর্টালে প্রবেশাধিকার সীমিত। আপনাকে ক্যান্ডিডেট ডজিয়ারে রিডাইরেক্ট করা হয়েছে।"
                       : "Your account is authenticated with candidate credentials. Access to company recruitment pipelines and employer job management is restricted by SkillMatch Role-Based Access Control. You have been safely redirected to your candidate dossier."}
@@ -418,50 +432,82 @@ function CandidateDashboardContent() {
                 onClick={handleDismissWarning}
                 aria-label="Dismiss security warning"
                 id="dismiss-warning-btn"
-                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
 
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
-            <DashboardOverviewTab
-              profile={profile}
-              jobs={jobs}
-              onApplyJob={handleApplyJob}
-              onNavigateToAllJobs={() => setActiveTab("all-jobs")}
-              onNavigateToProfile={() => setActiveTab("profile")}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="candidate-tabpanel-overview"
+              aria-labelledby="candidate-tab-overview"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <DashboardOverviewTab
+                profile={profile}
+                jobs={jobs}
+                onApplyJob={handleApplyJob}
+                onNavigateToAllJobs={() => setActiveTab("all-jobs")}
+                onNavigateToProfile={() => setActiveTab("profile")}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
 
           {/* TAB 2: ALL JOBS */}
           {activeTab === "all-jobs" && (
-            <AllJobsTab
-              jobs={jobs}
-              onApplyJob={handleApplyJob}
-              onNavigateToApplications={() => setActiveTab("applications")}
-            />
+            <section
+              role="tabpanel"
+              id="candidate-tabpanel-all-jobs"
+              aria-labelledby="candidate-tab-all-jobs"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <AllJobsTab
+                jobs={jobs}
+                onApplyJob={handleApplyJob}
+                onNavigateToApplications={() => setActiveTab("applications")}
+              />
+            </section>
           )}
 
           {/* TAB 3: MY APPLICATIONS */}
           {activeTab === "applications" && (
-            <MyApplicationsTab
-              applications={applications}
-              onNavigateToAllJobs={() => setActiveTab("all-jobs")}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="candidate-tabpanel-applications"
+              aria-labelledby="candidate-tab-applications"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <MyApplicationsTab
+                applications={applications}
+                onNavigateToAllJobs={() => setActiveTab("all-jobs")}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
 
           {/* TAB 4: PROFILE SETUP */}
           {activeTab === "profile" && (
-            <ProfileSetupTab
-              profile={profile}
-              onUpdateProfile={(updated) => setProfile(updated)}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="candidate-tabpanel-profile"
+              aria-labelledby="candidate-tab-profile"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <ProfileSetupTab
+                profile={profile}
+                onUpdateProfile={(updated) => setProfile(updated)}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
         </main>
       </div>

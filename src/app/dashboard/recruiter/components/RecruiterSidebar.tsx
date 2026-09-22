@@ -85,6 +85,17 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
     },
   ];
 
+  // Handle Escape key to close mobile drawer
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMobileOpen) {
+        onCloseMobile();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen, onCloseMobile]);
+
   const sidebarContent = (
     <div className="h-full flex flex-col justify-between p-4 bg-white border-r border-stroke-card selection:bg-secondary/20 select-none">
       {/* Top Header & Brand */}
@@ -106,7 +117,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
             onClick={onToggleCollapse}
             id="recruiter-sidebar-toggle-btn"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low transition-all"
+            className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-slate-600 hover:text-on-surface hover:bg-surface-container-low transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
           >
             {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
@@ -115,8 +126,8 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
           <button
             type="button"
             onClick={onCloseMobile}
-            aria-label="Close menu"
-            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low"
+            aria-label="Close navigation menu"
+            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-on-surface hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -132,15 +143,20 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
               </span>
               <span className="font-mono text-secondary-mint text-[10px] font-bold">PARTNER</span>
             </div>
-            <div className="flex items-center justify-between text-[10px] text-outline font-mono">
+            <div className="flex items-center justify-between text-[10px] text-slate-600 font-mono font-medium">
               <span>{activeJobsCount} Active Roles</span>
               <span>{shortlistedCount} Shortlisted</span>
             </div>
           </div>
         )}
 
-        {/* Navigation Items */}
-        <nav className="space-y-1.5" aria-label="Recruiter Navigation">
+        {/* Navigation Items (Accessible Tablist) */}
+        <nav
+          role="tablist"
+          aria-label="Recruiter Navigation Tabs"
+          aria-orientation="vertical"
+          className="space-y-1.5"
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -148,23 +164,28 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
             return (
               <button
                 key={item.id}
+                role="tab"
+                id={`recruiter-tab-${item.id}`}
+                aria-selected={isActive}
+                aria-controls={`recruiter-tabpanel-${item.id}`}
+                tabIndex={isActive ? 0 : -1}
                 type="button"
-                id={`recruiter-nav-${item.id}`}
                 onClick={() => {
                   onTabChange(item.id);
                   onCloseMobile();
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer group ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint focus-visible:ring-offset-1 ${
                   isActive
                     ? "bg-primary-container text-white shadow-sm"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
+                    : "text-slate-700 hover:text-on-surface hover:bg-surface-container-low"
                 } ${isCollapsed ? "justify-center px-2" : ""}`}
                 title={isCollapsed ? item.label : undefined}
               >
                 <Icon
                   className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                    isActive ? "text-secondary-container" : "text-outline group-hover:text-primary"
+                    isActive ? "text-secondary-container" : "text-slate-500 group-hover:text-primary"
                   }`}
+                  aria-hidden="true"
                 />
 
                 {!isCollapsed && (
@@ -194,19 +215,19 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
         {!isCollapsed ? (
           <Link
             href="/dashboard/candidate"
-            className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 text-[11px] font-medium text-outline hover:text-on-surface hover:bg-surface-container-low transition-all"
+            className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-on-surface hover:bg-surface-container-low transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             title={t.sidebar.switchToCandidate}
           >
-            <Code2 className="w-3 h-3 text-outline" />
+            <Code2 className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
             <span className="truncate">{t.sidebar.switchToCandidate}</span>
           </Link>
         ) : (
           <Link
             href="/dashboard/candidate"
-            className="w-full flex justify-center py-2 text-outline hover:text-on-surface"
+            className="w-full flex justify-center py-2 text-slate-600 hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded-lg"
             title={t.sidebar.switchToCandidate}
           >
-            <Code2 className="w-4 h-4" />
+            <Code2 className="w-4 h-4" aria-hidden="true" />
           </Link>
         )}
 
@@ -217,16 +238,16 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
           }`}
         >
           <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20 shadow-sm">
-            <Building2 className="w-4 h-4" />
+            <Building2 className="w-4 h-4" aria-hidden="true" />
           </div>
 
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
               <div className="text-xs font-bold text-on-surface truncate flex items-center gap-1">
                 <span>{profile.recruiterName}</span>
-                <ShieldCheck className="w-3 h-3 text-secondary-mint shrink-0" />
+                <ShieldCheck className="w-3 h-3 text-secondary-mint shrink-0" aria-hidden="true" />
               </div>
-              <div className="text-[10px] text-outline font-mono truncate">{profile.email}</div>
+              <div className="text-[10px] text-slate-600 font-mono truncate">{profile.email}</div>
             </div>
           )}
 
@@ -236,9 +257,9 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
               onClick={() => signOut({ callbackUrl: "/login" })}
               aria-label={t.common.logOut}
               title={t.common.logOut}
-              className="text-outline hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer"
+              className="text-slate-500 hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -248,9 +269,10 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
             title={t.common.logOut}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-outline hover:text-accent-gap hover:bg-accent-gap/10 transition-colors"
+            aria-label={t.common.logOut}
+            className="w-full flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-accent-gap hover:bg-accent-gap/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap cursor-pointer"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -261,6 +283,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
     <>
       {/* Desktop Persistent Sidebar */}
       <aside
+        aria-label="Recruiter sidebar"
         className={`hidden md:block shrink-0 h-screen sticky top-0 transition-all duration-300 z-30 ${
           isCollapsed ? "w-20" : "w-64"
         }`}
@@ -272,14 +295,18 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
-          className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
+          aria-hidden="true"
+          className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity"
         />
       )}
 
       {/* Mobile Drawer */}
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Recruiter navigation drawer"
         className={`md:hidden fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-300 ease-in-out ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {sidebarContent}

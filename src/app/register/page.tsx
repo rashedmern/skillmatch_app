@@ -255,30 +255,38 @@ function RegisterFormContent() {
           </div>
 
           {/* Role Selection Tabs */}
-          <div className="grid grid-cols-2 p-1 rounded-xl bg-surface-container-low border border-slate-200/80 text-xs font-semibold">
+          <div role="tablist" aria-label="Registration role selection" className="grid grid-cols-2 p-1 rounded-xl bg-surface-container-low border border-slate-200/80 text-xs font-semibold">
             <button
               type="button"
+              role="tab"
+              id="tab-reg-candidate"
+              aria-selected={role === "candidate"}
+              aria-controls="register-form"
               onClick={() => setRole("candidate")}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 ${
+              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                 role === "candidate"
                   ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
-                  : "text-on-surface-variant hover:text-on-surface"
+                  : "text-slate-600 hover:text-on-surface"
               }`}
             >
-              <Code2 className="w-3.5 h-3.5" />
+              <Code2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.auth.asCandidate}</span>
             </button>
 
             <button
               type="button"
+              role="tab"
+              id="tab-reg-recruiter"
+              aria-selected={role === "recruiter"}
+              aria-controls="register-form"
               onClick={() => setRole("recruiter")}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 ${
+              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                 role === "recruiter"
                   ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
-                  : "text-on-surface-variant hover:text-on-surface"
+                  : "text-slate-600 hover:text-on-surface"
               }`}
             >
-              <Building2 className="w-3.5 h-3.5" />
+              <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.auth.asRecruiter}</span>
             </button>
           </div>
@@ -289,7 +297,7 @@ function RegisterFormContent() {
               type="button"
               onClick={handleGitHubSignIn}
               id="register-github-btn"
-              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
               <GithubIcon className="w-4 h-4" />
               <span>{t.auth.githubAuth}</span>
@@ -299,7 +307,7 @@ function RegisterFormContent() {
               type="button"
               onClick={handleGoogleSignIn}
               id="register-google-btn"
-              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
               <GoogleIcon className="w-4 h-4" />
               <span>{t.auth.googleSso}</span>
@@ -308,8 +316,12 @@ function RegisterFormContent() {
 
           {/* Security Error Banner */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-accent-gap/10 border border-accent-gap/30 flex items-start gap-2.5 text-xs text-accent-gap animate-shake">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="p-3.5 rounded-xl bg-accent-gap/10 border border-accent-gap/30 flex items-start gap-2.5 text-xs text-accent-gap animate-shake"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="font-bold">{errorMessage}</p>
                 <p className="text-[11px] text-accent-gap/80 mt-0.5">
@@ -322,13 +334,13 @@ function RegisterFormContent() {
           {/* Divider */}
           <div className="relative flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
-            <span className="bg-white px-3 text-[11px] font-medium text-outline uppercase tracking-wider">
+            <span className="bg-white px-3 text-[11px] font-medium text-slate-600 uppercase tracking-wider">
               {t.auth.orRegisterWithEmail}
             </span>
           </div>
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form id="register-form" onSubmit={handleSubmit} className="space-y-3.5">
             {/* Full Name Field */}
             <div className="space-y-1">
               <label
@@ -338,15 +350,16 @@ function RegisterFormContent() {
                 {t.auth.fullNameLabel}
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                 <input
                   id="name"
                   type="text"
                   required
+                  aria-required="true"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={role === "candidate" ? (language === "bn" ? "উদাঃ নাফিস আহমেদ" : "Alex Chen") : (language === "bn" ? "উদাঃ সারা মিলার" : "Sarah Miller")}
-                  className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
+                  className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
                 />
               </div>
             </div>
@@ -360,11 +373,12 @@ function RegisterFormContent() {
                 {role === "candidate" ? t.auth.candEmailLabel : t.auth.recEmailLabel}
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                 <input
                   id="email"
                   type="email"
                   required
+                  aria-required="true"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={
@@ -372,7 +386,7 @@ function RegisterFormContent() {
                       ? t.auth.candEmailPlaceholder
                       : t.auth.recEmailPlaceholder
                   }
-                  className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
+                  className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
                 />
               </div>
             </div>
@@ -390,7 +404,7 @@ function RegisterFormContent() {
                   id="specialization"
                   value={specialization}
                   onChange={(e) => setSpecialization(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all cursor-pointer"
+                  className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all cursor-pointer font-medium"
                 >
                   <option value="SWE & Distributed Systems">
                     {language === "bn" ? "সফটওয়্যার ইঞ্জিনিয়ারিং ও ডিস্ট্রিবিউটেড সিস্টেমস" : "SWE & Distributed Systems"}
@@ -418,15 +432,16 @@ function RegisterFormContent() {
                   {t.auth.companyLabel}
                 </label>
                 <div className="relative">
-                  <Building2 className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                   <input
                     id="company"
                     type="text"
                     required
+                    aria-required="true"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     placeholder={t.auth.companyPlaceholder}
-                    className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
+                    className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
                   />
                 </div>
               </div>
@@ -441,20 +456,21 @@ function RegisterFormContent() {
                 {t.auth.passwordLabel}
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   required
+                  aria-required="true"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.auth.minCharacters}
-                  className="w-full h-10 pl-9 pr-10 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all font-mono"
+                  className="w-full h-10 pl-9 pr-10 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-on-surface cursor-pointer p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -463,13 +479,13 @@ function RegisterFormContent() {
 
               {/* Password Strength Meter */}
               {password && (
-                <div className="flex items-center gap-2 pt-1 text-[11px] text-outline">
+                <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-600">
                   <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden flex gap-1">
                     <div className={`h-full flex-1 ${strength.level >= 1 ? strength.color : "bg-slate-200"}`} />
                     <div className={`h-full flex-1 ${strength.level >= 2 ? strength.color : "bg-slate-200"}`} />
                     <div className={`h-full flex-1 ${strength.level >= 3 ? strength.color : "bg-slate-200"}`} />
                   </div>
-                  <span className="font-semibold text-on-surface-variant text-[11px]">
+                  <span className="font-semibold text-slate-700 text-[11px]">
                     {strength.text}
                   </span>
                 </div>
@@ -482,11 +498,12 @@ function RegisterFormContent() {
                 id="agreed"
                 type="checkbox"
                 required
+                aria-required="true"
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-primary-container focus:ring-secondary/30 shrink-0"
+                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-primary-container focus:ring-secondary/30 shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
               />
-              <label htmlFor="agreed" className="text-xs text-on-surface-variant font-normal leading-relaxed select-none">
+              <label htmlFor="agreed" className="text-xs text-slate-700 font-normal leading-relaxed select-none cursor-pointer">
                 {t.auth.termsAgreement}
               </label>
             </div>
@@ -495,7 +512,7 @@ function RegisterFormContent() {
             <button
               type="submit"
               disabled={isLoading || !agreed}
-              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 pt-1 cursor-pointer"
+              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 pt-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint focus-visible:ring-offset-2"
             >
               {isLoading ? (
                 <span>{t.auth.creatingProfile}</span>
@@ -504,7 +521,7 @@ function RegisterFormContent() {
                   <span>
                     {role === "candidate" ? t.auth.createCandidateBtn : t.auth.createRecruiterBtn}
                   </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </>
               )}
             </button>
@@ -512,11 +529,11 @@ function RegisterFormContent() {
 
           {/* Bottom Login Route Link */}
           <div className="text-center pt-2">
-            <p className="text-xs sm:text-sm text-on-surface-variant">
+            <p className="text-xs sm:text-sm text-slate-600">
               {t.auth.haveAccount}{" "}
               <Link
                 href="/login"
-                className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors"
+                className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded"
               >
                 {t.auth.signInLink}
               </Link>

@@ -156,17 +156,29 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
     });
   }, [candidates, selectedLanguage, selectedUniversity, minAstScore, searchQuery]);
 
+  // Handle Escape key to close invite modal
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedCandidateForInvite) {
+        setSelectedCandidateForInvite(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedCandidateForInvite]);
+
   const handleSendInvite = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCandidateForInvite) return;
-    const targetJob = jobs.find((j) => j.id === selectedTargetJobId) || jobs[0];
 
+    // Mark candidate as invited
     setCandidates((prev) =>
       prev.map((c) =>
         c.id === selectedCandidateForInvite.id ? { ...c, invited: true } : c
       )
     );
 
+    const targetJob = jobs.find((j) => j.id === selectedTargetJobId);
     const toastMsg =
       language === "bn"
         ? `${selectedCandidateForInvite.name}-এর কাছে ${targetJob ? targetJob.title : "পদ"}-এর জন্য দ্রুত আমন্ত্রণ পাঠানো হয়েছে!`
@@ -182,13 +194,13 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold tracking-wide uppercase mb-1.5">
-            <Sparkles className="w-3 h-3 text-secondary-mint" />
+            <Sparkles className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
             <span>{t.recruiter.accreditedTalentScout}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
             {t.recruiter.talentScoutTitle}
           </h2>
-          <p className="text-xs sm:text-sm text-outline mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-600 mt-0.5 font-medium">
             {t.recruiter.talentScoutSubtitle}
           </p>
         </div>
@@ -196,7 +208,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
         <div className="flex items-center gap-3">
           <div className="text-right">
             <div className="text-lg font-black text-primary-container font-mono">100% .edu</div>
-            <div className="text-[11px] text-outline">{t.recruiter.verifiedStudents}</div>
+            <div className="text-[11px] text-slate-600 font-medium">{t.recruiter.verifiedStudents}</div>
           </div>
         </div>
       </div>
@@ -206,22 +218,24 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
           {/* Search Box */}
           <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
             <input
               type="text"
+              aria-label={t.recruiter.searchScoutPlaceholder}
               placeholder={t.recruiter.searchScoutPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
+              className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
             />
           </div>
 
           {/* Language Selector */}
           <div className="md:col-span-3">
             <select
+              aria-label="Filter candidates by programming language"
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint transition-all cursor-pointer"
+              className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all cursor-pointer"
             >
               {languages.map((l) => (
                 <option key={l} value={l}>
@@ -238,9 +252,10 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
           {/* University Selector */}
           <div className="md:col-span-4">
             <select
+              aria-label="Filter candidates by university"
               value={selectedUniversity}
               onChange={(e) => setSelectedUniversity(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint transition-all cursor-pointer"
+              className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all cursor-pointer"
             >
               {universities.map((u) => (
                 <option key={u} value={u}>
@@ -252,71 +267,69 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
         </div>
 
         {/* Min AST Score Slider */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-100">
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-bold text-outline uppercase tracking-wider">
-              {t.recruiter.minAstMatch}
-            </span>
-            <span className="text-xs font-mono font-black text-primary-container px-2 py-0.5 rounded bg-secondary-mint/15">
-              {minAstScore}%
-            </span>
+        <div className="flex items-center gap-4 pt-1">
+          <div className="text-xs font-bold text-slate-700 whitespace-nowrap">
+            {language === "bn" ? "ন্যূনতম AST স্কোর:" : "Minimum AST Match Score:"}{" "}
+            <span className="font-mono text-primary-container font-black">{minAstScore}%</span>
           </div>
-          <div className="w-full sm:w-64 flex items-center gap-2">
-            <span className="text-[11px] text-outline font-mono">75%</span>
-            <input
-              type="range"
-              min="75"
-              max="95"
-              step="1"
-              value={minAstScore}
-              onChange={(e) => setMinAstScore(Number(e.target.value))}
-              className="w-full accent-primary-container cursor-pointer"
-            />
-            <span className="text-[11px] text-outline font-mono">95%</span>
-          </div>
+          <input
+            type="range"
+            aria-label="Minimum AST Match score threshold"
+            min="80"
+            max="98"
+            step="1"
+            value={minAstScore}
+            onChange={(e) => setMinAstScore(Number(e.target.value))}
+            className="flex-1 accent-primary-container cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
+          />
         </div>
       </div>
 
-      {/* Candidates Grid */}
+      {/* Directory Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCandidates.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-outline bg-white rounded-2xl border border-slate-200">
-            <p className="font-bold text-on-surface text-sm">{t.recruiter.noScoutCandidates}</p>
-            <p className="text-xs mt-1">{t.recruiter.noScoutCandidatesDesc}</p>
+          <div className="col-span-full py-16 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">
+            <GraduationCap className="w-10 h-10 text-slate-400 mx-auto mb-2" aria-hidden="true" />
+            <p className="font-bold text-sm text-on-surface">{t.recruiter.noScoutCandidates}</p>
+            <p className="text-xs text-slate-500 mt-1">{t.recruiter.noScoutCandidatesDesc}</p>
           </div>
         ) : (
           filteredCandidates.map((candidate) => (
             <div
               key={candidate.id}
-              className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-secondary-mint transition-all shadow-xs flex flex-col justify-between space-y-4 group"
+              className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-secondary-mint/60 shadow-sm hover:shadow-level-2 transition-all flex flex-col justify-between space-y-4"
             >
-              {/* Top Row: Avatar & University */}
               <div>
-                <div className="flex items-start justify-between gap-3">
+                {/* Header: Name, Lang, Score */}
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary-container to-secondary-mint text-white font-extrabold flex items-center justify-center text-sm shadow-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-container to-secondary-mint text-white font-extrabold flex items-center justify-center text-sm shadow-xs flex-shrink-0">
                       {candidate.initials}
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-on-surface text-sm">{candidate.name}</h3>
-                      <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary-container">
-                        <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" />
-                        <span>{candidate.university}</span>
+                      <h3 className="font-bold text-sm text-on-surface leading-tight">
+                        {candidate.name}
+                      </h3>
+                      <div className="text-[11px] font-mono text-primary-container font-semibold mt-0.5">
+                        {candidate.primaryLang} Specialist
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-mono font-black text-sm text-primary-container">
-                      {candidate.astScore.toFixed(1)}%
-                    </div>
-                    <div className="text-[10px] text-outline uppercase font-bold">{t.recruiter.astScore}</div>
+                    <span className="px-2 py-0.5 rounded-md font-mono font-black text-xs bg-secondary-mint/20 text-primary-container">
+                      {candidate.astScore}%
+                    </span>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-outline">
-                  <GraduationCap className="w-3.5 h-3.5 text-outline" />
-                  <span>
+                {/* University & Degree */}
+                <div className="mt-3 text-xs space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-primary-container font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint flex-shrink-0" aria-hidden="true" />
+                    <span>{candidate.university}</span>
+                  </div>
+                  <span className="text-slate-600 block text-[11px]">
                     {candidate.degree} ({t.recruiter.classOf} {candidate.gradYear})
                   </span>
                 </div>
@@ -324,10 +337,10 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                 {/* Highlight Repository */}
                 <div className="mt-3 p-2.5 rounded-xl bg-surface-container-low border border-slate-200 flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-1.5 truncate">
-                    <Code2 className="w-3.5 h-3.5 text-secondary-mint flex-shrink-0" />
+                    <Code2 className="w-3.5 h-3.5 text-secondary-mint flex-shrink-0" aria-hidden="true" />
                     <span className="truncate font-semibold text-on-surface">{candidate.highlightRepo}</span>
                   </div>
-                  <span className="text-[11px] text-outline flex-shrink-0">
+                  <span className="text-[11px] text-slate-500 flex-shrink-0">
                     ★ {candidate.repoStars}
                   </span>
                 </div>
@@ -349,16 +362,17 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
               <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
                 {candidate.invited ? (
                   <div className="w-full py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold text-center flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" />
                     <span>{t.recruiter.invitationSent}</span>
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setSelectedCandidateForInvite(candidate)}
-                    className="w-full py-2 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                    aria-label={`${t.recruiter.inviteToApply} - ${candidate.name}`}
+                    className="w-full py-2 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
-                    <Send className="w-3.5 h-3.5 text-secondary-mint" />
+                    <Send className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
                     <span>{t.recruiter.inviteToApply}</span>
                   </button>
                 )}
@@ -370,21 +384,31 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
 
       {/* Invite Modal */}
       {selectedCandidateForInvite && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="invite-modal-title"
+          onClick={() => setSelectedCandidateForInvite(null)}
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+          >
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-base font-black text-on-surface">
+                <h3 id="invite-modal-title" className="text-base font-black text-on-surface">
                   {t.recruiter.inviteModalTitle} {selectedCandidateForInvite.name}
                 </h3>
-                <p className="text-xs text-outline mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5 font-medium">
                   {selectedCandidateForInvite.university} • {selectedCandidateForInvite.degree}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedCandidateForInvite(null)}
-                className="text-outline hover:text-on-surface cursor-pointer text-sm font-bold"
+                aria-label="Close invitation modal"
+                className="text-slate-500 hover:text-on-surface p-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
               >
                 ✕
               </button>
@@ -392,13 +416,14 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
 
             <form onSubmit={handleSendInvite} className="space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="select-position-invite" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.selectPositionInvite}
                 </label>
                 <select
+                  id="select-position-invite"
                   value={selectedTargetJobId}
                   onChange={(e) => setSelectedTargetJobId(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
                 >
                   {jobs.map((job) => (
                     <option key={job.id} value={job.id}>
@@ -408,7 +433,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                 </select>
               </div>
 
-              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-outline text-[11px] leading-relaxed">
+              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-slate-600 text-[11px] leading-relaxed font-medium">
                 {t.recruiter.inviteNotice}
               </div>
 
@@ -416,15 +441,15 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCandidateForInvite(null)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-slate-700 hover:bg-surface-container-low cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
                   {t.common.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
-                  <Send className="w-3.5 h-3.5 text-secondary-mint" />
+                  <Send className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
                   <span>{t.recruiter.sendFastTrackInvite}</span>
                 </button>
               </div>

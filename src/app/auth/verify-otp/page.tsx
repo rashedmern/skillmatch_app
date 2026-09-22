@@ -242,24 +242,24 @@ function VerifyOtpContent() {
 
         {/* Resend Confirmation Notice */}
         {resendNotification && (
-          <div className="p-3 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center gap-2 text-xs text-primary font-medium animate-fadeIn">
-            <CheckCircle2 className="w-4 h-4 text-secondary-mint shrink-0" />
+          <div role="status" aria-live="polite" className="p-3 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center gap-2 text-xs text-primary font-medium animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 text-secondary-mint shrink-0" aria-hidden="true" />
             <span>{resendNotification}</span>
           </div>
         )}
 
         {/* Error Notice */}
         {errorMessage && (
-          <div className="p-3 rounded-xl bg-accent-gap/10 border border-accent-gap/25 flex items-center gap-2 text-xs text-accent-gap font-medium animate-shake">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-accent-gap/10 border border-accent-gap/25 flex items-center gap-2 text-xs text-accent-gap font-medium animate-shake">
+            <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Success Notice */}
         {isSuccess && (
-          <div className="p-3.5 rounded-xl bg-secondary/15 border border-secondary-mint flex items-center justify-center gap-2 text-xs text-primary font-bold">
-            <CheckCircle2 className="w-5 h-5 text-secondary-mint animate-bounce" />
+          <div role="status" aria-live="polite" className="p-3.5 rounded-xl bg-secondary/15 border border-secondary-mint flex items-center justify-center gap-2 text-xs text-primary font-bold">
+            <CheckCircle2 className="w-5 h-5 text-secondary-mint animate-bounce" aria-hidden="true" />
             <span>{t.auth.identityConfirmed}</span>
           </div>
         )}
@@ -278,6 +278,7 @@ function VerifyOtpContent() {
                 pattern="[0-9]*"
                 maxLength={1}
                 value={digit}
+                aria-label={`Digit ${idx + 1} of 6`}
                 disabled={isVerifying || isSuccess}
                 onChange={(e) => handleChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(idx, e)}
@@ -288,7 +289,7 @@ function VerifyOtpContent() {
                     : digit
                     ? "border-secondary-mint bg-white text-on-surface ring-2 ring-secondary/15"
                     : "border-slate-200 text-on-surface focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15"
-                } focus:outline-none`}
+                } focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint`}
               />
             ))}
           </div>
@@ -298,22 +299,22 @@ function VerifyOtpContent() {
             <button
               type="submit"
               disabled={isVerifying || isSuccess || digits.join("").length < 6}
-              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint focus-visible:ring-offset-2"
             >
               {isVerifying ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-4 h-4 animate-spin" aria-hidden="true" />
                   <span>{t.auth.verifyingCode}</span>
                 </>
               ) : isSuccess ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                   <span>{t.auth.verifiedBtn}</span>
                 </>
               ) : (
                 <>
                   <span>{t.auth.verifyEnterDashboard}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </>
               )}
             </button>
@@ -322,9 +323,9 @@ function VerifyOtpContent() {
             <button
               type="button"
               onClick={handleFillDemoCode}
-              className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary-mint/50 bg-secondary/5 hover:bg-secondary/10 text-xs font-semibold text-primary transition-all cursor-pointer"
+              className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary-mint/50 bg-secondary/5 hover:bg-secondary/10 text-xs font-semibold text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
-              <Sparkles className="w-3.5 h-3.5 text-secondary-mint" />
+              <Sparkles className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
               <span>{t.auth.demoKeyBtn}</span>
             </button>
           </div>
@@ -332,11 +333,11 @@ function VerifyOtpContent() {
 
         {/* Resend Code Strip & Countdown */}
         <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-          <div className="text-on-surface-variant font-medium">
+          <div className="text-slate-600 font-medium">
             {canResend ? (
-              <span className="text-outline">{t.auth.didntReceiveCode}</span>
+              <span className="text-slate-600">{t.auth.didntReceiveCode}</span>
             ) : (
-              <span className="font-mono tabular-nums text-outline">
+              <span className="font-mono tabular-nums text-slate-600">
                 {t.auth.resendCodeIn} {formatTimer(countdown)}
               </span>
             )}

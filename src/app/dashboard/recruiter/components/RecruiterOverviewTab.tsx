@@ -68,18 +68,18 @@ export const RecruiterOverviewTab: React.FC<RecruiterOverviewTabProps> = ({
               type="button"
               onClick={() => onNavigateToTab("post-job")}
               id="overview-post-job-btn"
-              className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-level-2 transition-all cursor-pointer"
+              className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-level-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4" aria-hidden="true" />
               <span>{t.recruiter.createJobBtn}</span>
             </button>
 
             <button
               type="button"
               onClick={() => onNavigateToTab("pipeline")}
-              className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center justify-center gap-1.5 backdrop-blur-sm transition-all cursor-pointer"
+              className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center justify-center gap-1.5 backdrop-blur-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <Users className="w-4 h-4" />
+              <Users className="w-4 h-4" aria-hidden="true" />
               <span>{language === "bn" ? "এটিএস খুলুন" : "Open ATS"}</span>
             </button>
           </div>
@@ -296,18 +296,20 @@ export const RecruiterOverviewTab: React.FC<RecruiterOverviewTabProps> = ({
                       );
                     }}
                     title={t.recruiter.shortlistCandidate}
-                    className="p-2 rounded-lg bg-surface-container-low hover:bg-secondary/15 text-outline hover:text-secondary-mint border border-slate-200 transition-colors cursor-pointer"
+                    aria-label={`${t.recruiter.shortlistCandidate}: ${cand.name}`}
+                    className="p-2 rounded-lg bg-surface-container-low hover:bg-secondary/15 text-slate-600 hover:text-secondary-mint border border-slate-200 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
-                    <Star className="w-3.5 h-3.5" />
+                    <Star className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => onScheduleCandidate(cand.id)}
                     title={t.recruiter.scheduleInterview}
-                    className="p-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                    aria-label={`${t.recruiter.scheduleInterview}: ${cand.name}`}
+                    className="p-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
-                    <Calendar className="w-3.5 h-3.5" />
+                    <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
                     <span className="hidden sm:inline">{language === "bn" ? "সাক্ষাৎকার" : "Schedule"}</span>
                   </button>
                 </div>

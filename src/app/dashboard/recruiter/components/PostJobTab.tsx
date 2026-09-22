@@ -58,6 +58,17 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
     "Linux Kernel",
   ];
 
+  // Handle Escape key to close modal
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showCreateModal) {
+        setShowCreateModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showCreateModal]);
+
   const handleAddSkill = (skillToAdd?: string) => {
     const s = (skillToAdd || skillInput).trim();
     if (!s) return;
@@ -105,12 +116,12 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container backdrop-blur-sm border border-white/15">
-              <Briefcase className="w-3.5 h-3.5 text-secondary-mint" />
+              <Briefcase className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
               <span>{language === "bn" ? "ইঞ্জিনিয়ারিং পদ লাইফসাইকেল" : "Engineering Position Lifecycle"}</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
               {language === "bn" ? "চাকরির বিজ্ঞপ্তি ও মেধা সংগ্রহের শর্তাবলী" : "Job Postings & Sourcing Requirements"}
-            </h1>
+            </h2>
             <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
               {language === "bn"
                 ? "কঠোর AST অ্যালগোরিদমিক মানদণ্ড অনুযায়ী নতুন পদ তৈরি করুন। কিওয়ার্ড স্প্যাম ছাড়াই আমাদের ইঞ্জিন স্বয়ংক্রিয়ভাবে প্রার্থীর কোড বিশ্লেষণ করে ম্যাচ হিসাব করে।"
@@ -122,9 +133,9 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
             type="button"
             onClick={() => setShowCreateModal(true)}
             id="create-new-job-btn"
-            className="px-5 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-level-2 transition-all cursor-pointer self-stretch md:self-auto"
+            className="px-5 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-level-2 transition-all cursor-pointer self-stretch md:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4" aria-hidden="true" />
             <span>{t.recruiter.createJobBtn}</span>
           </button>
         </div>
@@ -140,155 +151,162 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
             {jobs.length} {language === "bn" ? "মোট" : "Total"}
           </span>
         </div>
-
         <button
           type="button"
           onClick={() => setShowCreateModal(true)}
-          className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-container hover:text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded-lg px-2 py-1"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>{language === "bn" ? "দ্রুত তৈরি করুন" : "Quick Create"}</span>
+          <Plus className="w-4 h-4" aria-hidden="true" />
+          <span>{language === "bn" ? "নতুন পদ যুক্ত করুন" : "Add New Role"}</span>
         </button>
       </div>
 
-      {/* Active Jobs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Jobs Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {jobs.map((job) => (
           <div
             key={job.id}
-            className="p-5 rounded-2xl bg-white border border-stroke-card hover:border-secondary-mint/40 hover:shadow-level-1 transition-all space-y-4 flex flex-col justify-between"
+            className="p-6 rounded-2xl bg-white border border-stroke-card hover:border-slate-300 shadow-sm hover:shadow-level-2 transition-all flex flex-col justify-between gap-4"
           >
             <div className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-secondary/15 text-secondary-mint text-[11px] font-bold border border-secondary/30">
-                    {job.team}
-                  </span>
-                  <h3 className="text-base font-extrabold text-on-surface mt-1.5 leading-tight">
-                    {job.title}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-extrabold text-on-surface tracking-tight">
+                      {job.title}
+                    </h3>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                        job.status === "Active"
+                          ? "bg-secondary-mint/15 text-secondary-mint border-secondary-mint/30"
+                          : "bg-slate-100 text-slate-600 border-slate-200"
+                      }`}
+                    >
+                      {job.status === "Active"
+                        ? language === "bn"
+                          ? "সক্রিয়"
+                          : "Active"
+                        : language === "bn"
+                        ? "স্থগিত"
+                        : "Paused"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 font-medium mt-0.5">{job.team}</p>
                 </div>
 
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    job.status === "Active"
-                      ? "bg-secondary-mint/15 text-secondary-mint border border-secondary-mint/30"
-                      : "bg-slate-100 text-outline border border-slate-200"
-                  }`}
-                >
-                  {job.status === "Active"
-                    ? (language === "bn" ? "সক্রিয়" : "Active")
-                    : (language === "bn" ? "স্থগিত" : "Paused")}
-                </span>
-              </div>
-
-              <p className="text-xs text-on-surface-variant leading-relaxed line-clamp-2">
-                {job.description}
-              </p>
-
-              {/* Telemetry info */}
-              <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-outline pt-1">
-                <span className="flex items-center gap-1 font-mono text-on-surface font-semibold">
-                  <DollarSign className="w-3.5 h-3.5 text-secondary-mint" />
-                  {job.salary}
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {job.location} ({job.workModel})
-                </span>
-                <span>•</span>
-                <span className="text-[11px] font-mono font-bold text-primary">
-                  {language === "bn"
-                    ? `ন্যূনতম ${job.minMatch}% AST ম্যাচ`
-                    : `Min ${job.minMatch}% AST Match`}
-                </span>
-              </div>
-
-              {/* Skills required */}
-              <div className="flex flex-wrap items-center gap-1 pt-1">
-                {job.skills.map((s) => (
-                  <span
-                    key={s}
-                    className="px-2 py-0.5 rounded bg-surface-container-low border border-slate-200 text-[10px] font-mono text-on-surface-variant font-medium"
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onToggleJobStatus(job.id)}
+                    title={job.status === "Active" ? "Pause posting" : "Resume posting"}
+                    aria-label={job.status === "Active" ? `Pause ${job.title}` : `Resume ${job.title}`}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
-                    {s}
+                    {job.status === "Active" ? (
+                      <PauseCircle className="w-4 h-4 text-amber-600" aria-hidden="true" />
+                    ) : (
+                      <PlayCircle className="w-4 h-4 text-secondary-mint" aria-hidden="true" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteJob(job.id)}
+                    title="Remove posting"
+                    aria-label={`Delete ${job.title}`}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-accent-gap hover:bg-accent-gap/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
+                  >
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-600 font-medium">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                  <span>{job.location} ({job.workModel})</span>
+                </span>
+                <span className="flex items-center gap-1 font-mono">
+                  <DollarSign className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                  <span>{job.salary}</span>
+                </span>
+                <span className="font-mono text-primary font-bold">
+                  {t.recruiter.minAstCutoff}: {job.minMatch}%
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-700 leading-relaxed">{job.description}</p>
+
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {job.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-2 py-0.5 rounded-md bg-surface-container-low border border-slate-200 text-[11px] font-mono font-semibold text-primary"
+                  >
+                    {skill}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Bottom Actions */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-3 border-t border-stroke-card flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                <Users className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
+                <span className="font-mono font-bold text-on-surface">{job.applicantsCount}</span>
+                <span>{t.recruiter.applicantsInPipeline}</span>
+              </div>
+
               <button
                 type="button"
                 onClick={() => onNavigateToPipeline(job.id)}
-                className="font-bold text-primary hover:underline flex items-center gap-1.5 cursor-pointer"
+                className="font-bold text-primary-container hover:text-secondary-mint transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded px-1.5 py-0.5"
               >
-                <Users className="w-3.5 h-3.5" />
-                <span>
-                  {job.applicantsCount} {language === "bn" ? "আবেদনকারী" : "Applicants"}
-                </span>
+                {t.recruiter.viewAtsCandidates} &rarr;
               </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onToggleJobStatus(job.id)}
-                  title={
-                    job.status === "Active"
-                      ? (language === "bn" ? "আবেদন স্থগিত করুন" : "Pause Applications")
-                      : (language === "bn" ? "বিজ্ঞপ্তি চালু করুন" : "Activate Role")
-                  }
-                  className="p-1.5 rounded-lg border border-slate-200 hover:bg-surface-container-low text-outline hover:text-on-surface transition-colors cursor-pointer"
-                >
-                  {job.status === "Active" ? (
-                    <PauseCircle className="w-4 h-4 text-amber-500" />
-                  ) : (
-                    <PlayCircle className="w-4 h-4 text-secondary-mint" />
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onDeleteJob(job.id)}
-                  title={language === "bn" ? "বিজ্ঞপ্তি মুছে ফেলুন" : "Delete Role"}
-                  className="p-1.5 rounded-lg border border-slate-200 hover:bg-accent-gap/10 text-outline hover:text-accent-gap transition-colors cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Create New Job Modal */}
+      {/* CREATE JOB MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-xl rounded-2xl bg-white border border-stroke-card shadow-level-3 p-6 space-y-5 animate-scaleIn max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-stroke-card pb-3">
-              <div className="flex items-center gap-2">
-                <PlusCircle className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-extrabold text-on-surface">
-                  {language === "bn" ? "নতুন ইঞ্জিনিয়ারিং পদ তৈরি করুন" : "Create New Engineering Role"}
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-job-modal-title"
+          onClick={() => setShowCreateModal(false)}
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 id="create-job-modal-title" className="text-lg font-black text-on-surface">
+                  {t.recruiter.postNewJobTitle}
                 </h3>
+                <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                  {t.recruiter.postNewJobSubtitle}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-outline hover:text-on-surface transition-colors cursor-pointer"
+                aria-label="Close create job modal"
+                className="text-slate-500 hover:text-on-surface p-1 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="job-title-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.jobTitle}
                 </label>
                 <input
+                  id="job-title-input"
                   type="text"
                   required
                   placeholder={
@@ -298,19 +316,20 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                   }
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
+                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="job-team-select" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.recruiter.engineeringTeam}
                   </label>
                   <select
+                    id="job-team-select"
                     value={team}
                     onChange={(e) => setTeam(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
                     <option value="Core Infrastructure">Core Infrastructure</option>
                     <option value="Platform SRE">Platform SRE</option>
@@ -321,13 +340,14 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="job-workmodel-select" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {language === "bn" ? "কাজের ধরন" : "Work Model"}
                   </label>
                   <select
+                    id="job-workmodel-select"
                     value={workModel}
                     onChange={(e) => setWorkModel(e.target.value as "Remote" | "Hybrid" | "On-site")}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
                     <option value="Hybrid">{language === "bn" ? "হাইব্রিড" : "Hybrid"}</option>
                     <option value="Remote">{language === "bn" ? "রিমোট" : "Remote"}</option>
@@ -338,48 +358,51 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="job-location-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.recruiter.location}
                   </label>
                   <input
+                    id="job-location-input"
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="job-salary-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.recruiter.salaryRange}
                   </label>
                   <input
+                    id="job-salary-input"
                     type="text"
                     value={salary}
                     onChange={(e) => setSalary(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="job-minmatch-slider" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.minAstCutoff}
                 </label>
                 <div className="flex items-center gap-3">
                   <input
+                    id="job-minmatch-slider"
                     type="range"
                     min="75"
                     max="98"
                     value={minMatch}
                     onChange={(e) => setMinMatch(Number(e.target.value))}
-                    className="flex-1 accent-primary"
+                    className="flex-1 accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                   <span className="font-mono font-bold text-sm text-primary px-2.5 py-1 rounded bg-primary/10">
                     {minMatch}%
                   </span>
                 </div>
-                <p className="text-[10px] text-outline">
+                <p className="text-[10px] text-slate-600 font-medium">
                   {language === "bn"
                     ? "এই সিনট্যাক্স বেঞ্চমার্কের নিচের প্রার্থীরা স্বয়ংক্রিয়ভাবে ফিল্টার হয়ে যাবে।"
                     : "Candidates below this syntax benchmark will be filtered out automatically."}
@@ -388,11 +411,12 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
 
               {/* Skills Tag Manager */}
               <div className="space-y-2">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="job-skill-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.skillsRequired}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
+                    id="job-skill-input"
                     type="text"
                     placeholder={
                       language === "bn"
@@ -407,12 +431,12 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                         handleAddSkill();
                       }
                     }}
-                    className="flex-1 h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint text-xs"
+                    className="flex-1 h-9 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint text-xs focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                   <button
                     type="button"
                     onClick={() => handleAddSkill()}
-                    className="h-9 px-3 rounded-xl bg-primary-container text-white font-bold text-xs cursor-pointer"
+                    className="h-9 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white font-bold text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   >
                     {language === "bn" ? "যোগ করুন" : "Add"}
                   </button>
@@ -428,15 +452,16 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveSkill(s)}
-                        className="text-outline hover:text-accent-gap cursor-pointer"
+                        aria-label={`Remove ${s} requirement`}
+                        className="text-slate-400 hover:text-accent-gap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap rounded"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </span>
                   ))}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1 text-[11px] text-outline">
+                <div className="flex flex-wrap items-center gap-1 text-[11px] text-slate-600">
                   <span className="font-bold">{language === "bn" ? "পরামর্শ:" : "Suggestions:"}</span>
                   {suggestedJobSkills
                     .filter((s) => !skills.includes(s))
@@ -445,7 +470,8 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                         key={s}
                         type="button"
                         onClick={() => handleAddSkill(s)}
-                        className="px-2 py-0.5 rounded bg-surface border border-slate-200 hover:border-secondary-mint hover:text-secondary-mint transition-colors cursor-pointer"
+                        aria-label={`Add suggested skill: ${s}`}
+                        className="px-2 py-0.5 rounded bg-surface border border-slate-200 hover:border-secondary-mint hover:text-secondary-mint transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                       >
                         + {s}
                       </button>
@@ -454,10 +480,11 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="job-description-textarea" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.jobDescription}
                 </label>
                 <textarea
+                  id="job-description-textarea"
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -466,7 +493,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                       ? "মূল ডিস্ট্রিবিউটেড চ্যালেঞ্জ, স্টেট রেপ্লিকেশন সমস্যা এবং থ্রুপুট প্রত্যাশা লিখুন..."
                       : "Detail core distributed problems, state replication challenges, and throughput expectations..."
                   }
-                  className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed focus:outline-none focus:bg-white focus:border-secondary-mint"
+                  className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 />
               </div>
 

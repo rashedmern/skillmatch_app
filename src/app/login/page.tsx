@@ -238,30 +238,38 @@ export default function LoginPage() {
               </div>
 
               {/* Persona Switcher Tabs */}
-              <div className="grid grid-cols-2 p-1 rounded-xl bg-surface-container-low border border-slate-200/80 text-xs font-semibold">
+              <div role="tablist" aria-label="Login role selection" className="grid grid-cols-2 p-1 rounded-xl bg-surface-container-low border border-slate-200/80 text-xs font-semibold">
                 <button
                   type="button"
+                  role="tab"
+                  id="tab-candidate"
+                  aria-selected={persona === "candidate"}
+                  aria-controls="login-form"
                   onClick={() => setPersona("candidate")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer ${
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                     persona === "candidate"
                       ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
-                      : "text-on-surface-variant hover:text-on-surface"
+                      : "text-slate-600 hover:text-on-surface"
                   }`}
                 >
-                  <Code2 className="w-3.5 h-3.5" />
+                  <Code2 className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>{t.auth.asCandidate}</span>
                 </button>
 
                 <button
                   type="button"
+                  role="tab"
+                  id="tab-recruiter"
+                  aria-selected={persona === "recruiter"}
+                  aria-controls="login-form"
                   onClick={() => setPersona("recruiter")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer ${
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                     persona === "recruiter"
                       ? "bg-white text-primary-container shadow-sm border border-slate-200/50"
-                      : "text-on-surface-variant hover:text-on-surface"
+                      : "text-slate-600 hover:text-on-surface"
                   }`}
                 >
-                  <Building2 className="w-3.5 h-3.5" />
+                  <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>{t.auth.asRecruiter}</span>
                 </button>
               </div>
@@ -272,7 +280,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleGitHubSignIn}
                   id="login-github-btn"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
                   <GithubIcon className="w-4 h-4" />
                   <span>{t.auth.githubAuth}</span>
@@ -285,7 +293,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleGoogleSignIn}
                   id="login-google-btn"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
                   <GoogleIcon className="w-4 h-4" />
                   <span>{t.auth.googleSso}</span>
@@ -294,8 +302,12 @@ export default function LoginPage() {
 
               {/* Security Error Banner */}
               {errorMessage && (
-                <div className="p-3.5 rounded-xl bg-accent-gap/10 border border-accent-gap/30 flex items-start gap-2.5 text-xs text-accent-gap animate-shake">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="p-3.5 rounded-xl bg-accent-gap/10 border border-accent-gap/30 flex items-start gap-2.5 text-xs text-accent-gap animate-shake"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                   <div>
                     <p className="font-bold">{errorMessage}</p>
                     <p className="text-[11px] text-accent-gap/80 mt-0.5">
@@ -310,13 +322,13 @@ export default function LoginPage() {
               {/* Divider */}
               <div className="relative flex items-center justify-center">
                 <div className="border-t border-slate-200 w-full" />
-                <span className="bg-white px-3 text-[11px] font-medium text-outline uppercase tracking-wider">
+                <span className="bg-white px-3 text-[11px] font-medium text-slate-600 uppercase tracking-wider">
                   {t.auth.orContinueWith}
                 </span>
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
                 {/* Email Field */}
                 <div className="space-y-1.5">
                   <label
@@ -326,11 +338,13 @@ export default function LoginPage() {
                     {t.auth.emailLabel}
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                     <input
                       id="email"
                       type="email"
                       required
+                      aria-required="true"
+                      aria-invalid={!!errorMessage}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={
@@ -338,7 +352,7 @@ export default function LoginPage() {
                           ? "alex.chen@eecs.berkeley.edu"
                           : "sarah.miller@scaleops.io"
                       }
-                      className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
+                      className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
                     />
                   </div>
                 </div>
@@ -355,7 +369,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setResetSent(true)}
-                      className="text-xs text-secondary-mint hover:underline font-medium cursor-pointer"
+                      className="text-xs text-secondary-mint hover:underline font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded"
                     >
                       {resetSent
                         ? (language === "bn" ? "রিসেট নির্দেশিকা পাঠানো হয়েছে!" : "Reset instructions sent!")
@@ -363,20 +377,21 @@ export default function LoginPage() {
                     </button>
                   </div>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
                     <input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       required
+                      aria-required="true"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full h-10 pl-9 pr-10 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all font-mono"
+                      className="w-full h-10 pl-9 pr-10 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-on-surface cursor-pointer p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -391,9 +406,9 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-primary-container focus:ring-secondary/30 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-primary-container focus:ring-secondary/30 cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
-                  <label htmlFor="remember" className="text-xs text-on-surface-variant font-medium select-none cursor-pointer">
+                  <label htmlFor="remember" className="text-xs text-slate-700 font-medium select-none cursor-pointer">
                     {t.auth.rememberMe}
                   </label>
                 </div>
@@ -402,14 +417,14 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 cursor-pointer"
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint focus-visible:ring-offset-2"
                 >
                   {isLoading ? (
                     <span>{t.common.loading}</span>
                   ) : (
                     <>
                       <span>{t.auth.signInBtn}</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
                     </>
                   )}
                 </button>
@@ -417,11 +432,11 @@ export default function LoginPage() {
 
               {/* Bottom Register Route Link */}
               <div className="text-center pt-2">
-                <p className="text-xs sm:text-sm text-on-surface-variant">
+                <p className="text-xs sm:text-sm text-slate-600">
                   {t.auth.noAccount}{" "}
                   <Link
                     href="/register"
-                    className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors"
+                    className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded"
                   >
                     {t.auth.signUpLink}
                   </Link>
@@ -433,7 +448,7 @@ export default function LoginPage() {
       </main>
 
       {/* Mini Footer */}
-      <footer className="w-full py-4 text-center text-xs text-outline border-t border-stroke-card/60">
+      <footer className="w-full py-4 text-center text-xs text-slate-600 border-t border-stroke-card/60">
         &copy; 2026 SkillMatch Systems Inc. {language === "bn" ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}
       </footer>
     </div>

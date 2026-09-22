@@ -142,29 +142,35 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
 
         {/* View Toggle */}
         <div className="flex items-center gap-2 self-start lg:self-center">
-          <div className="inline-flex p-1 bg-surface-container rounded-xl border border-slate-200">
+          <div
+            role="group"
+            aria-label="Pipeline view mode"
+            className="inline-flex p-1 bg-surface-container rounded-xl border border-slate-200"
+          >
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              aria-pressed={viewMode === "table"}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                 viewMode === "table"
                   ? "bg-white text-primary-container shadow-sm border border-slate-200"
-                  : "text-outline hover:text-on-surface"
+                  : "text-slate-600 hover:text-on-surface"
               }`}
             >
-              <LayoutList className="w-3.5 h-3.5" />
+              <LayoutList className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.recruiter.tableView}</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              aria-pressed={viewMode === "kanban"}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                 viewMode === "kanban"
                   ? "bg-white text-primary-container shadow-sm border border-slate-200"
-                  : "text-outline hover:text-on-surface"
+                  : "text-slate-600 hover:text-on-surface"
               }`}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{t.recruiter.kanbanView}</span>
             </button>
           </div>
@@ -176,24 +182,26 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
           {/* Search Box */}
           <div className="md:col-span-5 relative">
-            <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
             <input
               type="text"
+              aria-label={t.recruiter.searchCandidatesPlaceholder}
               placeholder={t.recruiter.searchCandidatesPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
+              className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all"
             />
           </div>
 
           {/* Job Filter Dropdown */}
           <div className="md:col-span-4">
             <div className="relative">
-              <Briefcase className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2" />
+              <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden="true" />
               <select
+                aria-label="Filter candidates by job posting"
                 value={selectedJobFilter}
                 onChange={(e) => onFilterByJob(e.target.value)}
-                className="w-full h-10 pl-9 pr-8 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint transition-all cursor-pointer appearance-none"
+                className="w-full h-10 pl-9 pr-8 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint transition-all cursor-pointer appearance-none"
               >
                 <option value="ALL">
                   {language === "bn"
@@ -206,7 +214,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                   </option>
                 ))}
               </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[10px]">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[10px]" aria-hidden="true">
                 ▼
               </div>
             </div>
@@ -220,19 +228,24 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
             </div>
             <input
               type="range"
+              aria-label="Minimum AST Match percentage threshold"
               min="70"
               max="95"
               step="1"
               value={minMatchThreshold}
               onChange={(e) => setMinMatchThreshold(Number(e.target.value))}
-              className="w-full accent-primary-container cursor-pointer"
+              className="w-full accent-primary-container cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             />
           </div>
         </div>
 
         {/* Stage Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-thin">
-          <span className="text-[11px] font-bold text-outline uppercase tracking-wider mr-1">
+        <div
+          role="group"
+          aria-label="Filter candidates by pipeline stage"
+          className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-thin"
+        >
+          <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mr-1">
             {language === "bn" ? "পর্যায়:" : "Stage:"}
           </span>
           {["All", ...stagesList].map((st) => {
@@ -242,17 +255,18 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
               <button
                 key={st}
                 type="button"
+                aria-pressed={isSelected}
                 onClick={() => setStageFilter(st)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint ${
                   isSelected
                     ? "bg-primary-container text-white shadow-sm"
-                    : "bg-surface-container hover:bg-slate-200 text-on-surface-variant"
+                    : "bg-surface-container hover:bg-slate-200 text-slate-700"
                 }`}
               >
                 <span>{getStageLabel(st)}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    isSelected ? "bg-white/20 text-white" : "bg-white text-outline"
+                    isSelected ? "bg-white/20 text-white" : "bg-white text-slate-600"
                   }`}
                 >
                   {count}
@@ -268,26 +282,26 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
         /* TABLE VIEW */
         <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-xs border-collapse" aria-label={t.recruiter.atsPipelineTitle}>
               <thead>
-                <tr className="bg-surface-container border-b border-slate-200 text-[11px] font-bold text-outline uppercase tracking-wider">
-                  <th className="py-3.5 px-4">{t.recruiter.candidateProfileCol}</th>
-                  <th className="py-3.5 px-4">{t.recruiter.institutionalEduCol}</th>
-                  <th className="py-3.5 px-4">{t.recruiter.targetJobCol}</th>
-                  <th className="py-3.5 px-4">{t.recruiter.astScoreCol}</th>
-                  <th className="py-3.5 px-4">{t.recruiter.verifiedRepoCol}</th>
-                  <th className="py-3.5 px-4">{t.recruiter.stageCol}</th>
-                  <th className="py-3.5 px-4 text-right">{t.recruiter.actionsCol}</th>
+                <tr className="bg-surface-container border-b border-slate-200 text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.candidateProfileCol}</th>
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.institutionalEduCol}</th>
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.targetJobCol}</th>
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.astScoreCol}</th>
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.verifiedRepoCol}</th>
+                  <th scope="col" className="py-3.5 px-4">{t.recruiter.stageCol}</th>
+                  <th scope="col" className="py-3.5 px-4 text-right">{t.recruiter.actionsCol}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredApplicants.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-outline">
+                    <td colSpan={7} className="py-12 text-center text-slate-500">
                       <div className="max-w-xs mx-auto space-y-2">
-                        <UserX className="w-8 h-8 text-outline mx-auto" />
+                        <UserX className="w-8 h-8 text-slate-400 mx-auto" aria-hidden="true" />
                         <p className="font-bold text-on-surface">{t.recruiter.noApplicantsFound}</p>
-                        <p className="text-[11px]">
+                        <p className="text-[11px] font-medium text-slate-500">
                           {t.recruiter.noApplicantsFoundDesc}
                         </p>
                       </div>
@@ -309,7 +323,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                             </div>
                             <div>
                               <div className="font-bold text-on-surface text-sm">{cand.name}</div>
-                              <div className="text-[11px] text-outline font-mono">{cand.email}</div>
+                              <div className="text-[11px] text-slate-600 font-mono">{cand.email}</div>
                             </div>
                           </div>
                         </td>
@@ -318,11 +332,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                         <td className="py-3 px-4">
                           <div className="space-y-0.5">
                             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container font-semibold text-[11px]">
-                              <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" />
+                              <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
                               <span>{cand.university}</span>
                             </div>
-                            <div className="text-[10px] text-outline flex items-center gap-1">
-                              <GraduationCap className="w-3 h-3 text-outline" />
+                            <div className="text-[10px] text-slate-600 font-medium flex items-center gap-1">
+                              <GraduationCap className="w-3 h-3 text-slate-500" aria-hidden="true" />
                               <span>{cand.degree}</span>
                             </div>
                           </div>
@@ -343,16 +357,23 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                 className={`px-2 py-0.5 rounded-md font-mono font-black text-xs ${
                                   isPassed
                                     ? "bg-secondary-mint/20 text-primary-container"
-                                    : "bg-surface-container text-outline"
+                                    : "bg-surface-container text-slate-600"
                                 }`}
                               >
                                 {cand.matchScore.toFixed(1)}%
                               </span>
-                              <span className="text-[10px] text-outline font-mono">
+                              <span className="text-[10px] text-slate-600 font-mono">
                                 ({cand.astNodes.toLocaleString()} {language === "bn" ? "নোড" : "nodes"})
                               </span>
                             </div>
-                            <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              role="progressbar"
+                              aria-valuenow={Math.round(cand.matchScore)}
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-label={`AST Match score for ${cand.name}`}
+                              className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden"
+                            >
                               <div
                                 className={`h-full rounded-full ${
                                   isPassed ? "bg-secondary-mint" : "bg-primary-container"
@@ -366,7 +387,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                         {/* Highlight Repository */}
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5 text-xs text-on-surface-variant font-mono bg-surface-container-low px-2 py-1 rounded border border-slate-200 max-w-[200px] truncate">
-                            <Code2 className="w-3 h-3 text-secondary-mint flex-shrink-0" />
+                            <Code2 className="w-3 h-3 text-secondary-mint flex-shrink-0" aria-hidden="true" />
                             <span className="truncate" title={cand.highlightRepo}>
                               {cand.highlightRepo}
                             </span>
@@ -400,6 +421,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                   ? "bg-rose-500"
                                   : "bg-slate-400"
                               }`}
+                              aria-hidden="true"
                             />
                             {getStageLabel(cand.stage)}
                           </span>
@@ -419,10 +441,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                       : `Shortlisted candidate ${cand.name}!`
                                   );
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-secondary-mint/15 hover:bg-secondary-mint/25 text-primary-container font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+                                aria-label={`${language === "bn" ? "বাছাই করুন" : "Shortlist"} ${cand.name}`}
+                                className="px-2.5 py-1 rounded-lg bg-secondary-mint/15 hover:bg-secondary-mint/25 text-primary-container font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                                 title={language === "bn" ? "বাছাই তালিকায় যোগ করুন" : "Add to Shortlist"}
                               >
-                                <UserCheck className="w-3.5 h-3.5 text-secondary-mint" />
+                                <UserCheck className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
                                 <span>{language === "bn" ? "বাছাই করুন" : "Shortlist"}</span>
                               </button>
                             )}
@@ -430,10 +453,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                             <button
                               type="button"
                               onClick={() => onOpenScheduleModal(cand)}
-                              className="px-2.5 py-1 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                              aria-label={`${language === "bn" ? "সাক্ষাৎকার নির্ধারণ করুন" : "Schedule Interview"} - ${cand.name}`}
+                              className="px-2.5 py-1 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                               title={language === "bn" ? "সাক্ষাৎকার নির্ধারণ করুন" : "Schedule Technical Interview"}
                             >
-                              <Calendar className="w-3.5 h-3.5 text-secondary-mint" />
+                              <Calendar className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
                               <span>{language === "bn" ? "সাক্ষাৎকার" : "Schedule"}</span>
                             </button>
 
@@ -448,10 +472,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                       : `Archived application from ${cand.name}.`
                                   );
                                 }}
-                                className="p-1 rounded-lg text-outline hover:text-error hover:bg-rose-50 transition-colors cursor-pointer"
+                                aria-label={`${language === "bn" ? "আবেদন বাতিল করুন" : "Reject Candidate"} ${cand.name}`}
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-error hover:bg-rose-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
                                 title={language === "bn" ? "আবেদন বাতিল করুন" : "Reject Candidate"}
                               >
-                                <UserX className="w-4 h-4" />
+                                <UserX className="w-4 h-4" aria-hidden="true" />
                               </button>
                             )}
                           </div>
@@ -490,10 +515,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                           ? "bg-rose-500"
                           : "bg-slate-400"
                       }`}
+                      aria-hidden="true"
                     />
                     <h3 className="font-bold text-xs text-on-surface truncate">{getStageLabel(stage)}</h3>
                   </div>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-surface-container text-slate-700">
                     {candidatesInStage.length}
                   </span>
                 </div>
@@ -501,7 +527,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                 {/* Candidate Cards in Column */}
                 <div className="p-2 space-y-2 flex-1 overflow-y-auto">
                   {candidatesInStage.length === 0 ? (
-                    <div className="py-8 text-center text-outline text-[11px]">
+                    <div className="py-8 text-center text-slate-500 text-[11px] font-medium">
                       {language === "bn" ? "এই পর্যায়ে কোন প্রার্থী নেই" : "No candidates in this stage"}
                     </div>
                   ) : (
@@ -514,7 +540,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                         <div className="flex items-start justify-between gap-1">
                           <div>
                             <div className="font-bold text-on-surface text-xs">{cand.name}</div>
-                            <div className="text-[10px] text-outline font-mono truncate max-w-[120px]">
+                            <div className="text-[10px] text-slate-600 font-mono truncate max-w-[120px]">
                               {cand.email}
                             </div>
                           </div>
@@ -526,24 +552,24 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                         {/* University & Degree */}
                         <div className="text-[10px] space-y-0.5">
                           <div className="flex items-center gap-1 text-primary-container font-semibold">
-                            <ShieldCheck className="w-3 h-3 text-secondary-mint" />
+                            <ShieldCheck className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
                             <span className="truncate">{cand.university}</span>
                           </div>
-                          <div className="text-outline truncate">{cand.degree}</div>
+                          <div className="text-slate-600 font-medium truncate">{cand.degree}</div>
                         </div>
 
                         {/* Job Badge */}
-                        <div className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-on-surface-variant font-medium truncate">
+                        <div className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium truncate">
                           {cand.jobTitle}
                         </div>
 
                         {/* Code Telemetry */}
-                        <div className="text-[10px] font-mono text-outline flex items-center justify-between border-t border-slate-100 pt-1.5">
+                        <div className="text-[10px] font-mono text-slate-600 flex items-center justify-between border-t border-slate-100 pt-1.5">
                           <span className="flex items-center gap-1">
-                            <Code2 className="w-3 h-3 text-secondary-mint" />
+                            <Code2 className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
                             {cand.astNodes.toLocaleString()} {language === "bn" ? "নোড" : "nodes"}
                           </span>
-                          <span className="text-[9px] text-secondary-mint font-semibold">
+                          <span className="text-[9px] text-secondary-mint font-bold">
                             {language === "bn" ? "AST পাস" : "AST PASS"}
                           </span>
                         </div>
@@ -561,7 +587,8 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                     : `Shortlisted candidate ${cand.name}!`
                                 );
                               }}
-                              className="text-[10px] px-2 py-1 rounded bg-secondary-mint/15 text-primary-container font-bold hover:bg-secondary-mint/25 transition-colors cursor-pointer"
+                              aria-label={`${language === "bn" ? "বাছাই করুন" : "Shortlist"} ${cand.name}`}
+                              className="text-[10px] px-2 py-1 rounded bg-secondary-mint/15 text-primary-container font-bold hover:bg-secondary-mint/25 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                             >
                               {language === "bn" ? "বাছাই করুন" : "Shortlist"}
                             </button>
@@ -570,7 +597,8 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                           <button
                             type="button"
                             onClick={() => onOpenScheduleModal(cand)}
-                            className="text-[10px] px-2 py-1 rounded bg-primary-container text-white font-bold hover:bg-primary-hover transition-colors cursor-pointer"
+                            aria-label={`${language === "bn" ? "সাক্ষাৎকার" : "Schedule"} ${cand.name}`}
+                            className="text-[10px] px-2 py-1 rounded bg-primary-container text-white font-bold hover:bg-primary-hover transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                           >
                             {language === "bn" ? "সাক্ষাৎকার" : "Schedule"}
                           </button>
@@ -586,10 +614,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                     : `Rejected candidate ${cand.name}.`
                                 );
                               }}
-                              className="text-[10px] p-1 text-outline hover:text-error transition-colors cursor-pointer"
+                              aria-label={`${language === "bn" ? "বাতিল" : "Reject"} ${cand.name}`}
+                              className="text-[10px] p-1.5 text-slate-500 hover:text-error hover:bg-rose-50 transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
                               title={language === "bn" ? "বাতিল" : "Reject"}
                             >
-                              <UserX className="w-3.5 h-3.5" />
+                              <UserX className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
                           )}
                         </div>

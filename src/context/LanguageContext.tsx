@@ -147,8 +147,13 @@ export interface Translations {
     formatLabel: string;
     calendarInviteNotice: string;
     sendCalendarInvite: string;
+    applicantsInPipeline: string;
+    viewAtsCandidates: string;
+    postNewJobTitle: string;
+    postNewJobSubtitle: string;
   };
   candidate: {
+    allDomains: string;
     dossierTitle: string;
     dossierSubtitle: string;
     algorithmicDossier: string;
@@ -440,8 +445,13 @@ export const translations: Record<Language, Translations> = {
       formatLabel: "Interview Format & Focus Area",
       calendarInviteNotice: "A calendar invitation with secure video conferencing link and AST syntax audit dossier will be automatically dispatched to",
       sendCalendarInvite: "Send Calendar Invite",
+      applicantsInPipeline: "Applicants in Pipeline",
+      viewAtsCandidates: "View ATS Candidates",
+      postNewJobTitle: "Post New Engineering Opportunity",
+      postNewJobSubtitle: "Publish a high-signal role to verified university engineering students.",
     },
     candidate: {
+      allDomains: "All Domains",
       dossierTitle: "CSE Career Match Dossier",
       dossierSubtitle: "Algorithmic code assessment and automated matching with top engineering infrastructure teams.",
       algorithmicDossier: "Algorithmic Student Dossier",
@@ -731,8 +741,13 @@ export const translations: Record<Language, Translations> = {
       formatLabel: "সাক্ষাৎকারের বিন্যাস ও ফোকাস ক্ষেত্র",
       calendarInviteNotice: "ভিডিও কনফারেন্সিং লিঙ্ক এবং AST সিনট্যাক্স অডিট ডজিয়ার সহ একটি ক্যালেন্ডার আমন্ত্রণ স্বয়ংক্রিয়ভাবে পাঠানো হবে:",
       sendCalendarInvite: "ক্যালেন্ডার আমন্ত্রণ পাঠান",
+      applicantsInPipeline: "পাইপলাইনে আবেদনকারী",
+      viewAtsCandidates: "ATS প্রার্থী দেখুন",
+      postNewJobTitle: "নতুন ইঞ্জিনিয়ারিং চাকরির পদ তৈরি করুন",
+      postNewJobSubtitle: "যাচাইকৃত বিশ্ববিদ্যালয় ইঞ্জিনিয়ারিং শিক্ষার্থীদের জন্য নতুন পদ প্রকাশ করুন।",
     },
     candidate: {
+      allDomains: "সকল ডোমেন",
       dossierTitle: "সিএসই ক্যারিয়ার ম্যাচ ডজিয়ার",
       dossierSubtitle: "শীর্ষ ইঞ্জিনিয়ারিং ইনফ্রাস্ট্রাকচার টিমের সাথে অ্যালগোরিদমিক কোড মূল্যায়ন ও স্বয়ংক্রিয় ম্যাচিং।",
       algorithmicDossier: "অ্যালগোরিদমিক স্টুডেন্ট ডজিয়ার",

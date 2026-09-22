@@ -319,6 +319,17 @@ function RecruiterDashboardContent() {
     setActiveTab("pipeline");
   };
 
+  // Close schedule modal with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && scheduleCandidate) {
+        setScheduleCandidate(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [scheduleCandidate]);
+
   // Computed metrics
   const activeJobsCount = jobs.filter((j) => j.status === "Active").length;
   const totalApplicantsCount = applicants.length;
@@ -328,9 +339,13 @@ function RecruiterDashboardContent() {
     <div className="min-h-screen bg-surface flex flex-col md:flex-row antialiased selection:bg-secondary-mint/20">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200"
+        >
           <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-primary-container text-white shadow-level-3 border border-secondary-mint/40 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-secondary-mint shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-secondary-mint shrink-0" aria-hidden="true" />
             <span>{toastMessage}</span>
           </div>
         </div>
@@ -353,31 +368,35 @@ function RecruiterDashboardContent() {
       {/* Main Dynamic View Area (Full-Width Responsive) */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between">
+        <header
+          role="banner"
+          className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between"
+        >
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsMobileOpen(true)}
               aria-label="Open navigation sidebar"
-              className="md:hidden p-2 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer"
+              aria-expanded={isMobileOpen}
+              className="md:hidden p-2 rounded-lg text-slate-600 hover:text-on-surface hover:bg-surface-container-low transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-extrabold text-on-surface tracking-tight">
+                <h1 className="text-xs sm:text-sm font-extrabold text-on-surface tracking-tight">
                   {profile.companyName}
-                </span>
+                </h1>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[10px] font-bold">
-                  <Sparkles className="w-3 h-3 text-secondary-mint" />
+                  <Sparkles className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
                   <span>{language === "bn" ? "এন্টারপ্রাইজ রিক্রুটার পোর্টাল" : "Enterprise Recruiter Portal"}</span>
                 </span>
               </div>
-              <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
+              <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-500 font-medium">
                 <StatusDot size="sm" />
                 <span>{language === "bn" ? "যাচাইকৃত ট্যালেন্ট অ্যাকুইজিশন সেশন" : "Verified Talent Acquisition Session"}</span>
-                <span>•</span>
+                <span aria-hidden="true">•</span>
                 <span className="font-mono text-primary-container font-semibold">{profile.recruiterName}</span>
               </div>
             </div>
@@ -388,8 +407,11 @@ function RecruiterDashboardContent() {
             <LanguageSwitcher variant="pill" />
 
             {/* Verified Partner Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary-container">
-              <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
+            <div
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary-container"
+              aria-label="Account status: Verified Enterprise Partner"
+            >
+              <Building2 className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
               <span className="hidden sm:inline">{t.common.role}: {t.common.recruiter}</span>
               <span className="sm:hidden font-mono">HIRING</span>
             </div>
@@ -399,7 +421,8 @@ function RecruiterDashboardContent() {
               type="button"
               onClick={() => setActiveTab("settings")}
               title={t.sidebar.settings}
-              className="w-9 h-9 rounded-xl border border-slate-200 bg-primary-container text-white hover:border-secondary-mint flex items-center justify-center text-xs font-black transition-all overflow-hidden cursor-pointer shadow-xs"
+              aria-label={`${t.sidebar.settings} - ${profile.recruiterName}`}
+              className="w-9 h-9 rounded-xl border border-slate-200 bg-primary-container text-white hover:border-secondary-mint flex items-center justify-center text-xs font-black transition-all overflow-hidden cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
             >
               {profile.avatarUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -412,23 +435,25 @@ function RecruiterDashboardContent() {
         </header>
 
         {/* Dynamic Full-Width Body Container */}
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
+        <main id="main-content" className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
           {/* Security Warning Banner with 4s auto-dismiss & close button */}
           {warning === "unauthorized_candidate_access" && !dismissedWarning && (
             <div
+              role="alert"
+              aria-live="polite"
               className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
                 isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
               }`}
             >
               <div className="flex items-start gap-3">
-                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
+                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" aria-hidden="true" />
                 <div>
                   <p className="font-bold text-sm">
                     {language === "bn"
                       ? "প্রবেশাধিকার নিষিদ্ধ: ক্যান্ডিডেট ডজিয়ার সীমাবদ্ধ"
                       : "Access Denied: Candidate Dossier Restricted"}
                   </p>
-                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
+                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed font-medium">
                     {language === "bn"
                       ? "আপনার অ্যাকাউন্টটি রিক্রুটার পরিচয়পত্রে লগইন রয়েছে। সিকিউরিটি নীতির কারণে ক্যান্ডিডেট পোর্টালে প্রবেশাধিকার সীমিত। আপনাকে রিক্রুটার কনসোলে রিডাইরেক্ট করা হয়েছে।"
                       : "Your account is authenticated with recruiter credentials. Access to candidate job application portals and personal resumes is restricted by SkillMatch Role-Based Access Control. You have been safely redirected to your company recruitment console."}
@@ -441,88 +466,134 @@ function RecruiterDashboardContent() {
                 onClick={handleDismissWarning}
                 aria-label="Dismiss security warning"
                 id="dismiss-warning-btn"
-                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
 
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
-            <RecruiterOverviewTab
-              profile={profile}
-              jobs={jobs}
-              applicants={applicants}
-              onNavigateToTab={(tab) => {
-                if (tab === "pipeline") handleNavigateToPipeline();
-                else setActiveTab(tab);
-              }}
-              onShortlistCandidate={handleShortlistCandidate}
-              onScheduleCandidate={(id) => {
-                const c = applicants.find((a) => a.id === id);
-                if (c) setScheduleCandidate(c);
-              }}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="recruiter-tabpanel-overview"
+              aria-labelledby="recruiter-tab-overview"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <RecruiterOverviewTab
+                profile={profile}
+                jobs={jobs}
+                applicants={applicants}
+                onNavigateToTab={(tab) => setActiveTab(tab)}
+                onShortlistCandidate={handleShortlistCandidate}
+                onScheduleCandidate={(id) => {
+                  const candidate = applicants.find((a) => a.id === id);
+                  if (candidate) setScheduleCandidate(candidate);
+                }}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
 
           {/* TAB 2: POST JOB */}
           {activeTab === "post-job" && (
-            <PostJobTab
-              jobs={jobs}
-              onCreateJob={handleCreateJob}
-              onToggleJobStatus={handleToggleJobStatus}
-              onDeleteJob={handleDeleteJob}
-              onNavigateToPipeline={handleNavigateToPipeline}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="recruiter-tabpanel-post-job"
+              aria-labelledby="recruiter-tab-post-job"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <PostJobTab
+                jobs={jobs}
+                onCreateJob={handleCreateJob}
+                onToggleJobStatus={handleToggleJobStatus}
+                onDeleteJob={handleDeleteJob}
+                onNavigateToPipeline={(jobId?: string) => handleNavigateToPipeline(jobId)}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
 
           {/* TAB 3: CANDIDATE PIPELINE / ATS */}
           {activeTab === "pipeline" && (
-            <AtsPipelineTab
-              applicants={applicants}
-              jobs={jobs}
-              selectedJobFilter={selectedJobFilter}
-              onFilterByJob={(jobId) => setSelectedJobFilter(jobId)}
-              onShortlistCandidate={handleShortlistCandidate}
-              onRejectCandidate={handleRejectCandidate}
-              onOpenScheduleModal={(cand) => setScheduleCandidate(cand)}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="recruiter-tabpanel-pipeline"
+              aria-labelledby="recruiter-tab-pipeline"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <AtsPipelineTab
+                applicants={applicants}
+                jobs={jobs}
+                selectedJobFilter={selectedJobFilter}
+                onFilterByJob={(jobId) => setSelectedJobFilter(jobId)}
+                onShortlistCandidate={handleShortlistCandidate}
+                onRejectCandidate={handleRejectCandidate}
+                onOpenScheduleModal={(cand) => setScheduleCandidate(cand)}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
 
           {/* TAB 4: TALENT SEARCH */}
           {activeTab === "talent-search" && (
-            <TalentSearchTab jobs={jobs} onTriggerToast={triggerToast} />
+            <section
+              role="tabpanel"
+              id="recruiter-tabpanel-talent-search"
+              aria-labelledby="recruiter-tab-talent-search"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <TalentSearchTab jobs={jobs} onTriggerToast={triggerToast} />
+            </section>
           )}
 
           {/* TAB 5: SETTINGS */}
           {activeTab === "settings" && (
-            <RecruiterSettingsTab
-              profile={profile}
-              onUpdateProfile={(updated) => setProfile(updated)}
-              onTriggerToast={triggerToast}
-            />
+            <section
+              role="tabpanel"
+              id="recruiter-tabpanel-settings"
+              aria-labelledby="recruiter-tab-settings"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <RecruiterSettingsTab
+                profile={profile}
+                onUpdateProfile={(updated) => setProfile(updated)}
+                onTriggerToast={triggerToast}
+              />
+            </section>
           )}
         </main>
       </div>
 
       {/* SCHEDULE INTERVIEW MODAL */}
       {scheduleCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="schedule-modal-title"
+          onClick={() => setScheduleCandidate(null)}
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150"
+          >
             <div className="flex items-start justify-between">
               <div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold uppercase mb-1">
-                  <Calendar className="w-3 h-3 text-secondary-mint" />
+                  <Calendar className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
                   <span>{t.recruiter.techEvalSession}</span>
                 </div>
-                <h3 className="text-base font-black text-on-surface">
+                <h3 id="schedule-modal-title" className="text-base font-black text-on-surface">
                   {t.recruiter.scheduleInterviewWith} {scheduleCandidate.name}
                 </h3>
-                <p className="text-xs text-outline mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5 font-medium">
                   {scheduleCandidate.university} • {scheduleCandidate.degree} • AST Match:{" "}
                   <span className="font-mono font-bold text-primary-container">
                     {scheduleCandidate.matchScore.toFixed(1)}%
@@ -532,49 +603,53 @@ function RecruiterDashboardContent() {
               <button
                 type="button"
                 onClick={() => setScheduleCandidate(null)}
-                className="text-outline hover:text-on-surface cursor-pointer text-sm font-bold"
+                aria-label="Close interview scheduling modal"
+                className="text-slate-500 hover:text-on-surface cursor-pointer p-1.5 rounded-lg hover:bg-surface-container-low transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
               >
-                ✕
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleConfirmSchedule} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="schedule-date-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.recruiter.dateLabel}
                   </label>
                   <input
+                    id="schedule-date-input"
                     type="date"
                     required
                     value={scheduleDate}
                     onChange={(e) => setScheduleDate(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                  <label htmlFor="schedule-time-input" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                     {t.recruiter.timeLabel}
                   </label>
                   <input
+                    id="schedule-time-input"
                     type="time"
                     required
                     value={scheduleTime}
                     onChange={(e) => setScheduleTime(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
+                <label htmlFor="schedule-format-select" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
                   {t.recruiter.formatLabel}
                 </label>
                 <select
+                  id="schedule-format-select"
                   value={scheduleFormat}
                   onChange={(e) => setScheduleFormat(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
+                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
                   <option value="AST Code Deep-Dive & Systems Architecture">
                     {language === "bn"
@@ -594,7 +669,7 @@ function RecruiterDashboardContent() {
                 </select>
               </div>
 
-              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-outline text-[11px] leading-relaxed">
+              <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-slate-600 text-[11px] leading-relaxed font-medium">
                 {t.recruiter.calendarInviteNotice}{" "}
                 <span className="font-mono text-on-surface font-semibold">{scheduleCandidate.email}</span>.
               </div>
@@ -603,7 +678,7 @@ function RecruiterDashboardContent() {
                 <button
                   type="button"
                   onClick={() => setScheduleCandidate(null)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-slate-700 hover:text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
                   {t.common.cancel}
                 </button>
