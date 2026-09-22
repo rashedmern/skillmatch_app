@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Arimo } from "next/font/google";
 import "./globals.css";
+import { SmoothScroll } from "@/components/common/SmoothScroll";
 
 const arimo = Arimo({
   subsets: ["latin"],
@@ -20,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${arimo.variable} scroll-smooth antialiased`}>
+    <html lang="en" className={`${arimo.variable} antialiased`}>
       <body className="min-h-screen flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
-        {children}
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );

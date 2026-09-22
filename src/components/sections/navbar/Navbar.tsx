@@ -32,33 +32,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all duration-200">
-      {/* 1. Top System Telemetry & Liveness Status Ribbon */}
-      <div className="w-full bg-surface-container-low border-b border-stroke-card/60 py-1.5 px-4 text-xs">
-        <div className="max-w-[1440px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Pulsing Live Mint Dot */}
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
-            </span>
-            <span className="font-sans font-medium text-on-surface-variant">
-              Live CSE Matching Engine v2.4
-            </span>
-            <span className="hidden sm:inline text-outline/40">•</span>
-            <span className="hidden sm:inline text-outline font-medium">
-              98.4% AST Parse Accuracy
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-outline">
-            <span className="hidden md:inline font-mono text-[11px] tabular-nums">
-              ABET / Institutional Directory Aligned
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Global Sticky Navigation Container */}
+      {/* Global Sticky Navigation Container */}
       <div
         className={`w-full transition-all duration-200 ${
           isScrolled
