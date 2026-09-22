@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { ValidationService } from "@/server/services/validationService";
+import { googleAuthAction } from "@/server/actions/authActions";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -79,10 +80,10 @@ function GoogleAuthContent() {
   const [selectedAccountEmail, setSelectedAccountEmail] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAccountSelect = (accountEmail: string) => {
-    setSelectedAccountEmail(accountEmail);
+  const handleAccountSelect = (account: MockGoogleAccount) => {
+    setSelectedAccountEmail(account.email);
     setErrorMessage(null);
-    validateAndProceed(accountEmail);
+    validateAndProceed(account.email, account.name);
   };
 
   const handleCustomSubmit = (e: React.FormEvent) => {
@@ -91,8 +92,9 @@ function GoogleAuthContent() {
     validateAndProceed(customEmail);
   };
 
-  const validateAndProceed = (targetEmail: string) => {
+  const validateAndProceed = async (targetEmail: string, accountName?: string) => {
     setIsProcessing(true);
+    setErrorMessage(null);
 
     // Strict .edu check for candidates
     if (role === "candidate") {
@@ -100,23 +102,28 @@ function GoogleAuthContent() {
       if (!isEdu) {
         setIsProcessing(false);
         setErrorMessage("Candidate registration requires a valid university institutional (.edu) email.");
-        // Redirect to dedicated error page as specified
-        setTimeout(() => {
-          router.push(
-            `/auth/error?error=invalid_domain&email=${encodeURIComponent(targetEmail)}&role=candidate`
-          );
-        }, 800);
         return;
       }
     }
 
-    // Valid account: route to OTP verification
-    setTimeout(() => {
+    try {
+      const result = await googleAuthAction({
+        email: targetEmail,
+        name: accountName || targetEmail.split("@")[0].replace(".", " "),
+        role,
+      });
+
+      if (!result.success || !result.data) {
+        setIsProcessing(false);
+        setErrorMessage(result.error || "Google authorization failed.");
+        return;
+      }
+
+      router.push(result.data.redirectUrl);
+    } catch {
       setIsProcessing(false);
-      router.push(
-        `/auth/verify-otp?email=${encodeURIComponent(targetEmail)}&role=${role}&provider=google`
-      );
-    }, 600);
+      setErrorMessage("Network error during Google sign-in. Please try again.");
+    }
   };
 
   return (
@@ -181,7 +188,7 @@ function GoogleAuthContent() {
                 key={account.email}
                 type="button"
                 disabled={isProcessing}
-                onClick={() => handleAccountSelect(account.email)}
+                onClick={() => handleAccountSelect(account)}
                 className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between transition-all active:scale-[0.99] group ${
                   selectedAccountEmail === account.email
                     ? "border-secondary-mint bg-secondary/5 ring-2 ring-secondary/20"

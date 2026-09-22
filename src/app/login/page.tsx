@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { ValidationService } from "@/server/services/validationService";
+import { loginAction } from "@/server/actions/authActions";
 import {
   ArrowLeft,
   ArrowRight,
@@ -63,12 +64,12 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsLoading(true);
 
-    // Enforce .edu validation for candidate persona
+    // Strict Candidate .edu Rule: immediate UI error block
     if (persona === "candidate") {
       const isEdu = ValidationService.isEduEmail(email);
       if (!isEdu) {
@@ -76,22 +77,23 @@ export default function LoginPage() {
         setErrorMessage(
           "Candidate registration requires a valid university institutional (.edu) email."
         );
-        setTimeout(() => {
-          router.push(
-            `/auth/error?error=invalid_domain&email=${encodeURIComponent(email)}&role=candidate`
-          );
-        }, 700);
         return;
       }
     }
 
-    // Direct to OTP verification screen
-    setTimeout(() => {
+    try {
+      const result = await loginAction({ email, password, role: persona });
+      if (!result.success || !result.data) {
+        setIsLoading(false);
+        setErrorMessage(result.error || "Authentication failed. Please check your credentials.");
+        return;
+      }
+
+      router.push(result.data.redirectUrl);
+    } catch {
       setIsLoading(false);
-      router.push(
-        `/auth/verify-otp?email=${encodeURIComponent(email)}&role=${persona}&provider=email`
-      );
-    }, 500);
+      setErrorMessage("An unexpected network error occurred. Please try again.");
+    }
   };
 
   return (

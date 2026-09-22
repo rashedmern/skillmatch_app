@@ -151,11 +151,12 @@ function VerifyOtpContent() {
     setErrorMessage(null);
 
     try {
-      await resendOtpAction({ email, role });
+      const res = await resendOtpAction({ email, role });
       setCountdown(60);
       setIsResending(false);
-      setResendNotification("A fresh 6-digit verification code has been dispatched to your inbox.");
-      setTimeout(() => setResendNotification(null), 5000);
+      const codeSuffix = res.data?.otpCode ? ` (Code: ${res.data.otpCode})` : "";
+      setResendNotification(`A fresh 6-digit verification code${codeSuffix} has been dispatched to your inbox.`);
+      setTimeout(() => setResendNotification(null), 8000);
     } catch {
       setIsResending(false);
       setErrorMessage("Failed to resend code. Please try again.");

@@ -15,6 +15,12 @@ export interface ActionResponse<T = unknown> {
   error?: string;
 }
 
+export interface AuthSuccessPayload {
+  user: DbUser;
+  redirectUrl: string;
+  otpCode?: string;
+}
+
 /**
  * Server Action for credential login.
  */
@@ -22,7 +28,7 @@ export async function loginAction(formData: {
   email: string;
   password?: string;
   role: "candidate" | "recruiter";
-}): Promise<ActionResponse<{ user: DbUser; redirectUrl: string }>> {
+}): Promise<ActionResponse<AuthSuccessPayload>> {
   try {
     const result = await AuthService.loginWithCredentials(formData.email, formData.password, formData.role);
 
@@ -34,7 +40,8 @@ export async function loginAction(formData: {
       success: true,
       data: {
         user: result.user,
-        redirectUrl: `/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}`,
+        otpCode: result.otpCode,
+        redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}`,
       },
     };
   } catch (error) {
@@ -53,7 +60,7 @@ export async function registerAction(formData: {
   role: "candidate" | "recruiter";
   specialization?: string;
   company?: string;
-}): Promise<ActionResponse<{ user: DbUser; redirectUrl: string }>> {
+}): Promise<ActionResponse<AuthSuccessPayload>> {
   try {
     const result = await AuthService.register(formData);
 
@@ -65,7 +72,8 @@ export async function registerAction(formData: {
       success: true,
       data: {
         user: result.user,
-        redirectUrl: `/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&name=${encodeURIComponent(formData.name)}`,
+        otpCode: result.otpCode,
+        redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&name=${encodeURIComponent(formData.name)}`,
       },
     };
   } catch (error) {
@@ -85,7 +93,7 @@ export async function verifyOtpAction(formData: {
     const result = await EmailService.verifyOtpCode(formData.email, formData.code);
 
     if (!result.isValid) {
-      return { success: false, error: result.error || "Invalid OTP code." };
+      return { success: false, error: result.error || "Invalid verification code." };
     }
 
     return {
@@ -106,12 +114,15 @@ export async function verifyOtpAction(formData: {
 export async function resendOtpAction(formData: {
   email: string;
   role: "candidate" | "recruiter";
-}): Promise<ActionResponse<{ sentAt: string }>> {
+}): Promise<ActionResponse<{ sentAt: string; otpCode?: string }>> {
   try {
     const result = await EmailService.sendOtpVerificationEmail(formData.email, formData.role);
     return {
       success: true,
-      data: { sentAt: result.expiresAt },
+      data: {
+        sentAt: result.expiresAt,
+        otpCode: result.code,
+      },
     };
   } catch (error) {
     console.error("[resendOtpAction error]:", error);
@@ -126,7 +137,7 @@ export async function googleAuthAction(formData: {
   email: string;
   name: string;
   role: "candidate" | "recruiter";
-}): Promise<ActionResponse<{ user: DbUser; redirectUrl: string }>> {
+}): Promise<ActionResponse<AuthSuccessPayload>> {
   try {
     const result = await AuthService.handleGoogleOAuth(formData.email, formData.name, formData.role);
 
@@ -138,7 +149,8 @@ export async function googleAuthAction(formData: {
       success: true,
       data: {
         user: result.user,
-        redirectUrl: `/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=google`,
+        otpCode: result.otpCode,
+        redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=google`,
       },
     };
   } catch (error) {
@@ -154,7 +166,7 @@ export async function githubAuthAction(formData: {
   githubUsername: string;
   email: string;
   role: "candidate" | "recruiter";
-}): Promise<ActionResponse<{ user: DbUser; redirectUrl: string }>> {
+}): Promise<ActionResponse<AuthSuccessPayload>> {
   try {
     const result = await AuthService.handleGithubOAuth(
       formData.githubUsername,
@@ -170,7 +182,8 @@ export async function githubAuthAction(formData: {
       success: true,
       data: {
         user: result.user,
-        redirectUrl: `/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=github&gh=${encodeURIComponent(formData.githubUsername)}`,
+        otpCode: result.otpCode,
+        redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=github&gh=${encodeURIComponent(formData.githubUsername)}`,
       },
     };
   } catch (error) {

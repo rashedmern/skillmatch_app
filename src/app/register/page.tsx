@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { ValidationService } from "@/server/services/validationService";
+import { registerAction } from "@/server/actions/authActions";
 import {
   ArrowLeft,
   ArrowRight,
@@ -69,12 +70,12 @@ function RegisterFormContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsLoading(true);
 
-    // Enforce .edu validation for candidate role
+    // Strict Candidate .edu Rule: immediate UI error block
     if (role === "candidate") {
       const isEdu = ValidationService.isEduEmail(email);
       if (!isEdu) {
@@ -82,22 +83,31 @@ function RegisterFormContent() {
         setErrorMessage(
           "Candidate registration requires a valid university institutional (.edu) email."
         );
-        setTimeout(() => {
-          router.push(
-            `/auth/error?error=invalid_domain&email=${encodeURIComponent(email)}&role=candidate`
-          );
-        }, 700);
         return;
       }
     }
 
-    // Direct to OTP verification screen
-    setTimeout(() => {
+    try {
+      const result = await registerAction({
+        name,
+        email,
+        password,
+        role,
+        specialization: role === "candidate" ? specialization : undefined,
+        company: role === "recruiter" ? company : undefined,
+      });
+
+      if (!result.success || !result.data) {
+        setIsLoading(false);
+        setErrorMessage(result.error || "Registration failed. Please check your details.");
+        return;
+      }
+
+      router.push(result.data.redirectUrl);
+    } catch {
       setIsLoading(false);
-      router.push(
-        `/auth/verify-otp?email=${encodeURIComponent(email)}&role=${role}&name=${encodeURIComponent(name)}&provider=email`
-      );
-    }, 500);
+      setErrorMessage("Network error during registration. Please try again.");
+    }
   };
 
   const getPasswordStrength = () => {

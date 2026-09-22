@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
+import { githubAuthAction } from "@/server/actions/authActions";
 import {
   ShieldCheck,
   Code2,
@@ -107,10 +108,26 @@ function GithubCallbackContent() {
     };
   }, [ghHandle, targetEmail]);
 
-  const handleContinue = () => {
-    router.push(
-      `/auth/verify-otp?email=${encodeURIComponent(targetEmail)}&role=${role}&gh=${encodeURIComponent(ghHandle)}&provider=github`
-    );
+  const handleContinue = async () => {
+    try {
+      const result = await githubAuthAction({
+        githubUsername: ghHandle,
+        email: targetEmail,
+        role: (role === "recruiter" ? "recruiter" : "candidate"),
+      });
+
+      if (result.success && result.data) {
+        router.push(result.data.redirectUrl);
+      } else {
+        router.push(
+          `/auth/verify-otp?email=${encodeURIComponent(targetEmail)}&role=${role}&gh=${encodeURIComponent(ghHandle)}&provider=github`
+        );
+      }
+    } catch {
+      router.push(
+        `/auth/verify-otp?email=${encodeURIComponent(targetEmail)}&role=${role}&gh=${encodeURIComponent(ghHandle)}&provider=github`
+      );
+    }
   };
 
   return (

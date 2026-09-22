@@ -8,6 +8,13 @@ import { DbUser } from "../db/schema";
 import { ValidationService } from "./validationService";
 import { EmailService } from "./emailService";
 
+export interface AuthResult {
+  success: boolean;
+  user?: DbUser;
+  otpCode?: string;
+  error?: string;
+}
+
 export class AuthService {
   /**
    * Authenticates user via email and password credentials.
@@ -17,7 +24,7 @@ export class AuthService {
     email: string,
     password?: string,
     role: "candidate" | "recruiter" = "candidate"
-  ): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  ): Promise<AuthResult> {
     const cleanEmail = email.toLowerCase().trim();
 
     if (role === "candidate") {
@@ -47,13 +54,13 @@ export class AuthService {
     }
 
     // Trigger OTP verification code
-    await EmailService.sendOtpVerificationEmail(cleanEmail, role);
+    const otpResult = await EmailService.sendOtpVerificationEmail(cleanEmail, role);
 
-    return { success: true, user };
+    return { success: true, user, otpCode: otpResult.code };
   }
 
   /**
-   * Registers a new user.
+   * Registers a new user with strict role & .edu constraints.
    */
   static async register(data: {
     name: string;
@@ -62,7 +69,7 @@ export class AuthService {
     role: "candidate" | "recruiter";
     specialization?: string;
     company?: string;
-  }): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  }): Promise<AuthResult> {
     const validation = ValidationService.validateRegistration(data);
     if (!validation.isValid) {
       return { success: false, error: validation.error };
@@ -88,9 +95,9 @@ export class AuthService {
     db.users.set(cleanEmail, newUser);
 
     // Dispatch verification OTP
-    await EmailService.sendOtpVerificationEmail(cleanEmail, data.role);
+    const otpResult = await EmailService.sendOtpVerificationEmail(cleanEmail, data.role);
 
-    return { success: true, user: newUser };
+    return { success: true, user: newUser, otpCode: otpResult.code };
   }
 
   /**
@@ -100,7 +107,7 @@ export class AuthService {
     email: string,
     name: string,
     role: "candidate" | "recruiter"
-  ): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  ): Promise<AuthResult> {
     const cleanEmail = email.toLowerCase().trim();
 
     if (role === "candidate") {
@@ -131,7 +138,9 @@ export class AuthService {
       db.users.set(cleanEmail, user);
     }
 
-    return { success: true, user };
+    const otpResult = await EmailService.sendOtpVerificationEmail(cleanEmail, role);
+
+    return { success: true, user, otpCode: otpResult.code };
   }
 
   /**
@@ -141,7 +150,7 @@ export class AuthService {
     githubUsername: string,
     email: string,
     role: "candidate" | "recruiter"
-  ): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  ): Promise<AuthResult> {
     const cleanEmail = email.toLowerCase().trim();
     const db = getDatabase();
 
@@ -164,6 +173,8 @@ export class AuthService {
       user.githubUsername = githubUsername;
     }
 
-    return { success: true, user };
+    const otpResult = await EmailService.sendOtpVerificationEmail(cleanEmail, role);
+
+    return { success: true, user, otpCode: otpResult.code };
   }
 }
