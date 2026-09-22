@@ -44,23 +44,23 @@ export const LiveMatchCard: React.FC = () => {
       {/* Main Card Container */}
       <div className="relative rounded-2xl bg-surface-container-lowest border border-stroke-card shadow-level-2 overflow-hidden">
         {/* Top Card Badge Ribbon */}
-        <div className="flex items-center justify-between px-5 py-3 bg-surface-container-low/70 border-b border-stroke-card text-xs">
-          <div className="flex items-center gap-2 text-on-surface-variant font-medium">
-            <GitBranch className="w-3.5 h-3.5 text-secondary-mint" />
-            <span>AST Code Verification Simulation</span>
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-surface-container-low/70 border-b border-stroke-card text-xs">
+          <div className="flex items-center gap-2 text-on-surface-variant font-medium truncate">
+            <GitBranch className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
+            <span className="truncate">AST Code Verification Simulation</span>
           </div>
-          <span className="font-mono text-[11px] text-outline tabular-nums">
+          <span className="font-mono text-[11px] text-outline tabular-nums shrink-0 ml-2">
             ID: cse_94a2f
           </span>
         </div>
 
-        <div className="p-5 sm:p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
           {/* 1. Candidate Identity Header */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               {/* Avatar with Verified Status */}
-              <div className="relative">
-                <div className="w-11 h-11 rounded-full overflow-hidden bg-primary-container/10 border-2 border-surface-container-lowest shadow-sm flex items-center justify-center font-bold text-primary-container">
+              <div className="relative shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-primary-container/10 border-2 border-surface-container-lowest shadow-sm flex items-center justify-center font-bold text-sm sm:text-base text-primary-container">
                   AC
                 </div>
                 <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-secondary-mint border-2 border-surface-container-lowest flex items-center justify-center">
@@ -68,24 +68,24 @@ export const LiveMatchCard: React.FC = () => {
                 </span>
               </div>
 
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-bold text-on-surface text-base leading-none font-sans">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 truncate">
+                  <h3 className="font-bold text-on-surface text-sm sm:text-base leading-none font-sans truncate">
                     {data.candidate.name}
                   </h3>
-                  <span className="text-xs text-outline font-normal">
+                  <span className="text-[11px] sm:text-xs text-outline font-normal truncate hidden xs:inline">
                     {data.candidate.handle}
                   </span>
                 </div>
-                <p className="text-xs text-on-surface-variant mt-1 font-medium">
+                <p className="text-[11px] sm:text-xs text-on-surface-variant mt-1 font-medium truncate">
                   {data.candidate.institution} • {data.candidate.gradTerm}
                 </p>
               </div>
             </div>
 
             {/* High Match Score Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/30 text-primary-container font-bold text-sm shadow-sm">
-              <span className="relative flex h-2 w-2">
+            <div className="shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-secondary/10 border border-secondary/30 text-primary-container font-bold text-xs sm:text-sm shadow-sm">
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-mint opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-mint" />
               </span>
@@ -96,23 +96,23 @@ export const LiveMatchCard: React.FC = () => {
           </div>
 
           {/* 2. Target Match Opportunity Sub-Card */}
-          <div className="p-3.5 rounded-xl bg-surface-container-low/80 border border-stroke-slate space-y-2">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-low/80 border border-stroke-slate space-y-2">
             <div className="flex items-start justify-between gap-2">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary-mint">
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary-mint block truncate">
                   Target Opportunity Match
                 </span>
-                <h4 className="font-bold text-sm text-on-surface leading-tight mt-0.5">
+                <h4 className="font-bold text-xs sm:text-sm text-on-surface leading-tight mt-0.5 truncate">
                   {data.targetRole.title}
                 </h4>
-                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant mt-1">
-                  <Building2 className="w-3.5 h-3.5 text-outline" />
-                  <span className="font-medium">{data.targetRole.company}</span>
+                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant mt-1 truncate">
+                  <Building2 className="w-3.5 h-3.5 text-outline shrink-0" />
+                  <span className="font-medium truncate">{data.targetRole.company}</span>
                 </div>
               </div>
 
               {/* Comp Badge */}
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <span className="inline-block px-2 py-0.5 rounded-md bg-surface-container-lowest border border-stroke-card font-bold text-xs text-primary-container tabular-nums">
                   {data.targetRole.compensation}
                 </span>
@@ -123,12 +123,12 @@ export const LiveMatchCard: React.FC = () => {
             </div>
 
             {/* Logistics Pill Tags */}
-            <div className="flex items-center gap-2 pt-1">
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-surface-container-lowest text-outline border border-stroke-card/60">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1">
+              <span className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md bg-surface-container-lowest text-outline border border-stroke-card/60">
                 {data.targetRole.location}
               </span>
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-surface-container-lowest text-outline border border-stroke-card/60">
-                Direct Engineering Lead Screen
+              <span className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md bg-surface-container-lowest text-outline border border-stroke-card/60">
+                Direct Screen
               </span>
             </div>
           </div>
@@ -225,12 +225,12 @@ export const LiveMatchCard: React.FC = () => {
         </div>
 
         {/* 5. Bottom Live Telemetry Footer */}
-        <div className="px-5 py-2.5 bg-surface-container-low/50 border-t border-stroke-card flex items-center justify-between text-[11px] text-outline">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary-mint" />
-            Verified Against ScaleOps Production Stack
+        <div className="px-4 sm:px-5 py-2.5 bg-surface-container-low/50 border-t border-stroke-card flex flex-col xs:flex-row sm:flex-row items-start xs:items-center sm:items-center justify-between gap-1 text-[11px] text-outline">
+          <span className="flex items-center gap-1.5 truncate">
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary-mint shrink-0" />
+            <span className="truncate">Verified Against ScaleOps Production Stack</span>
           </span>
-          <span className="font-mono tabular-nums">Sync: 14s ago</span>
+          <span className="font-mono tabular-nums shrink-0">Sync: 14s ago</span>
         </div>
       </div>
     </motion.div>

@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${arimo.variable} antialiased`}>
-      <body className="min-h-screen flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
+      <body className="min-h-screen w-full overflow-x-hidden flex flex-col bg-surface text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

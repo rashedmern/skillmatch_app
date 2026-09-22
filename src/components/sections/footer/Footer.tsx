@@ -30,25 +30,25 @@ const LinkedinIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" 
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-white border-t border-slate-200/80 transition-colors">
+    <footer className="w-full bg-white border-t border-slate-200/80 transition-colors overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content Grid */}
-        <div className="pt-16 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
-          {/* Brand Identity & Summary (5 columns on desktop) */}
+        <div className="pt-12 sm:pt-16 pb-8 sm:pb-12 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8">
+          {/* Brand Identity & Summary (4 columns on desktop) */}
           <div className="lg:col-span-4 xl:col-span-4 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <BrandLogo size="md" />
 
-              <p className="text-sm text-on-surface-variant font-normal leading-relaxed max-w-sm">
+              <p className="text-xs sm:text-sm text-on-surface-variant font-normal leading-relaxed max-w-sm">
                 Replacing broken resumes with verifiable AST code analysis. Connecting top CSE
                 engineering talent directly with high-growth technical teams through empirical skill
                 verification and zero recruiter gatekeeping.
               </p>
 
               {/* Developer CLI / API Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-mono text-on-surface-variant">
-                <Terminal className="w-3.5 h-3.5 text-primary-container" />
-                <span>$ npx skillmatch verify --repo</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-mono text-on-surface-variant max-w-full overflow-hidden truncate">
+                <Terminal className="w-3.5 h-3.5 text-primary-container shrink-0" />
+                <span className="truncate">$ npx skillmatch verify --repo</span>
               </div>
             </div>
 
@@ -85,9 +85,9 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Directory Navigation Grid (8 columns on desktop) */}
-          <div className="lg:col-span-8 xl:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="lg:col-span-8 xl:col-span-8 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {FOOTER_DIRECTORY.map((column) => (
-              <div key={column.title} className="space-y-4">
+              <div key={column.title} className="space-y-3 sm:space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface font-sans">
                   {column.title}
                 </h3>

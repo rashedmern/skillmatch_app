@@ -35,33 +35,33 @@ export const Testimonial: React.FC = () => {
         </div>
 
         {/* Right: Author Profile Card & Speed Badge */}
-        <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-8 border-stroke-card gap-4">
+        <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end justify-between w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-8 border-stroke-card gap-4">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-primary-container/10 border-2 border-surface-container-lowest shadow-sm flex items-center justify-center font-bold text-primary-container">
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-primary-container/10 border-2 border-surface-container-lowest shadow-sm flex items-center justify-center font-bold text-sm sm:text-base text-primary-container">
                 MP
               </div>
-              <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-secondary-mint border-2 border-surface-container-lowest flex items-center justify-center">
-                <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-secondary-mint border-2 border-surface-container-lowest flex items-center justify-center">
+                <CheckCircle2 className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-white" />
               </span>
             </div>
 
-            <div className="text-left md:text-right">
-              <h4 className="font-bold text-on-surface text-base font-sans leading-none">
+            <div className="text-left md:text-right min-w-0">
+              <h4 className="font-bold text-on-surface text-sm sm:text-base font-sans leading-none truncate">
                 {t.authorName}
               </h4>
-              <p className="text-xs text-secondary-mint font-semibold mt-1">
+              <p className="text-xs text-secondary-mint font-semibold mt-1 truncate">
                 {t.authorRole}
               </p>
-              <p className="text-xs text-outline mt-0.5 font-normal">
+              <p className="text-[11px] sm:text-xs text-outline mt-0.5 font-normal truncate">
                 {t.company} • {t.school}
               </p>
             </div>
           </div>
 
           {/* Time to Offer Pill */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/25 text-primary-container text-xs font-bold font-mono">
-            <Sparkles className="w-3.5 h-3.5 text-secondary-mint" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/25 text-primary-container text-xs font-bold font-mono shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
             <span>{t.timeToOffer}</span>
           </div>
         </div>

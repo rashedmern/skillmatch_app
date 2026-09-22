@@ -8,7 +8,7 @@ import { Footer } from "@/components/sections/footer/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col bg-surface">
+    <main className="min-h-screen w-full overflow-x-hidden flex flex-col bg-surface">
       {/* 1. Global Sticky Navigation Header */}
       <Navbar />
 
