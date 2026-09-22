@@ -1,46 +1,57 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { BrandLogo } from "@/components/common/BrandLogo";
-import { StatusDot } from "@/components/ui/StatusDot";
+import { CandidateSidebar } from "./components/CandidateSidebar";
+import { DashboardOverviewTab } from "./components/DashboardOverviewTab";
+import { AllJobsTab } from "./components/AllJobsTab";
+import { MyApplicationsTab } from "./components/MyApplicationsTab";
+import { ProfileSetupTab } from "./components/ProfileSetupTab";
 import {
-  Code2,
-  Building2,
-  Cpu,
-  LogOut,
-  CheckCircle2,
-  Sparkles,
-  Terminal,
-  AlertCircle,
-  GraduationCap,
-  ShieldCheck,
-  FileText,
-  Briefcase,
-  BarChart3,
-  Upload,
-  Download,
-  Clock,
-  ArrowRight,
+  CandidateProfile,
+  JobListing,
+  AppliedJob,
+  CandidateTabType,
+} from "./components/types";
+import {
+  Menu,
   ShieldAlert,
+  Sparkles,
   X,
+  Code2,
 } from "lucide-react";
+import { StatusDot } from "@/components/ui/StatusDot";
 
-interface AppliedJob {
-  id: string;
-  company: string;
-  role: string;
-  location: string;
-  salary: string;
-  appliedDate: string;
-  matchScore: number;
-  status: "Interview Scheduled" | "Under Review" | "Assessment Passed" | "Offer Extended";
-  nextStep: string;
-}
+const initialProfile: CandidateProfile = {
+  name: "Alex Chen",
+  headline: "Distributed Systems & Infrastructure Engineer",
+  university: "UC Berkeley",
+  degree: "B.S. Electrical Engineering & Computer Sciences",
+  graduationYear: "2026",
+  email: "alex.chen@berkeley.edu",
+  avatarUrl: null,
+  githubUrl: "https://github.com/alexchen-dev",
+  linkedinUrl: "https://linkedin.com/in/alexchen-dev",
+  portfolioUrl: "https://alexchen.berkeley.edu",
+  bio: "Undergraduate CS researcher focusing on Raft consensus state machines, lock-free concurrency, and distributed storage engines. Implemented high-throughput distributed key-value stores with zero-downtime failover in Go and C++.",
+  resumeFileName: "Alex_Chen_UCBerkeley_EECS_2026.pdf",
+  resumeFileSize: "2.4 MB",
+  resumeSha256: "sha256-8f4b23c91e7d80aa2345bc79ef0142de56a89c4456b21c43d99e01",
+  skills: [
+    "Go",
+    "Distributed Systems",
+    "Raft Consensus",
+    "Concurrency",
+    "Linux Kernel",
+    "PostgreSQL Internals",
+    "TypeScript",
+    "Docker",
+    "Algorithms & Data Structures",
+    "gRPC",
+  ],
+};
 
-const mockAppliedJobs: AppliedJob[] = [
+const initialAppliedJobs: AppliedJob[] = [
   {
     id: "app-1",
     company: "HyperScale AI",
@@ -48,42 +59,165 @@ const mockAppliedJobs: AppliedJob[] = [
     location: "San Francisco, CA (Hybrid)",
     salary: "$200,000 - $230,000",
     appliedDate: "Sep 18, 2026",
-    matchScore: 95,
+    matchScore: 96,
     status: "Offer Extended",
     nextStep: "Review formal offer packet ($215k base + equity)",
   },
   {
     id: "app-2",
     company: "ScaleOps Inc.",
-    role: "Distributed Systems Engineer",
-    location: "San Francisco, CA",
+    role: "Staff Distributed Systems Engineer",
+    location: "San Francisco, CA (Hybrid)",
     salary: "$185,000 - $210,000",
     appliedDate: "Sep 14, 2026",
-    matchScore: 94,
+    matchScore: 95,
     status: "Interview Scheduled",
     nextStep: "Technical Deep-Dive with Engineering VP (Tomorrow, 10:00 AM)",
   },
   {
     id: "app-3",
     company: "Veritas Cloud",
-    role: "Core Infrastructure Engineer",
-    location: "New York, NY",
+    role: "Core Platform Infrastructure Engineer",
+    location: "New York, NY (Hybrid)",
     salary: "$175,000 - $195,000",
     appliedDate: "Sep 10, 2026",
-    matchScore: 91,
+    matchScore: 92,
     status: "Under Review",
     nextStep: "Dossier screened by Staff SRE lead",
   },
   {
     id: "app-4",
     company: "NeuralFlow",
-    role: "Systems Performance Engineer",
+    role: "Systems Performance & Kernel Engineer",
     location: "Remote (US)",
     salary: "$190,000 - $220,000",
     appliedDate: "Sep 06, 2026",
-    matchScore: 88,
+    matchScore: 89,
     status: "Assessment Passed",
     nextStep: "AST Sandbox benchmark scored in 98th percentile",
+  },
+];
+
+const initialJobs: JobListing[] = [
+  {
+    id: "job-1",
+    title: "Staff Distributed Systems Engineer",
+    company: "ScaleOps Inc.",
+    logoText: "SO",
+    location: "San Francisco, CA",
+    workModel: "Hybrid",
+    domain: "Distributed Systems",
+    salary: "$185,000 - $210,000",
+    matchScore: 95,
+    tags: ["Go", "Raft", "gRPC", "Distributed Systems"],
+    description: "Architect high-throughput log replication protocols, Raft cluster failover semantics, and telemetry pipelines for mission-critical cloud backbones.",
+    postedDate: "2 days ago",
+    isApplied: true,
+  },
+  {
+    id: "job-2",
+    title: "Core Platform Infrastructure Engineer",
+    company: "Veritas Cloud",
+    logoText: "VC",
+    location: "New York, NY",
+    workModel: "Hybrid",
+    domain: "Cloud & SRE",
+    salary: "$175,000 - $195,000",
+    matchScore: 92,
+    tags: ["Kubernetes", "Linux", "Terraform", "Go"],
+    description: "Design automated multi-region cluster topologies, zero-downtime control planes, and global service mesh networking.",
+    postedDate: "3 days ago",
+    isApplied: true,
+  },
+  {
+    id: "job-3",
+    title: "Systems Performance & Kernel Engineer",
+    company: "NeuralFlow",
+    logoText: "NF",
+    location: "Remote (US)",
+    workModel: "Remote",
+    domain: "Kernel & Systems",
+    salary: "$190,000 - $220,000",
+    matchScore: 89,
+    tags: ["C++", "eBPF", "Linux Kernel", "Concurrency"],
+    description: "Profile cache thrashing, optimize kernel network packet processing using eBPF, and accelerate GPU memory transfers.",
+    postedDate: "5 days ago",
+    isApplied: true,
+  },
+  {
+    id: "job-4",
+    title: "Kernel & Memory Systems Engineer",
+    company: "HyperScale AI",
+    logoText: "HA",
+    location: "San Francisco, CA",
+    workModel: "Hybrid",
+    domain: "Kernel & Systems",
+    salary: "$200,000 - $230,000",
+    matchScore: 96,
+    tags: ["C", "Zero-Copy", "Memory Internals", "CUDA"],
+    description: "Build ultra-low-latency DMA primitives and direct-to-NIC memory streaming for next-generation multi-modal inference clusters.",
+    postedDate: "1 week ago",
+    isApplied: true,
+  },
+  {
+    id: "job-5",
+    title: "Distributed Database Engine Developer",
+    company: "CockroachLabs",
+    logoText: "CR",
+    location: "New York, NY",
+    workModel: "Remote",
+    domain: "Database Engines",
+    salary: "$195,000 - $225,000",
+    matchScore: 96,
+    tags: ["Go", "Raft", "LSM-Tree", "SQL Engine", "MVCC"],
+    description: "Develop transaction coordination engines, Raft range leasing mechanisms, and distributed lock managers handling petabyte-scale transactional workloads.",
+    postedDate: "Just now",
+    isApplied: false,
+  },
+  {
+    id: "job-6",
+    title: "Cloud Security & Zero-Trust Architect",
+    company: "CloudShield",
+    logoText: "CS",
+    location: "Austin, TX",
+    workModel: "Hybrid",
+    domain: "Cloud & SRE",
+    salary: "$180,000 - $205,000",
+    matchScore: 88,
+    tags: ["Rust", "Zero-Trust", "eBPF", "Network Protocol", "TLS"],
+    description: "Build automated cryptographic identity attestation, wire-speed mTLS proxies, and workload isolation containers for cloud-native clusters.",
+    postedDate: "1 day ago",
+    isApplied: false,
+  },
+  {
+    id: "job-7",
+    title: "Low-Latency Cache & Memory Engineer",
+    company: "ScaleData Labs",
+    logoText: "SD",
+    location: "San Francisco, CA",
+    workModel: "On-site",
+    domain: "Distributed Systems",
+    salary: "$185,000 - $215,000",
+    matchScore: 94,
+    tags: ["C", "Cache Systems", "Memory Profiling", "Data Structures"],
+    description: "Implement custom slab allocators, lock-free lockless skip-lists, and sub-millisecond memory caching layers serving billions of requests daily.",
+    postedDate: "2 days ago",
+    isApplied: false,
+  },
+  {
+    id: "job-8",
+    title: "Observability & SRE Pipeline Engineer",
+    company: "MetricsCore",
+    logoText: "MC",
+    location: "Boston, MA",
+    workModel: "Hybrid",
+    domain: "Cloud & SRE",
+    salary: "$175,000 - $200,000",
+    matchScore: 90,
+    tags: ["Go", "Distributed Tracing", "Kafka", "PostgreSQL"],
+    description: "Design streaming telemetry ingestion pipelines processing tens of gigabytes per second with zero-loss OpenTelemetry backplanes.",
+    postedDate: "4 days ago",
+    isApplied: false,
   },
 ];
 
@@ -91,9 +225,15 @@ function CandidateDashboardContent() {
   const searchParams = useSearchParams();
   const warning = searchParams.get("warning");
 
-  const [activeTab, setActiveTab] = useState<"overview" | "applied" | "skills" | "resume">("overview");
+  const [activeTab, setActiveTab] = useState<CandidateTabType>("overview");
+  const [profile, setProfile] = useState<CandidateProfile>(initialProfile);
+  const [jobs, setJobs] = useState<JobListing[]>(initialJobs);
+  const [applications, setApplications] = useState<AppliedJob[]>(initialAppliedJobs);
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [dismissedWarning, setDismissedWarning] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
@@ -127,29 +267,46 @@ function CandidateDashboardContent() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const handleResumeUpload = () => {
-    setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
-      triggerToast("Resume AST parser completed: 48 tokens verified with 99.1% syntax accuracy.");
-    }, 1500);
+  // Instant 1-Click Apply Handler
+  const handleApplyJob = (job: JobListing) => {
+    // 1. Mark job as applied in job listings state
+    setJobs((prev) =>
+      prev.map((j) => (j.id === job.id ? { ...j, isApplied: true } : j))
+    );
+
+    // 2. Prepend new active application to applications pipeline
+    const newApp: AppliedJob = {
+      id: `app-${Date.now()}`,
+      company: job.company,
+      role: job.title,
+      location: `${job.location} (${job.workModel})`,
+      salary: job.salary,
+      appliedDate: "Today",
+      matchScore: job.matchScore,
+      status: "Under Review",
+      nextStep: "Dossier dispatched to technical recruiting lead",
+    };
+
+    setApplications((prev) => [newApp, ...prev]);
+
+    triggerToast(`Application submitted to ${job.company} for '${job.title}'! Dossier dispatched.`);
   };
 
-  const getStatusBadge = (status: AppliedJob["status"]) => {
-    switch (status) {
-      case "Offer Extended":
-        return "bg-secondary/15 text-secondary-mint border-secondary/30";
-      case "Interview Scheduled":
-        return "bg-primary/10 text-primary border-primary/20";
-      case "Assessment Passed":
-        return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "all-jobs":
+        return "Engineering Jobs Marketplace";
+      case "applications":
+        return "My Applications Pipeline";
+      case "profile":
+        return "Profile & Skill Management";
       default:
-        return "bg-amber-500/10 text-amber-600 border-amber-500/20";
+        return "Candidate Dossier Overview";
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-surface font-sans selection:bg-secondary/20 selection:text-primary">
+    <div className="min-h-screen w-full flex bg-[#F8FAFB] text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-primary-container text-white text-xs font-semibold shadow-level-3 flex items-center gap-3 border border-secondary-mint/30 animate-bounce">
@@ -158,546 +315,152 @@ function CandidateDashboardContent() {
         </div>
       )}
 
-      {/* Top Header */}
-      <header className="w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <BrandLogo size="md" />
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low border border-slate-200 text-xs text-on-surface-variant font-medium">
-              <StatusDot size="sm" />
-              <span>Candidate Portal • Institutional .edu Active</span>
-            </div>
-          </div>
+      {/* Responsive Left Sidebar */}
+      <CandidateSidebar
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab)}
+        profile={profile}
+        appliedCount={applications.length}
+        totalJobsCount={jobs.length}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
+      />
 
+      {/* Main Full-Width Content View */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Top Navbar */}
+        <header className="h-16 w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            {/* RBAC Role Indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary">
+            {/* Mobile Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen(true)}
+              aria-label="Open navigation menu"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div>
+              <h2 className="text-sm sm:text-base font-extrabold text-on-surface tracking-tight">
+                {getTabTitle()}
+              </h2>
+              <div className="hidden sm:flex items-center gap-2 text-[11px] text-outline">
+                <StatusDot size="sm" />
+                <span>ABET Verified Student Session</span>
+                <span>•</span>
+                <span className="font-mono text-primary font-semibold">{profile.university}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* ABET Institutional Pill */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary">
               <Code2 className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>Role: Candidate</span>
+              <span className="hidden sm:inline">Role: Candidate</span>
+              <span className="sm:hidden font-mono">.EDU</span>
             </div>
 
-            {/* Switch Role Test Link (Triggers RBAC Middleware Block) */}
-            <Link
-              href="/dashboard/recruiter"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium text-outline hover:text-on-surface hover:bg-surface-container-low transition-all"
-              title="Test RBAC security enforcement"
-            >
-              <Building2 className="w-3 h-3" />
-              <span className="hidden md:inline">Test Recruiter Route</span>
-            </Link>
-
-            {/* Sign Out Button */}
+            {/* Quick Profile Avatar Shortcut */}
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-on-surface-variant hover:text-accent-gap hover:border-accent-gap/30 hover:bg-accent-gap/5 transition-all cursor-pointer"
+              onClick={() => setActiveTab("profile")}
+              title="Edit Profile"
+              className="w-9 h-9 rounded-xl border border-slate-200 bg-surface-container-low hover:border-secondary-mint flex items-center justify-center text-xs font-bold text-primary transition-all overflow-hidden cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
+              {profile.avatarUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>AC</span>
+              )}
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Security Warning Banner (Triggered by RBAC Middleware) */}
-        {warning === "unauthorized_recruiter_access" && !dismissedWarning && (
-          <div
-            className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
-              isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
-              <div>
-                <p className="font-bold text-sm">Access Denied: Recruiter Portal Restricted</p>
-                <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
-                  Your account is authenticated with candidate credentials. Access to company recruitment
-                  pipelines and employer job management is restricted by SkillMatch Role-Based Access Control.
-                  You have been safely redirected to your candidate dossier.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleDismissWarning}
-              aria-label="Dismiss security warning"
-              id="dismiss-warning-btn"
-              className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
+        {/* Dynamic Full-Width Body Container */}
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* Security Warning Banner with 4s auto-dismiss & close button */}
+          {warning === "unauthorized_recruiter_access" && !dismissedWarning && (
+            <div
+              className={`p-4 rounded-xl bg-accent-gap/10 border border-accent-gap/30 text-accent-gap flex items-start justify-between gap-3 text-xs shadow-sm transition-all duration-300 ${
+                isFadingOut ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
+              }`}
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Candidate Identity Dossier Banner */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#002930] via-primary-container to-[#004049] text-white relative overflow-hidden shadow-level-2">
-          {/* Subtle Ambient Glows */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(10,136,125,0.4),transparent_70%)] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(141,206,218,0.25),transparent_70%)] pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-2xl text-secondary-container backdrop-blur-md shadow-inner">
-                AC
-              </div>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-                    Alex Chen
-                  </h1>
-                  <span className="px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary-container border border-secondary-container/30 text-xs font-mono font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    ABET Verified
-                  </span>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-white/80 font-medium">
-                  <span className="flex items-center gap-1">
-                    <GraduationCap className="w-3.5 h-3.5 text-secondary-container" />
-                    UC Berkeley (EECS &apos;26)
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1 font-mono">
-                    <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" />
-                    alex.chen@berkeley.edu
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* AST Match Telemetry */}
-            <div className="p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-4 self-stretch md:self-auto justify-between md:justify-start">
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
-                  AST Vector Match Score
-                </div>
-                <div className="text-3xl font-extrabold font-mono tabular-nums text-secondary-container">
-                  94.2%
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full border-2 border-secondary-container/40 flex items-center justify-center text-xs font-bold text-secondary-container">
-                Top 6%
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center gap-2 border-b border-stroke-card pb-1 overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              activeTab === "overview"
-                ? "bg-primary-container text-white shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-            }`}
-          >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>Overview &amp; Code Dossier</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("applied")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              activeTab === "applied"
-                ? "bg-primary-container text-white shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5" />
-            <span>Applied Jobs Tracker</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-mono">
-              {mockAppliedJobs.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("skills")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              activeTab === "skills"
-                ? "bg-primary-container text-white shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>Skill Analytics &amp; Benchmarks</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("resume")}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
-              activeTab === "resume"
-                ? "bg-primary-container text-white shadow-sm"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Resume &amp; AST Match</span>
-          </button>
-        </div>
-
-        {/* TAB 1: OVERVIEW */}
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            {/* AST Telemetry Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Card 1: Verified Codebase */}
-              <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-                    <Terminal className="w-3.5 h-3.5 text-secondary-mint" />
-                    Verified Repository
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
-                    Clean AST
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-extrabold text-on-surface font-mono">
-                    distributed-kv-store
-                  </h3>
-                  <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                    Go implementation of Raft consensus with log replication &amp; RPC state machine.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-slate-100 font-mono">
-                  <div>
-                    <span className="text-outline text-[10px]">AST Nodes:</span>
-                    <p className="font-bold text-on-surface">14,280</p>
-                  </div>
-                  <div>
-                    <span className="text-outline text-[10px]">Concurrency Safety:</span>
-                    <p className="font-bold text-secondary-mint">98th %ile</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Algorithmic Efficiency */}
-              <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-                    <Cpu className="w-3.5 h-3.5 text-secondary-mint" />
-                    Algorithmic Efficiency
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
-                    O(log n)
-                  </span>
-                </div>
-
-                <div>
-                  <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-                    96.0%
-                  </div>
-                  <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                    Data structure traversal benchmarks match Tier-1 distributed engineering standards.
-                  </p>
-                </div>
-
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-secondary-mint h-full rounded-full" style={{ width: "96%" }} />
-                </div>
-              </div>
-
-              {/* Card 3: Direct Recruiter Pipeline */}
-              <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
-                    Recruiter Telemetry
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary font-bold">
-                    Active
-                  </span>
-                </div>
-
-                <div>
-                  <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-                    14 Lead Reviews
-                  </div>
-                  <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
-                    Engineering leads from ScaleOps, Veritas, and NeuralFlow inspected your dossier.
-                  </p>
-                </div>
-
-                <div className="pt-2 text-xs border-t border-slate-100 flex items-center gap-1.5 text-secondary-mint font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>ATS Keyword Filters Bypassed</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Target Architectural Gap Card */}
-            <div className="p-5 rounded-2xl bg-white border border-accent-gap/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent-gap/10 text-accent-gap flex items-center justify-center shrink-0 mt-0.5">
-                  <AlertCircle className="w-5 h-5" />
-                </div>
+                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" />
                 <div>
-                  <h4 className="text-sm font-bold text-on-surface">
-                    1 Target Architectural Gap Detected
-                  </h4>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    Raft consensus split-brain quorum failure recovery. Complete the 4-hour AST
-                    sandbox benchmark to unlock an additional 5 Tier-1 roles.
+                  <p className="font-bold text-sm">Access Denied: Recruiter Portal Restricted</p>
+                  <p className="text-accent-gap/90 mt-0.5 leading-relaxed">
+                    Your account is authenticated with candidate credentials. Access to company recruitment
+                    pipelines and employer job management is restricted by SkillMatch Role-Based Access Control.
+                    You have been safely redirected to your candidate dossier.
                   </p>
                 </div>
               </div>
 
               <button
                 type="button"
-                onClick={() => triggerToast("Initializing ephemeral AST Code Sandbox benchmark...")}
-                className="px-4 py-2 rounded-lg bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                onClick={handleDismissWarning}
+                aria-label="Dismiss security warning"
+                id="dismiss-warning-btn"
+                className="text-accent-gap/70 hover:text-accent-gap hover:bg-accent-gap/15 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
               >
-                Launch Sandbox Challenge
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 2: APPLIED JOBS TRACKER */}
-        {activeTab === "applied" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-extrabold text-on-surface tracking-tight">
-                  Active Application Pipeline
-                </h2>
-                <p className="text-xs text-on-surface-variant">
-                  Direct recruiter interview dispatch without ATS keyword discard.
-                </p>
-              </div>
-              <span className="text-xs font-mono font-bold text-primary px-2.5 py-1 rounded-lg bg-primary/10">
-                {mockAppliedJobs.length} Applications Active
-              </span>
-            </div>
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === "overview" && (
+            <DashboardOverviewTab
+              profile={profile}
+              jobs={jobs}
+              onApplyJob={handleApplyJob}
+              onNavigateToAllJobs={() => setActiveTab("all-jobs")}
+              onNavigateToProfile={() => setActiveTab("profile")}
+              onTriggerToast={triggerToast}
+            />
+          )}
 
-            <div className="overflow-hidden rounded-2xl border border-stroke-card bg-white shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-surface-container-low border-b border-stroke-card text-on-surface-variant font-bold uppercase tracking-wider text-[11px]">
-                    <tr>
-                      <th className="py-3 px-4">Company &amp; Role</th>
-                      <th className="py-3 px-4">Match Vector</th>
-                      <th className="py-3 px-4">Current Status</th>
-                      <th className="py-3 px-4">Next Action / Schedule</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {mockAppliedJobs.map((job) => (
-                      <tr key={job.id} className="hover:bg-surface-container-lowest/60 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-sm text-on-surface">{job.company}</div>
-                          <div className="text-xs text-on-surface-variant font-medium">{job.role}</div>
-                          <div className="text-[11px] text-outline font-mono mt-0.5">
-                            {job.salary} • {job.location}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4 font-mono">
-                          <span className="inline-flex items-center gap-1 font-bold text-secondary-mint bg-secondary/10 px-2 py-0.5 rounded text-xs">
-                            {job.matchScore}%
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${getStatusBadge(
-                              job.status
-                            )}`}
-                          >
-                            <Clock className="w-3 h-3" />
-                            {job.status}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-xs text-on-surface-variant max-w-xs">
-                          {job.nextStep}
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => triggerToast(`Forwarding direct message to ${job.company} lead recruiter.`)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high border border-slate-200 text-xs font-semibold text-on-surface transition-colors cursor-pointer"
-                          >
-                            <span>Details</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
+          {/* TAB 2: ALL JOBS */}
+          {activeTab === "all-jobs" && (
+            <AllJobsTab
+              jobs={jobs}
+              onApplyJob={handleApplyJob}
+              onNavigateToApplications={() => setActiveTab("applications")}
+            />
+          )}
 
-        {/* TAB 3: SKILL ANALYTICS */}
-        {activeTab === "skills" && (
-          <div className="space-y-6">
-            <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-6">
-              <div>
-                <h3 className="text-base font-extrabold text-on-surface">
-                  ABET Curriculum &amp; Syntax Verification Matrix
-                </h3>
-                <p className="text-xs text-on-surface-variant mt-0.5">
-                  Static analysis parses your GitHub repos into an Abstract Syntax Tree (AST), benchmarked against accredited CS degree requirements.
-                </p>
-              </div>
+          {/* TAB 3: MY APPLICATIONS */}
+          {activeTab === "applications" && (
+            <MyApplicationsTab
+              applications={applications}
+              onNavigateToAllJobs={() => setActiveTab("all-jobs")}
+              onTriggerToast={triggerToast}
+            />
+          )}
 
-              <div className="space-y-4">
-                {[
-                  { name: "Distributed Systems & Raft Consensus", score: 96, pct: "96th %ile", tag: "Advanced" },
-                  { name: "Concurrency & Lock-Free Thread Safety", score: 98, pct: "98th %ile", tag: "Exceptional" },
-                  { name: "Algorithmic Tree & Graph Traversal", score: 94, pct: "94th %ile", tag: "Advanced" },
-                  { name: "Database Engine & WAL Serialization", score: 89, pct: "89th %ile", tag: "Proficient" },
-                  { name: "Cloud Infrastructure & eBPF Telemetry", score: 91, pct: "91th %ile", tag: "Advanced" },
-                ].map((item) => (
-                  <div key={item.name} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-on-surface">{item.name}</span>
-                      <div className="flex items-center gap-2 font-mono">
-                        <span className="text-outline text-[11px]">{item.pct}</span>
-                        <span className="font-bold text-secondary-mint">{item.score}%</span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-primary to-secondary-mint h-full rounded-full transition-all duration-500"
-                        style={{ width: `${item.score}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <span className="text-xs text-outline font-medium">
-                  Last AST parse completed 2 hours ago from <code className="text-primary font-bold">github.com/alexchen-dev</code>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => triggerToast("AST Re-scan queued. Running AST tree diff against main branch...")}
-                  className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer"
-                >
-                  Trigger Live Code Re-Index
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: RESUME & ATS MATCH */}
-        {activeTab === "resume" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Left: Active Resume File Card */}
-              <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-outline">
-                      Active Verified Resume
-                    </span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-secondary/15 text-secondary-mint text-[10px] font-mono font-bold">
-                    ATS 98% Score
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-extrabold text-on-surface">
-                    Alex_Chen_UCBerkeley_EECS_2026.pdf
-                  </h4>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    Parsed with AST Token Extractor. 48 verified technologies indexed.
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-mono space-y-1">
-                  <div className="text-outline text-[10px]">Cryptographic SHA-256:</div>
-                  <div className="text-[11px] text-on-surface truncate">
-                    8f4b23c91e7d80aa2345bc79ef0142de56a89c4456b21c43d99e01
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => triggerToast("Downloading verified candidate dossier...")}
-                    className="flex-1 py-2 px-3 rounded-lg border border-slate-200 hover:bg-surface-container-low text-xs font-bold text-on-surface flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download PDF</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleResumeUpload}
-                    disabled={isUploading}
-                    className="flex-1 py-2 px-3 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>{isUploading ? "Re-parsing..." : "Upload New Version"}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Right: ATS Verification Telemetry */}
-              <div className="p-6 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-secondary-mint" />
-                    ATS Optimization Audit
-                  </span>
-                  <span className="text-xs font-mono font-bold text-secondary-mint">
-                    Passed (98/100)
-                  </span>
-                </div>
-
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-on-surface">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
-                    <span>Zero layout parsing failures (standard semantic structure)</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-on-surface">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
-                    <span>Direct ABET institutional email verification header included</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-on-surface">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
-                    <span>Code repositories cross-linked with AST vector hashes</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-on-surface">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
-                    <span>No unparsable graphics or nested column tables</span>
-                  </li>
-                </ul>
-
-                <div className="p-3.5 rounded-xl bg-surface border border-stroke-card text-xs text-on-surface-variant">
-                  <span className="font-bold text-on-surface">SkillMatch Direct Delivery:</span>
-                  <p className="mt-0.5 text-[11px] leading-relaxed">
-                    Because your profile holds ABET-verified institutional status, your resume bypasses first-round automated discard filters and lands directly in engineering hiring lead review queues.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
+          {/* TAB 4: PROFILE SETUP */}
+          {activeTab === "profile" && (
+            <ProfileSetupTab
+              profile={profile}
+              onUpdateProfile={(updated) => setProfile(updated)}
+              onTriggerToast={triggerToast}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
 
 export default function CandidateDashboardPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-outline">Loading candidate dossier...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-outline">Loading candidate workspace...</div>}>
       <CandidateDashboardContent />
     </Suspense>
   );
