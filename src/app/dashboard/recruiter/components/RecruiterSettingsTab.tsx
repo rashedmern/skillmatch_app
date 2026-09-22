@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { RecruiterProfile } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Building2,
   ShieldCheck,
@@ -22,6 +23,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
   onUpdateProfile,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [companyName, setCompanyName] = useState(profile.companyName);
   const [recruiterName, setRecruiterName] = useState(profile.recruiterName);
   const [roleTitle, setRoleTitle] = useState(profile.roleTitle);
@@ -43,7 +45,11 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
       industry,
       location,
     });
-    onTriggerToast("Organization settings and hiring preferences updated successfully!");
+    const msg =
+      language === "bn"
+        ? "প্রতিষ্ঠান সেটিংস ও নিয়োগ পছন্দসমূহ সফলভাবে সংরক্ষিত হয়েছে!"
+        : "Organization settings and hiring preferences updated successfully!";
+    onTriggerToast(msg);
   };
 
   return (
@@ -53,20 +59,20 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold tracking-wide uppercase mb-1.5">
             <Building2 className="w-3 h-3 text-secondary-mint" />
-            <span>Employer Profile &amp; Preferences</span>
+            <span>{t.recruiter.employerProfileBadge}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
-            Organization Settings
+            {t.recruiter.orgSettingsTitle}
           </h2>
           <p className="text-xs sm:text-sm text-outline mt-0.5">
-            Manage your company profile, algorithmic candidate screening rules, and notifications.
+            {t.recruiter.orgSettingsSubtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Verified Talent Partner</span>
+            <span>{t.recruiter.verifiedPartnerBadge}</span>
           </span>
         </div>
       </div>
@@ -76,12 +82,12 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <h3 className="text-sm font-black text-on-surface uppercase tracking-wider flex items-center gap-2">
             <Building2 className="w-4 h-4 text-secondary-mint" />
-            Company &amp; Hiring Manager Details
+            {t.recruiter.companyDetailsTitle}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Company / Organization Name</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.companyName}</label>
               <input
                 type="text"
                 required
@@ -92,7 +98,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Industry Sector</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.industrySector}</label>
               <input
                 type="text"
                 required
@@ -103,7 +109,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Recruiter Full Name</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.recruiterName}</label>
               <input
                 type="text"
                 required
@@ -114,7 +120,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Title / Role</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.roleTitle}</label>
               <input
                 type="text"
                 required
@@ -125,7 +131,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Work Email (Notifications &amp; SSO)</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.workEmail}</label>
               <input
                 type="email"
                 required
@@ -136,7 +142,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-on-surface">Primary Office / HQ Location</label>
+              <label className="block font-bold text-on-surface">{t.recruiter.officeLocation}</label>
               <input
                 type="text"
                 required
@@ -152,20 +158,20 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <h3 className="text-sm font-black text-on-surface uppercase tracking-wider flex items-center gap-2">
             <Sliders className="w-4 h-4 text-secondary-mint" />
-            Algorithmic Screening Policies
+            {t.recruiter.screeningPoliciesTitle}
           </h3>
 
           <div className="space-y-4 text-xs">
             <div className="p-4 rounded-xl bg-surface-container-low border border-slate-200 flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-secondary-mint flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-on-surface">Strict Institutional Verification (.edu)</h4>
+                <h4 className="font-bold text-on-surface">{t.recruiter.strictEduTitle}</h4>
                 <p className="text-outline text-[11px] mt-0.5">
-                  Only candidates registering with verified university domains (e.g., berkeley.edu, stanford.edu, mit.edu) are eligible to submit applications. Personal email addresses are automatically rejected.
+                  {t.recruiter.strictEduDesc}
                 </p>
                 <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>Enforced Globally</span>
+                  <span>{t.recruiter.enforcedGlobally}</span>
                 </div>
               </div>
             </div>
@@ -173,7 +179,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="font-bold text-on-surface">
-                  Default Minimum AST Match % For Incoming Applications
+                  {t.recruiter.defaultCutoffLabel}
                 </label>
                 <span className="font-mono font-black text-primary-container px-2.5 py-0.5 rounded bg-secondary-mint/15 text-xs">
                   {defaultCutoff}%
@@ -189,7 +195,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
                 className="w-full accent-primary-container cursor-pointer"
               />
               <p className="text-[11px] text-outline">
-                Candidates falling below this cutoff will be categorized under Review Queue instead of direct fast-track shortlists.
+                {t.recruiter.cutoffDesc}
               </p>
             </div>
           </div>
@@ -199,15 +205,15 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <h3 className="text-sm font-black text-on-surface uppercase tracking-wider flex items-center gap-2">
             <Bell className="w-4 h-4 text-secondary-mint" />
-            Recruiter Alerts &amp; Digest
+            {t.recruiter.alertsTitle}
           </h3>
 
           <div className="space-y-3 text-xs">
             <label className="flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
               <div>
-                <div className="font-bold text-on-surface">Instant 95%+ AST Match Alerts</div>
+                <div className="font-bold text-on-surface">{t.recruiter.instantAlerts}</div>
                 <div className="text-outline text-[11px]">
-                  Receive immediate notification when an exceptional candidate applies.
+                  {t.recruiter.instantAlertsDesc}
                 </div>
               </div>
               <input
@@ -220,9 +226,9 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
 
             <label className="flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
               <div>
-                <div className="font-bold text-on-surface">Daily Morning Pipeline Digest</div>
+                <div className="font-bold text-on-surface">{t.recruiter.dailyDigest}</div>
                 <div className="text-outline text-[11px]">
-                  Daily overview email detailing new applicants, interviews, and verified resumes.
+                  {t.recruiter.dailyDigestDesc}
                 </div>
               </div>
               <input
@@ -242,7 +248,7 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
             className="px-6 py-2.5 rounded-xl bg-primary-container hover:bg-primary-hover text-white font-bold text-xs transition-all shadow-level-1 flex items-center gap-2 cursor-pointer"
           >
             <Save className="w-4 h-4 text-secondary-mint" />
-            <span>Save Organization Settings</span>
+            <span>{t.recruiter.saveSettingsBtn}</span>
           </button>
         </div>
       </form>

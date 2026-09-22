@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { JobPosting } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Search,
   GraduationCap,
@@ -124,6 +125,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
   jobs,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [candidates, setCandidates] = useState<ScoutCandidate[]>(mockScoutDirectory);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("All");
@@ -165,7 +167,12 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
       )
     );
 
-    onTriggerToast(`Invitation sent to ${selectedCandidateForInvite.name} for ${targetJob ? targetJob.title : "job"}!`);
+    const toastMsg =
+      language === "bn"
+        ? `${selectedCandidateForInvite.name}-এর কাছে ${targetJob ? targetJob.title : "পদ"}-এর জন্য দ্রুত আমন্ত্রণ পাঠানো হয়েছে!`
+        : `Invitation sent to ${selectedCandidateForInvite.name} for ${targetJob ? targetJob.title : "job"}!`;
+
+    onTriggerToast(toastMsg);
     setSelectedCandidateForInvite(null);
   };
 
@@ -176,20 +183,20 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold tracking-wide uppercase mb-1.5">
             <Sparkles className="w-3 h-3 text-secondary-mint" />
-            <span>Accredited Talent Scout</span>
+            <span>{t.recruiter.accreditedTalentScout}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
-            Verified University Talent Directory
+            {t.recruiter.talentScoutTitle}
           </h2>
           <p className="text-xs sm:text-sm text-outline mt-0.5">
-            Directly scout top students with verified institutional credentials and audited repository AST syntax nodes.
+            {t.recruiter.talentScoutSubtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="text-right">
             <div className="text-lg font-black text-primary-container font-mono">100% .edu</div>
-            <div className="text-[11px] text-outline">Verified Students</div>
+            <div className="text-[11px] text-outline">{t.recruiter.verifiedStudents}</div>
           </div>
         </div>
       </div>
@@ -202,7 +209,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
             <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by student name, skill (e.g. Raft, Rust, eBPF), or repo..."
+              placeholder={t.recruiter.searchScoutPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
@@ -218,7 +225,11 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
             >
               {languages.map((l) => (
                 <option key={l} value={l}>
-                  {l === "All" ? "All Languages" : `Primary: ${l}`}
+                  {l === "All"
+                    ? t.recruiter.allLanguages
+                    : language === "bn"
+                    ? `মূল ভাষা: ${l}`
+                    : `Primary: ${l}`}
                 </option>
               ))}
             </select>
@@ -233,7 +244,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
             >
               {universities.map((u) => (
                 <option key={u} value={u}>
-                  {u === "All" ? "All Accredited Universities" : u}
+                  {u === "All" ? t.recruiter.allUniversities : u}
                 </option>
               ))}
             </select>
@@ -244,7 +255,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-100">
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-bold text-outline uppercase tracking-wider">
-              Min Algorithmic AST Match:
+              {t.recruiter.minAstMatch}
             </span>
             <span className="text-xs font-mono font-black text-primary-container px-2 py-0.5 rounded bg-secondary-mint/15">
               {minAstScore}%
@@ -270,8 +281,8 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCandidates.length === 0 ? (
           <div className="col-span-full py-16 text-center text-outline bg-white rounded-2xl border border-slate-200">
-            <p className="font-bold text-on-surface text-sm">No engineering candidates match your scout criteria.</p>
-            <p className="text-xs mt-1">Try lowering the minimum AST score or widening your language filter.</p>
+            <p className="font-bold text-on-surface text-sm">{t.recruiter.noScoutCandidates}</p>
+            <p className="text-xs mt-1">{t.recruiter.noScoutCandidatesDesc}</p>
           </div>
         ) : (
           filteredCandidates.map((candidate) => (
@@ -299,14 +310,14 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                     <div className="font-mono font-black text-sm text-primary-container">
                       {candidate.astScore.toFixed(1)}%
                     </div>
-                    <div className="text-[10px] text-outline uppercase font-bold">AST Score</div>
+                    <div className="text-[10px] text-outline uppercase font-bold">{t.recruiter.astScore}</div>
                   </div>
                 </div>
 
                 <div className="mt-3 flex items-center gap-1.5 text-xs text-outline">
                   <GraduationCap className="w-3.5 h-3.5 text-outline" />
                   <span>
-                    {candidate.degree} (Class of {candidate.gradYear})
+                    {candidate.degree} ({t.recruiter.classOf} {candidate.gradYear})
                   </span>
                 </div>
 
@@ -339,7 +350,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                 {candidate.invited ? (
                   <div className="w-full py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold text-center flex items-center justify-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Invitation Dispatched</span>
+                    <span>{t.recruiter.invitationSent}</span>
                   </div>
                 ) : (
                   <button
@@ -348,7 +359,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                     className="w-full py-2 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
                   >
                     <Send className="w-3.5 h-3.5 text-secondary-mint" />
-                    <span>Invite to Apply</span>
+                    <span>{t.recruiter.inviteToApply}</span>
                   </button>
                 )}
               </div>
@@ -364,7 +375,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-black text-on-surface">
-                  Invite {selectedCandidateForInvite.name}
+                  {t.recruiter.inviteModalTitle} {selectedCandidateForInvite.name}
                 </h3>
                 <p className="text-xs text-outline mt-0.5">
                   {selectedCandidateForInvite.university} • {selectedCandidateForInvite.degree}
@@ -382,7 +393,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
             <form onSubmit={handleSendInvite} className="space-y-4 text-xs">
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Select Position to Invite For
+                  {t.recruiter.selectPositionInvite}
                 </label>
                 <select
                   value={selectedTargetJobId}
@@ -398,7 +409,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-outline text-[11px] leading-relaxed">
-                The candidate will receive a high-priority direct interview invitation and notification highlighting your role match.
+                {t.recruiter.inviteNotice}
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
@@ -407,14 +418,14 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                   onClick={() => setSelectedCandidateForInvite(null)}
                   className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5 text-secondary-mint" />
-                  <span>Send Fast-Track Invite</span>
+                  <span>{t.recruiter.sendFastTrackInvite}</span>
                 </button>
               </div>
             </form>

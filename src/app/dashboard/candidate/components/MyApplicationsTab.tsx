@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AppliedJob } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Clock,
   ArrowRight,
@@ -21,6 +22,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
   onNavigateToAllJobs,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
 
   const filteredApps = applications.filter((app) => {
@@ -41,6 +43,24 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    if (language !== "bn") return status;
+    switch (status) {
+      case "All":
+        return t.common.all;
+      case "Offer Extended":
+        return "অফার প্রস্তাবিত";
+      case "Interview Scheduled":
+        return "সাক্ষাৎকার নির্ধারিত";
+      case "Under Review":
+        return "পর্যালোচনাধীন";
+      case "Assessment Passed":
+        return "অ্যাসেসমেন্ট উত্তীর্ণ";
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -51,22 +71,26 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container backdrop-blur-sm border border-white/15">
               <CheckCircle2 className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>Real-Time Recruiter Dispatch Tracking</span>
+              <span>
+                {language === "bn"
+                  ? "রিয়েল-টাইম রিক্রুটার ডিসপ্যাচ ট্র্যাকিং"
+                  : "Real-Time Recruiter Dispatch Tracking"}
+              </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              My Active Applications Pipeline
+              {t.candidate.myApplicationsTitle}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
-              Track the exact stage of your candidate dossier across top engineering organizations. Your ABET-verified student status guarantees direct access to engineering hiring managers.
+              {t.candidate.myApplicationsSubtitle}
             </p>
           </div>
 
           <div className="p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md text-right self-stretch md:self-auto">
             <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
-              In-Progress
+              {t.candidate.inProgress}
             </div>
             <div className="text-3xl font-extrabold font-mono tabular-nums text-secondary-container">
-              {applications.length} Active
+              {applications.length} {language === "bn" ? "সক্রিয়" : "Active"}
             </div>
           </div>
         </div>
@@ -76,7 +100,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-stroke-card shadow-sm">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           <span className="text-[11px] font-bold text-outline uppercase tracking-wider mr-1">
-            Status:
+            {t.candidate.statusFilter}
           </span>
           {[
             "All",
@@ -95,7 +119,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
                   : "bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
               }`}
             >
-              {status}
+              {getStatusLabel(status)}
             </button>
           ))}
         </div>
@@ -106,7 +130,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
           className="px-4 py-2 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer shrink-0"
         >
           <Briefcase className="w-3.5 h-3.5" />
-          <span>Explore More Open Roles</span>
+          <span>{language === "bn" ? "আরও চাকরির সুযোগ দেখুন" : "Explore More Open Roles"}</span>
         </button>
       </div>
 
@@ -117,9 +141,13 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
             <Filter className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-on-surface">No Applications Match Filter</h3>
+            <h3 className="text-base font-bold text-on-surface">
+              {language === "bn" ? "কোন আবেদন ফিল্টারের সাথে মেলেনি" : "No Applications Match Filter"}
+            </h3>
             <p className="text-xs text-on-surface-variant">
-              There are no jobs currently under &apos;{selectedStatus}&apos;. Browse all available jobs to submit a new 1-click application.
+              {language === "bn"
+                ? `বর্তমানে '${getStatusLabel(selectedStatus)}' অবস্থায় কোন আবেদন নেই। নতুন আবেদন করতে সকল চাকরি দেখুন।`
+                : `There are no jobs currently under '${selectedStatus}'. Browse all available jobs to submit a new 1-click application.`}
             </p>
           </div>
           <button
@@ -127,7 +155,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
             onClick={onNavigateToAllJobs}
             className="px-4 py-2 rounded-xl bg-primary-container text-white text-xs font-bold inline-flex items-center gap-2"
           >
-            <span>Browse All Jobs</span>
+            <span>{language === "bn" ? "সকল চাকরি দেখুন" : "Browse All Jobs"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -137,11 +165,19 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-surface-container-low border-b border-stroke-card text-on-surface-variant font-bold uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3 px-4">Target Organization &amp; Role</th>
-                  <th className="py-3 px-4">AST Match Vector</th>
-                  <th className="py-3 px-4">Current Status</th>
-                  <th className="py-3 px-4">Next Action / Timeline</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4">
+                    {language === "bn" ? "লক্ষ্য প্রতিষ্ঠান ও পদবী" : "Target Organization & Role"}
+                  </th>
+                  <th className="py-3 px-4">
+                    {language === "bn" ? "AST ম্যাচ ভেক্টর" : "AST Match Vector"}
+                  </th>
+                  <th className="py-3 px-4">
+                    {language === "bn" ? "বর্তমান অবস্থা" : "Current Status"}
+                  </th>
+                  <th className="py-3 px-4">
+                    {language === "bn" ? "পরবর্তী পদক্ষেপ / সময়রেখা" : "Next Action / Timeline"}
+                  </th>
+                  <th className="py-3 px-4 text-right">{t.common.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -151,13 +187,14 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
                       <div className="font-extrabold text-sm text-on-surface">{job.company}</div>
                       <div className="text-xs text-primary font-bold mt-0.5">{job.role}</div>
                       <div className="text-[11px] text-outline font-mono mt-0.5">
-                        {job.salary} • {job.location} • Applied {job.appliedDate}
+                        {job.salary} • {job.location} •{" "}
+                        {language === "bn" ? `আবেদনকৃত ${job.appliedDate}` : `Applied ${job.appliedDate}`}
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4 font-mono">
                       <div className="inline-flex items-center gap-1 font-bold text-secondary-mint bg-secondary/10 px-2 py-0.5 rounded text-xs">
-                        {job.matchScore}% Match
+                        {job.matchScore}% {language === "bn" ? "ম্যাচ" : "Match"}
                       </div>
                     </td>
 
@@ -168,7 +205,7 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
                         )}`}
                       >
                         <Clock className="w-3 h-3" />
-                        {job.status}
+                        {getStatusLabel(job.status)}
                       </span>
                     </td>
 
@@ -179,10 +216,16 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <button
                         type="button"
-                        onClick={() => onTriggerToast(`Reviewing packet telemetry for ${job.company}...`)}
+                        onClick={() =>
+                          onTriggerToast(
+                            language === "bn"
+                              ? `${job.company}-এর জন্য প্যাকেট টেলিমেট্রি পর্যালোচনা করা হচ্ছে...`
+                              : `Reviewing packet telemetry for ${job.company}...`
+                          )
+                        }
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high border border-slate-200 text-xs font-semibold text-on-surface transition-colors cursor-pointer"
                       >
-                        <span>Telemetry</span>
+                        <span>{language === "bn" ? "টেলিমেট্রি" : "Telemetry"}</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
                     </td>

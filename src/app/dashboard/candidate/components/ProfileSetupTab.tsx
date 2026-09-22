@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { CandidateProfile } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   User,
   Upload,
@@ -46,6 +47,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
   onUpdateProfile,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState<CandidateProfile>(profile);
   const [newSkillInput, setNewSkillInput] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl);
@@ -76,7 +78,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
         const result = reader.result as string;
         setAvatarPreview(result);
         setFormData((prev) => ({ ...prev, avatarUrl: result }));
-        onTriggerToast("Profile picture updated successfully!");
+        onTriggerToast(
+          language === "bn"
+            ? "প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে!"
+            : "Profile picture updated successfully!"
+        );
       };
       reader.readAsDataURL(file);
     }
@@ -85,7 +91,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
     setFormData((prev) => ({ ...prev, avatarUrl: null }));
-    onTriggerToast("Profile picture reset to default initials.");
+    onTriggerToast(
+      language === "bn"
+        ? "প্রোফাইল ছবি ডিফল্ট আদ্যক্ষরে রিসেট করা হয়েছে।"
+        : "Profile picture reset to default initials."
+    );
   };
 
   const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +108,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
         resumeFileSize: `${sizeMb} MB`,
         resumeSha256: `sha256-${Math.random().toString(36).substring(2, 10)}${Math.random().toString(36).substring(2, 10)}`,
       }));
-      onTriggerToast(`Resume '${file.name}' uploaded and parsed for AST tokens!`);
+      onTriggerToast(
+        language === "bn"
+          ? `রিজিউমে '${file.name}' আপলোড এবং AST টোকেনের জন্য পার্স করা হয়েছে!`
+          : `Resume '${file.name}' uploaded and parsed for AST tokens!`
+      );
     }
   };
 
@@ -107,7 +121,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
     if (!skill) return;
 
     if (formData.skills.some((s) => s.toLowerCase() === skill.toLowerCase())) {
-      onTriggerToast(`'${skill}' is already in your verified skills list.`);
+      onTriggerToast(
+        language === "bn"
+          ? `'${skill}' ইতিমধ্যে আপনার তালিকায় রয়েছে।`
+          : `'${skill}' is already in your verified skills list.`
+      );
       return;
     }
 
@@ -116,7 +134,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
       skills: [...prev.skills, skill],
     }));
     setNewSkillInput("");
-    onTriggerToast(`Skill '${skill}' added to profile.`);
+    onTriggerToast(
+      language === "bn"
+        ? `'${skill}' দক্ষতা প্রোফাইলে যোগ করা হয়েছে।`
+        : `Skill '${skill}' added to profile.`
+    );
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
@@ -124,7 +146,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
       ...prev,
       skills: prev.skills.filter((s) => s !== skillToRemove),
     }));
-    onTriggerToast(`Skill '${skillToRemove}' removed.`);
+    onTriggerToast(
+      language === "bn"
+        ? `'${skillToRemove}' অপসারণ করা হয়েছে।`
+        : `Skill '${skillToRemove}' removed.`
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -134,7 +160,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
     setTimeout(() => {
       onUpdateProfile(formData);
       setIsSaving(false);
-      onTriggerToast("Candidate profile changes saved and synced across network!");
+      onTriggerToast(
+        language === "bn"
+          ? "প্রোফাইল পরিবর্তন সফলভাবে সংরক্ষিত ও সিঙ্ক হয়েছে!"
+          : "Candidate profile changes saved and synced across network!"
+      );
     }, 600);
   };
 
@@ -148,13 +178,17 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container backdrop-blur-sm border border-white/15">
               <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>ABET Institutional Profile Management</span>
+              <span>
+                {language === "bn"
+                  ? "ABET প্রাতিষ্ঠানিক প্রোফাইল ব্যবস্থাপনা"
+                  : "ABET Institutional Profile Management"}
+              </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              Manual Candidate Profile Setup
+              {t.candidate.profileSetupTitle}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
-              Customize your verified profile, upload updated resume artifacts, and manage the technical skill tags used to calculate your AST vector match percentages.
+              {t.candidate.profileSetupSubtitle}
             </p>
           </div>
 
@@ -165,7 +199,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             className="px-5 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-extrabold flex items-center gap-2 shadow-level-2 transition-all cursor-pointer self-stretch md:self-auto justify-center"
           >
             <Save className="w-4 h-4" />
-            <span>{isSaving ? "Saving..." : "Save Profile Changes"}</span>
+            <span>{isSaving ? (language === "bn" ? "সংরক্ষণ করা হচ্ছে..." : "Saving...") : t.common.save}</span>
           </button>
         </div>
       </div>
@@ -179,10 +213,10 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
                 <User className="w-4 h-4 text-primary" />
-                Profile Picture
+                {language === "bn" ? "প্রোফাইল ছবি" : "Profile Picture"}
               </span>
               <span className="text-[10px] font-mono font-bold text-secondary-mint px-2 py-0.5 rounded bg-secondary/10">
-                Verified
+                {language === "bn" ? "যাচাইকৃত" : "Verified"}
               </span>
             </div>
 
@@ -214,7 +248,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                   className="w-full py-2 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  <span>Upload Picture</span>
+                  <span>{language === "bn" ? "ছবি আপলোড করুন" : "Upload Picture"}</span>
                 </button>
 
                 {avatarPreview && (
@@ -224,11 +258,13 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                     className="w-full py-1.5 px-3 rounded-xl border border-slate-200 text-outline hover:text-accent-gap hover:border-accent-gap/30 hover:bg-accent-gap/5 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Reset to Initials</span>
+                    <span>{language === "bn" ? "আদ্যক্ষরে রিসেট করুন" : "Reset to Initials"}</span>
                   </button>
                 )}
                 <p className="text-[10px] text-outline">
-                  JPG, PNG, or WebP. Max file size: 5MB.
+                  {language === "bn"
+                    ? "JPG, PNG, বা WebP। সর্বোচ্চ ৫ মেগাবাইট।"
+                    : "JPG, PNG, or WebP. Max file size: 5MB."}
                 </p>
               </div>
             </div>
@@ -239,7 +275,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-primary" />
-                Resume / CV File
+                {language === "bn" ? "রিজিউমে / সিভি ফাইল" : "Resume / CV File"}
               </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/15 text-secondary-mint font-bold">
                 ATS 98%
@@ -275,20 +311,30 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             >
               <Upload className="w-6 h-6 text-outline group-hover:text-secondary-mint mx-auto transition-colors" />
               <p className="text-xs font-bold text-on-surface mt-2">
-                Click or drag &amp; drop to upload new CV
+                {language === "bn"
+                  ? "নতুন সিভি আপলোড করতে ক্লিক করুন বা ড্র্যাগ ও ড্রপ করুন"
+                  : "Click or drag & drop to upload new CV"}
               </p>
               <p className="text-[11px] text-outline mt-0.5">
-                PDF or Word Document. Will trigger AST parser.
+                {language === "bn"
+                  ? "পিডিএফ বা ওয়ার্ড ফাইল। AST পার্সার সক্রিয় হবে।"
+                  : "PDF or Word Document. Will trigger AST parser."}
               </p>
             </div>
 
             <button
               type="button"
-              onClick={() => onTriggerToast(`Downloading active dossier ${formData.resumeFileName}...`)}
+              onClick={() =>
+                onTriggerToast(
+                  language === "bn"
+                    ? `সক্রিয় ডজিয়ার ${formData.resumeFileName} ডাউনলোড হচ্ছে...`
+                    : `Downloading active dossier ${formData.resumeFileName}...`
+                )
+              }
               className="w-full py-2 px-3 rounded-xl border border-slate-200 text-xs font-bold text-on-surface hover:bg-surface-container-low flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Active Resume</span>
+              <span>{language === "bn" ? "সক্রিয় রিজিউমে ডাউনলোড করুন" : "Download Active Resume"}</span>
             </button>
           </div>
 
@@ -297,10 +343,10 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
                 <Tag className="w-4 h-4 text-primary" />
-                Technical Skills Manager
+                {t.candidate.skillsManagerTitle}
               </span>
               <span className="text-[10px] font-mono font-bold text-primary px-2 py-0.5 rounded bg-primary/10">
-                {formData.skills.length} Skills
+                {formData.skills.length} {language === "bn" ? "দক্ষতা" : "Skills"}
               </span>
             </div>
 
@@ -308,7 +354,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Add custom skill (e.g. Raft, Rust)..."
+                placeholder={t.candidate.addSkillPlaceholder}
                 value={newSkillInput}
                 onChange={(e) => setNewSkillInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -326,7 +372,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                 className="h-9 px-3 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add</span>
+                <span>{language === "bn" ? "যোগ করুন" : "Add"}</span>
               </button>
             </div>
 
@@ -353,7 +399,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
             {/* Quick Add Suggestions */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-outline uppercase tracking-wider">
-                Quick Add Suggestions:
+                {t.candidate.suggestedSkills}
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
                 {suggestedSkills
@@ -380,12 +426,12 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-primary" />
                 <h3 className="text-base font-extrabold text-on-surface">
-                  Personal &amp; Academic Credentials
+                  {t.candidate.personalInfoTitle}
                 </h3>
               </div>
               <span className="text-xs font-mono font-bold text-secondary-mint flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                ABET Synchronized
+                {language === "bn" ? "ABET সিঙ্ক্রোনাইজড" : "ABET Synchronized"}
               </span>
             </div>
 
@@ -393,7 +439,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Full Name
+                    {t.candidate.fullName}
                   </label>
                   <input
                     type="text"
@@ -406,7 +452,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Target Role Headline
+                    {t.candidate.headline}
                   </label>
                   <input
                     type="text"
@@ -421,7 +467,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2 space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    University / Institution
+                    {t.candidate.university}
                   </label>
                   <input
                     type="text"
@@ -434,7 +480,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Class Year
+                    {t.candidate.gradYear}
                   </label>
                   <input
                     type="text"
@@ -448,7 +494,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Degree &amp; Major
+                    {t.candidate.degree}
                   </label>
                   <input
                     type="text"
@@ -461,14 +507,18 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Verified Institutional (.edu) Email
+                    {language === "bn" ? "যাচাইকৃত প্রাতিষ্ঠানিক (.edu) ইমেইল" : "Verified Institutional (.edu) Email"}
                   </label>
                   <input
                     type="email"
                     disabled
                     value={formData.email}
                     className="w-full h-10 px-3 rounded-xl bg-slate-100 border border-slate-200 text-sm font-mono text-outline cursor-not-allowed"
-                    title="Institutional email is locked to verified OAuth session."
+                    title={
+                      language === "bn"
+                        ? "প্রাতিষ্ঠানিক ইমেইল যাচাইকৃত OAuth সেশনের সাথে লক করা রয়েছে।"
+                        : "Institutional email is locked to verified OAuth session."
+                    }
                   />
                 </div>
               </div>
@@ -476,14 +526,14 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
               <div className="space-y-3 pt-2 border-t border-slate-100">
                 <div className="flex items-center gap-1.5 font-bold text-on-surface text-xs">
                   <LinkIcon className="w-3.5 h-3.5 text-primary" />
-                  <span>Developer &amp; Portfolio Links</span>
+                  <span>{t.candidate.professionalLinks}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
                       <GithubIcon className="w-3 h-3" />
-                      GitHub Profile
+                      {language === "bn" ? "গিটহাব প্রোফাইল" : "GitHub Profile"}
                     </label>
                     <input
                       type="url"
@@ -497,7 +547,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                   <div className="space-y-1">
                     <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
                       <LinkedinIcon className="w-3 h-3" />
-                      LinkedIn Profile
+                      {language === "bn" ? "লিঙ্কডইন প্রোফাইল" : "LinkedIn Profile"}
                     </label>
                     <input
                       type="url"
@@ -511,7 +561,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                   <div className="space-y-1">
                     <label className="block text-[11px] text-outline font-medium flex items-center gap-1">
                       <Globe className="w-3 h-3" />
-                      Portfolio Site
+                      {language === "bn" ? "পোর্টফোলিও সাইট" : "Portfolio Site"}
                     </label>
                     <input
                       type="url"
@@ -526,13 +576,17 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
               <div className="space-y-1 pt-2">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Technical Biography &amp; Architectural Focus
+                  {t.candidate.bio}
                 </label>
                 <textarea
                   rows={4}
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  placeholder="Describe your distributed systems experience, core algorithms focus, or open source contributions..."
+                  placeholder={
+                    language === "bn"
+                      ? "আপনার ডিস্ট্রিবিউটেড সিস্টেমস অভিজ্ঞতা, অ্যালগোরিদম দক্ষতা বা ওপেন সোর্স অবদান সংক্ষেপে লিখুন..."
+                      : "Describe your distributed systems experience, core algorithms focus, or open source contributions..."
+                  }
                   className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed focus:outline-none focus:bg-white focus:border-secondary-mint"
                 />
               </div>
@@ -545,7 +599,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-primary-container hover:bg-primary-hover active:scale-95 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSaving ? "Saving..." : "Save Profile Changes"}</span>
+                  <span>{isSaving ? (language === "bn" ? "সংরক্ষণ করা হচ্ছে..." : "Saving...") : t.common.save}</span>
                 </button>
               </div>
             </div>

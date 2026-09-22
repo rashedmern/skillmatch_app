@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { ValidationService } from "@/server/services/validationService";
 import { registerAction } from "@/server/actions/authActions";
@@ -59,6 +61,7 @@ function RegisterFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialRole = searchParams.get("role") === "recruiter" ? "recruiter" : "candidate";
+  const { t, language } = useLanguage();
 
   const [role, setRole] = useState<"candidate" | "recruiter">(initialRole);
   const [name, setName] = useState("");
@@ -82,7 +85,9 @@ function RegisterFormContent() {
       if (!isEdu) {
         setIsLoading(false);
         setErrorMessage(
-          "Candidate registration requires a valid university institutional (.edu) email."
+          language === "bn"
+            ? "ক্যান্ডিডেট অ্যাকাউন্টের জন্য অবশ্যই অনুমোদিত বিশ্ববিদ্যালয়ের (.edu) ইমেইল প্রয়োজন।"
+            : "Candidate registration requires a valid university institutional (.edu) email."
         );
         return;
       }
@@ -100,14 +105,19 @@ function RegisterFormContent() {
 
       if (!result.success || !result.data) {
         setIsLoading(false);
-        setErrorMessage(result.error || "Registration failed. Please check your details.");
+        setErrorMessage(
+          result.error ||
+            (language === "bn" ? "নিবন্ধন ব্যর্থ হয়েছে। অনুগ্রহ করে তথ্য পুনরায় পরীক্ষা করুন।" : "Registration failed. Please check your details.")
+        );
         return;
       }
 
       router.push(result.data.redirectUrl);
     } catch {
       setIsLoading(false);
-      setErrorMessage("Network error during registration. Please try again.");
+      setErrorMessage(
+        language === "bn" ? "নিবন্ধন চলাকালীন নেটওয়ার্ক ত্রুটি ঘটেছে। অনুগ্রহ করে আবার চেষ্টা করুন।" : "Network error during registration. Please try again."
+      );
     }
   };
 
@@ -124,10 +134,32 @@ function RegisterFormContent() {
   };
 
   const getPasswordStrength = () => {
-    if (!password) return { level: 0, text: "None", color: "bg-slate-200" };
-    if (password.length < 6) return { level: 1, text: "Weak", color: "bg-accent-gap" };
-    if (password.length < 10) return { level: 2, text: "Medium", color: "bg-amber-500" };
-    return { level: 3, text: "Strong", color: "bg-secondary-mint" };
+    if (!password) {
+      return {
+        level: 0,
+        text: language === "bn" ? "কোনটি নয়" : "None",
+        color: "bg-slate-200",
+      };
+    }
+    if (password.length < 6) {
+      return {
+        level: 1,
+        text: language === "bn" ? "দুর্বল" : "Weak",
+        color: "bg-accent-gap",
+      };
+    }
+    if (password.length < 10) {
+      return {
+        level: 2,
+        text: language === "bn" ? "মাঝারি" : "Medium",
+        color: "bg-amber-500",
+      };
+    }
+    return {
+      level: 3,
+      text: language === "bn" ? "শক্তিশালী" : "Strong",
+      color: "bg-secondary-mint",
+    };
   };
 
   const strength = getPasswordStrength();
@@ -143,16 +175,17 @@ function RegisterFormContent() {
         <div className="relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-secondary-container backdrop-blur-sm">
             <StatusDot size="sm" />
-            <span>Join 12,000+ Engineers</span>
+            <span>{language === "bn" ? "১২,০০০+ প্রকৌশলী সংযুক্ত" : "Join 12,000+ Engineers"}</span>
           </div>
 
           <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight leading-snug">
-            Land Your Dream Engineering Role on Real Code.
+            {language === "bn" ? "আসল কোডের দক্ষতায় স্বপ্নের ক্যারিয়ার গড়ুন।" : "Land Your Dream Engineering Role on Real Code."}
           </h2>
 
           <p className="text-sm text-white/80 font-normal leading-relaxed">
-            Create your profile in 60 seconds. Connect your GitHub repository to generate an
-            empirical AST skill dossier verified against production engineering standards.
+            {language === "bn"
+              ? "৬০ সেকেন্ডে আপনার প্রোফাইল তৈরি করুন। গিটহাব রিপোজিটরি সংযুক্ত করে প্রোডাকশন স্ট্যান্ডার্ডের নির্ভুল AST স্কিল ডজিয়ার পান।"
+              : "Create your profile in 60 seconds. Connect your GitHub repository to generate an empirical AST skill dossier verified against production engineering standards."}
           </p>
 
           {/* Value Bullet Points */}
@@ -160,9 +193,13 @@ function RegisterFormContent() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-secondary-container shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-white">Direct Lead Access</h4>
+                <h4 className="text-xs font-bold text-white">
+                  {language === "bn" ? "সরাসরি টিম লিডদের পর্যালোচনা" : "Direct Lead Access"}
+                </h4>
                 <p className="text-[11px] text-white/75">
-                  Your code architecture is reviewed directly by engineering managers.
+                  {language === "bn"
+                    ? "আপনার কোড আর্কিটেকচার সরাসরি ইঞ্জিনিয়ারিং ম্যানেজাররা পর্যালোচনা করেন।"
+                    : "Your code architecture is reviewed directly by engineering managers."}
                 </p>
               </div>
             </div>
@@ -170,9 +207,13 @@ function RegisterFormContent() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-secondary-container shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-white">Zero Private Code Retention</h4>
+                <h4 className="text-xs font-bold text-white">
+                  {language === "bn" ? "প্রাইভেট কোড সংরক্ষণ মুক্ত" : "Zero Private Code Retention"}
+                </h4>
                 <p className="text-[11px] text-white/75">
-                  Static analysis parses syntax trees with ephemeral in-memory processing.
+                  {language === "bn"
+                    ? "স্ট্যাটিক অ্যানালাইসিস ইন-মেমরি প্রক্রিয়াকরণের মাধ্যমে সিনট্যাক্স ট্রি পার্স করে।"
+                    : "Static analysis parses syntax trees with ephemeral in-memory processing."}
                 </p>
               </div>
             </div>
@@ -180,9 +221,13 @@ function RegisterFormContent() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-secondary-container shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-white">100% Free for Students</h4>
+                <h4 className="text-xs font-bold text-white">
+                  {language === "bn" ? "শিক্ষার্থীদের জন্য ১০০% বিনামূল্যে" : "100% Free for Students"}
+                </h4>
                 <p className="text-[11px] text-white/75">
-                  Complete telemetry reports, benchmarking, and interview matching included.
+                  {language === "bn"
+                    ? "সম্পূর্ণ টেলিমেট্রি রিপোর্ট, বেঞ্চমার্কিং এবং ইন্টারভিউ ম্যাচিং অন্তর্ভুক্ত।"
+                    : "Complete telemetry reports, benchmarking, and interview matching included."}
                 </p>
               </div>
             </div>
@@ -202,10 +247,10 @@ function RegisterFormContent() {
           {/* Heading */}
           <div className="space-y-1 text-center sm:text-left">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-              Create Your Profile
+              {t.auth.createProfileTitle}
             </h1>
             <p className="text-xs sm:text-sm text-on-surface-variant">
-              Get matched based on verified GitHub code architecture.
+              {t.auth.createProfileSubtitle}
             </p>
           </div>
 
@@ -221,7 +266,7 @@ function RegisterFormContent() {
               }`}
             >
               <Code2 className="w-3.5 h-3.5" />
-              <span>Candidate / Student</span>
+              <span>{t.auth.asCandidate}</span>
             </button>
 
             <button
@@ -234,7 +279,7 @@ function RegisterFormContent() {
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Recruiter / Lead</span>
+              <span>{t.auth.asRecruiter}</span>
             </button>
           </div>
 
@@ -247,7 +292,7 @@ function RegisterFormContent() {
               className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
             >
               <GithubIcon className="w-4 h-4" />
-              <span>Continue with GitHub</span>
+              <span>{t.auth.githubAuth}</span>
             </button>
 
             <button
@@ -257,7 +302,7 @@ function RegisterFormContent() {
               className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
             >
               <GoogleIcon className="w-4 h-4" />
-              <span>Continue with Google</span>
+              <span>{t.auth.googleSso}</span>
             </button>
           </div>
 
@@ -278,7 +323,7 @@ function RegisterFormContent() {
           <div className="relative flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
             <span className="bg-white px-3 text-[11px] font-medium text-outline uppercase tracking-wider">
-              or register with email
+              {t.auth.orRegisterWithEmail}
             </span>
           </div>
 
@@ -290,7 +335,7 @@ function RegisterFormContent() {
                 htmlFor="name"
                 className="block text-xs font-bold uppercase tracking-wider text-on-surface"
               >
-                Full Name
+                {t.auth.fullNameLabel}
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -300,7 +345,7 @@ function RegisterFormContent() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={role === "candidate" ? "Alex Chen" : "Sarah Miller"}
+                  placeholder={role === "candidate" ? (language === "bn" ? "উদাঃ নাফিস আহমেদ" : "Alex Chen") : (language === "bn" ? "উদাঃ সারা মিলার" : "Sarah Miller")}
                   className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
                 />
               </div>
@@ -312,7 +357,7 @@ function RegisterFormContent() {
                 htmlFor="email"
                 className="block text-xs font-bold uppercase tracking-wider text-on-surface"
               >
-                {role === "candidate" ? "University or Personal Email" : "Work Email"}
+                {role === "candidate" ? t.auth.candEmailLabel : t.auth.recEmailLabel}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -324,8 +369,8 @@ function RegisterFormContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={
                     role === "candidate"
-                      ? "alex.chen@eecs.berkeley.edu"
-                      : "sarah.miller@scaleops.io"
+                      ? t.auth.candEmailPlaceholder
+                      : t.auth.recEmailPlaceholder
                   }
                   className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
                 />
@@ -339,7 +384,7 @@ function RegisterFormContent() {
                   htmlFor="specialization"
                   className="block text-xs font-bold uppercase tracking-wider text-on-surface"
                 >
-                  Primary Specialization Track
+                  {t.auth.specializationLabel}
                 </label>
                 <select
                   id="specialization"
@@ -347,11 +392,21 @@ function RegisterFormContent() {
                   onChange={(e) => setSpecialization(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all cursor-pointer"
                 >
-                  <option value="SWE & Distributed Systems">SWE &amp; Distributed Systems</option>
-                  <option value="Frontend & Web Architecture">Frontend &amp; Web Architecture</option>
-                  <option value="Backend & Cloud Infrastructure">Backend &amp; Cloud Infrastructure</option>
-                  <option value="AI & Machine Learning Systems">AI &amp; Machine Learning Systems</option>
-                  <option value="Database Engineering & Query Optimization">Database Engineering</option>
+                  <option value="SWE & Distributed Systems">
+                    {language === "bn" ? "সফটওয়্যার ইঞ্জিনিয়ারিং ও ডিস্ট্রিবিউটেড সিস্টেমস" : "SWE & Distributed Systems"}
+                  </option>
+                  <option value="Frontend & Web Architecture">
+                    {language === "bn" ? "ফ্রন্টএন্ড ও ওয়েব আর্কিটেকচার" : "Frontend & Web Architecture"}
+                  </option>
+                  <option value="Backend & Cloud Infrastructure">
+                    {language === "bn" ? "ব্যাকএন্ড ও ক্লাউড ইনফ্রাস্ট্রাকচার" : "Backend & Cloud Infrastructure"}
+                  </option>
+                  <option value="AI & Machine Learning Systems">
+                    {language === "bn" ? "এআই ও মেশিন লার্নিং সিস্টেমস" : "AI & Machine Learning Systems"}
+                  </option>
+                  <option value="Database Engineering & Query Optimization">
+                    {language === "bn" ? "ডাটাবেস ইঞ্জিনিয়ারিং ও অপ্টিমাইজেশন" : "Database Engineering"}
+                  </option>
                 </select>
               </div>
             ) : (
@@ -360,7 +415,7 @@ function RegisterFormContent() {
                   htmlFor="company"
                   className="block text-xs font-bold uppercase tracking-wider text-on-surface"
                 >
-                  Company &amp; Hiring Team
+                  {t.auth.companyLabel}
                 </label>
                 <div className="relative">
                   <Building2 className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -370,7 +425,7 @@ function RegisterFormContent() {
                     required
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    placeholder="ScaleOps Inc. • VP of Engineering"
+                    placeholder={t.auth.companyPlaceholder}
                     className="w-full h-10 pl-9 pr-3 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
                   />
                 </div>
@@ -383,7 +438,7 @@ function RegisterFormContent() {
                 htmlFor="password"
                 className="block text-xs font-bold uppercase tracking-wider text-on-surface"
               >
-                Password
+                {t.auth.passwordLabel}
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-outline absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -393,7 +448,7 @@ function RegisterFormContent() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
+                  placeholder={t.auth.minCharacters}
                   className="w-full h-10 pl-9 pr-10 rounded-lg bg-surface-container-low border border-slate-200 text-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all font-mono"
                 />
                 <button
@@ -432,7 +487,7 @@ function RegisterFormContent() {
                 className="w-4 h-4 mt-0.5 rounded border-slate-300 text-primary-container focus:ring-secondary/30 shrink-0"
               />
               <label htmlFor="agreed" className="text-xs text-on-surface-variant font-normal leading-relaxed select-none">
-                I agree to the Terms of Service, Privacy Policy, and consent to read-only AST codebase indexing.
+                {t.auth.termsAgreement}
               </label>
             </div>
 
@@ -440,14 +495,14 @@ function RegisterFormContent() {
             <button
               type="submit"
               disabled={isLoading || !agreed}
-              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 pt-1"
+              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm hover:shadow-md transition-all duration-150 disabled:opacity-60 pt-1 cursor-pointer"
             >
               {isLoading ? (
-                <span>Creating Profile...</span>
+                <span>{t.auth.creatingProfile}</span>
               ) : (
                 <>
                   <span>
-                    Create {role === "candidate" ? "Candidate" : "Recruiter"} Account
+                    {role === "candidate" ? t.auth.createCandidateBtn : t.auth.createRecruiterBtn}
                   </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
@@ -458,12 +513,12 @@ function RegisterFormContent() {
           {/* Bottom Login Route Link */}
           <div className="text-center pt-2">
             <p className="text-xs sm:text-sm text-on-surface-variant">
-              Already have an account?{" "}
+              {t.auth.haveAccount}{" "}
               <Link
                 href="/login"
                 className="font-bold text-primary-container hover:text-secondary-mint hover:underline transition-colors"
               >
-                Sign In
+                {t.auth.signInLink}
               </Link>
             </p>
           </div>
@@ -474,6 +529,8 @@ function RegisterFormContent() {
 }
 
 export default function RegisterPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen w-full flex flex-col bg-surface font-sans selection:bg-secondary/20 selection:text-primary">
       {/* Top Utility Header */}
@@ -484,21 +541,24 @@ export default function RegisterPage() {
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-on-surface-variant hover:text-primary-container transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>Return to Home</span>
+            <span>{t.auth.returnHome}</span>
           </Link>
 
           <BrandLogo size="sm" />
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
-            <ShieldCheck className="w-4 h-4 text-secondary-mint" />
-            <span>256-Bit Encrypted Portal</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
+              <ShieldCheck className="w-4 h-4 text-secondary-mint" />
+              <span>{t.auth.encryptedPortal}</span>
+            </div>
+            <LanguageSwitcher variant="pill" />
           </div>
         </div>
       </header>
 
       {/* Main Container with Suspense Boundary for useSearchParams */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-        <Suspense fallback={<div className="text-sm text-outline">Loading registration portal...</div>}>
+        <Suspense fallback={<div className="text-sm text-outline">{t.common.loading}</div>}>
           <RegisterFormContent />
         </Suspense>
       </main>

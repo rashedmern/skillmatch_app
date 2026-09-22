@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { ApplicantCandidate, JobPosting } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Search,
   SlidersHorizontal,
@@ -39,6 +40,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
   onOpenScheduleModal,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("All");
   const [minMatchThreshold, setMinMatchThreshold] = useState<number>(75);
@@ -101,6 +103,26 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
     "Rejected",
   ];
 
+  const getStageLabel = (stage: string) => {
+    if (language !== "bn") return stage;
+    switch (stage) {
+      case "All":
+        return t.common.all;
+      case "New Applicant":
+        return "নতুন আবেদনকারী";
+      case "Shortlisted":
+        return "বাছাইকৃত";
+      case "Interview Scheduled":
+        return "সাক্ষাৎকার নির্ধারিত";
+      case "Offer Stage":
+        return "অফার পর্যায়";
+      case "Rejected":
+        return "বাতিল";
+      default:
+        return stage;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* ATS Header & Quick Metrics */}
@@ -108,13 +130,13 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold tracking-wide uppercase mb-1.5">
             <Sparkles className="w-3 h-3 text-secondary-mint" />
-            <span>Algorithmic ATS Pipeline</span>
+            <span>{language === "bn" ? "অ্যালগোরিদমিক ATS পাইপলাইন" : "Algorithmic ATS Pipeline"}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-on-surface tracking-tight">
-            Candidate Pipeline &amp; Verification ATS
+            {t.recruiter.atsPipelineTitle}
           </h2>
           <p className="text-xs sm:text-sm text-outline mt-0.5">
-            Every candidate is verified via accredited institutional .edu domain and AST syntax analysis.
+            {t.recruiter.atsPipelineSubtitle}
           </p>
         </div>
 
@@ -131,7 +153,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
               }`}
             >
               <LayoutList className="w-3.5 h-3.5" />
-              <span>Table View</span>
+              <span>{t.recruiter.tableView}</span>
             </button>
             <button
               type="button"
@@ -143,7 +165,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Kanban Board</span>
+              <span>{t.recruiter.kanbanView}</span>
             </button>
           </div>
         </div>
@@ -157,7 +179,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
             <Search className="w-4 h-4 text-outline absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by candidate name, .edu domain, university, or repo..."
+              placeholder={t.recruiter.searchCandidatesPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface placeholder:text-outline focus:outline-none focus:bg-white focus:border-secondary-mint transition-all"
@@ -173,10 +195,14 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                 onChange={(e) => onFilterByJob(e.target.value)}
                 className="w-full h-10 pl-9 pr-8 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint transition-all cursor-pointer appearance-none"
               >
-                <option value="ALL">All Active Job Listings ({jobs.length})</option>
+                <option value="ALL">
+                  {language === "bn"
+                    ? `সকল সক্রিয় চাকরির পদ (${jobs.length})`
+                    : `All Active Job Listings (${jobs.length})`}
+                </option>
                 {jobs.map((j) => (
                   <option key={j.id} value={j.id}>
-                    {j.title} ({j.applicantsCount} applicants)
+                    {j.title} ({j.applicantsCount} {language === "bn" ? "আবেদনকারী" : "applicants"})
                   </option>
                 ))}
               </select>
@@ -189,7 +215,8 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
           {/* Min AST Score Slider */}
           <div className="md:col-span-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border border-slate-200">
             <div className="text-[11px] font-bold text-on-surface whitespace-nowrap">
-              Min Match: <span className="text-primary-container font-mono">{minMatchThreshold}%</span>
+              {language === "bn" ? "ন্যূনতম ম্যাচ:" : "Min Match:"}{" "}
+              <span className="text-primary-container font-mono">{minMatchThreshold}%</span>
             </div>
             <input
               type="range"
@@ -205,7 +232,9 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
 
         {/* Stage Filter Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-thin">
-          <span className="text-[11px] font-bold text-outline uppercase tracking-wider mr-1">Stage:</span>
+          <span className="text-[11px] font-bold text-outline uppercase tracking-wider mr-1">
+            {language === "bn" ? "পর্যায়:" : "Stage:"}
+          </span>
           {["All", ...stagesList].map((st) => {
             const count = stageCounts[st] || 0;
             const isSelected = stageFilter === st;
@@ -220,7 +249,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                     : "bg-surface-container hover:bg-slate-200 text-on-surface-variant"
                 }`}
               >
-                <span>{st}</span>
+                <span>{getStageLabel(st)}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
                     isSelected ? "bg-white/20 text-white" : "bg-white text-outline"
@@ -242,13 +271,13 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-surface-container border-b border-slate-200 text-[11px] font-bold text-outline uppercase tracking-wider">
-                  <th className="py-3.5 px-4">Candidate Profile</th>
-                  <th className="py-3.5 px-4">Institutional .edu</th>
-                  <th className="py-3.5 px-4">Target Job</th>
-                  <th className="py-3.5 px-4">AST Match Score</th>
-                  <th className="py-3.5 px-4">Verified Repository</th>
-                  <th className="py-3.5 px-4">Stage</th>
-                  <th className="py-3.5 px-4 text-right">Recruiter Actions</th>
+                  <th className="py-3.5 px-4">{t.recruiter.candidateProfileCol}</th>
+                  <th className="py-3.5 px-4">{t.recruiter.institutionalEduCol}</th>
+                  <th className="py-3.5 px-4">{t.recruiter.targetJobCol}</th>
+                  <th className="py-3.5 px-4">{t.recruiter.astScoreCol}</th>
+                  <th className="py-3.5 px-4">{t.recruiter.verifiedRepoCol}</th>
+                  <th className="py-3.5 px-4">{t.recruiter.stageCol}</th>
+                  <th className="py-3.5 px-4 text-right">{t.recruiter.actionsCol}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -257,9 +286,9 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                     <td colSpan={7} className="py-12 text-center text-outline">
                       <div className="max-w-xs mx-auto space-y-2">
                         <UserX className="w-8 h-8 text-outline mx-auto" />
-                        <p className="font-bold text-on-surface">No applicants match your criteria</p>
+                        <p className="font-bold text-on-surface">{t.recruiter.noApplicantsFound}</p>
                         <p className="text-[11px]">
-                          Try adjusting your search terms, lowering the min match threshold, or selecting a different job.
+                          {t.recruiter.noApplicantsFoundDesc}
                         </p>
                       </div>
                     </td>
@@ -320,7 +349,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                 {cand.matchScore.toFixed(1)}%
                               </span>
                               <span className="text-[10px] text-outline font-mono">
-                                ({cand.astNodes.toLocaleString()} nodes)
+                                ({cand.astNodes.toLocaleString()} {language === "bn" ? "নোড" : "nodes"})
                               </span>
                             </div>
                             <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
@@ -372,7 +401,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                   : "bg-slate-400"
                               }`}
                             />
-                            {cand.stage}
+                            {getStageLabel(cand.stage)}
                           </span>
                         </td>
 
@@ -384,13 +413,17 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                 type="button"
                                 onClick={() => {
                                   onShortlistCandidate(cand.id);
-                                  onTriggerToast(`Shortlisted candidate ${cand.name}!`);
+                                  onTriggerToast(
+                                    language === "bn"
+                                      ? `${cand.name}-কে বাছাই তালিকায় যোগ করা হয়েছে!`
+                                      : `Shortlisted candidate ${cand.name}!`
+                                  );
                                 }}
                                 className="px-2.5 py-1 rounded-lg bg-secondary-mint/15 hover:bg-secondary-mint/25 text-primary-container font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
-                                title="Add to Shortlist"
+                                title={language === "bn" ? "বাছাই তালিকায় যোগ করুন" : "Add to Shortlist"}
                               >
                                 <UserCheck className="w-3.5 h-3.5 text-secondary-mint" />
-                                <span>Shortlist</span>
+                                <span>{language === "bn" ? "বাছাই করুন" : "Shortlist"}</span>
                               </button>
                             )}
 
@@ -398,10 +431,10 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                               type="button"
                               onClick={() => onOpenScheduleModal(cand)}
                               className="px-2.5 py-1 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-                              title="Schedule Technical Interview"
+                              title={language === "bn" ? "সাক্ষাৎকার নির্ধারণ করুন" : "Schedule Technical Interview"}
                             >
                               <Calendar className="w-3.5 h-3.5 text-secondary-mint" />
-                              <span>Schedule</span>
+                              <span>{language === "bn" ? "সাক্ষাৎকার" : "Schedule"}</span>
                             </button>
 
                             {cand.stage !== "Rejected" && (
@@ -409,10 +442,14 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                                 type="button"
                                 onClick={() => {
                                   onRejectCandidate(cand.id);
-                                  onTriggerToast(`Archived application from ${cand.name}.`);
+                                  onTriggerToast(
+                                    language === "bn"
+                                      ? `${cand.name}-এর আবেদন আর্কাইভ করা হয়েছে।`
+                                      : `Archived application from ${cand.name}.`
+                                  );
                                 }}
                                 className="p-1 rounded-lg text-outline hover:text-error hover:bg-rose-50 transition-colors cursor-pointer"
-                                title="Reject Candidate"
+                                title={language === "bn" ? "আবেদন বাতিল করুন" : "Reject Candidate"}
                               >
                                 <UserX className="w-4 h-4" />
                               </button>
@@ -454,7 +491,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                           : "bg-slate-400"
                       }`}
                     />
-                    <h3 className="font-bold text-xs text-on-surface truncate">{stage}</h3>
+                    <h3 className="font-bold text-xs text-on-surface truncate">{getStageLabel(stage)}</h3>
                   </div>
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
                     {candidatesInStage.length}
@@ -465,7 +502,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                 <div className="p-2 space-y-2 flex-1 overflow-y-auto">
                   {candidatesInStage.length === 0 ? (
                     <div className="py-8 text-center text-outline text-[11px]">
-                      No candidates in this stage
+                      {language === "bn" ? "এই পর্যায়ে কোন প্রার্থী নেই" : "No candidates in this stage"}
                     </div>
                   ) : (
                     candidatesInStage.map((cand) => (
@@ -504,9 +541,11 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                         <div className="text-[10px] font-mono text-outline flex items-center justify-between border-t border-slate-100 pt-1.5">
                           <span className="flex items-center gap-1">
                             <Code2 className="w-3 h-3 text-secondary-mint" />
-                            {cand.astNodes.toLocaleString()} nodes
+                            {cand.astNodes.toLocaleString()} {language === "bn" ? "নোড" : "nodes"}
                           </span>
-                          <span className="text-[9px] text-secondary-mint font-semibold">AST PASS</span>
+                          <span className="text-[9px] text-secondary-mint font-semibold">
+                            {language === "bn" ? "AST পাস" : "AST PASS"}
+                          </span>
                         </div>
 
                         {/* Kanban Quick Action Buttons */}
@@ -516,11 +555,15 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                               type="button"
                               onClick={() => {
                                 onShortlistCandidate(cand.id);
-                                onTriggerToast(`Shortlisted candidate ${cand.name}!`);
+                                onTriggerToast(
+                                  language === "bn"
+                                    ? `${cand.name}-কে বাছাই তালিকায় যোগ করা হয়েছে!`
+                                    : `Shortlisted candidate ${cand.name}!`
+                                );
                               }}
                               className="text-[10px] px-2 py-1 rounded bg-secondary-mint/15 text-primary-container font-bold hover:bg-secondary-mint/25 transition-colors cursor-pointer"
                             >
-                              Shortlist
+                              {language === "bn" ? "বাছাই করুন" : "Shortlist"}
                             </button>
                           )}
 
@@ -529,7 +572,7 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                             onClick={() => onOpenScheduleModal(cand)}
                             className="text-[10px] px-2 py-1 rounded bg-primary-container text-white font-bold hover:bg-primary-hover transition-colors cursor-pointer"
                           >
-                            Schedule
+                            {language === "bn" ? "সাক্ষাৎকার" : "Schedule"}
                           </button>
 
                           {stage !== "Rejected" && (
@@ -537,10 +580,14 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
                               type="button"
                               onClick={() => {
                                 onRejectCandidate(cand.id);
-                                onTriggerToast(`Rejected candidate ${cand.name}.`);
+                                onTriggerToast(
+                                  language === "bn"
+                                    ? `${cand.name}-এর আবেদন বাতিল করা হয়েছে।`
+                                    : `Rejected candidate ${cand.name}.`
+                                );
                               }}
                               className="text-[10px] p-1 text-outline hover:text-error transition-colors cursor-pointer"
-                              title="Reject"
+                              title={language === "bn" ? "বাতিল" : "Reject"}
                             >
                               <UserX className="w-3.5 h-3.5" />
                             </button>
@@ -561,11 +608,23 @@ export const AtsPipelineTab: React.FC<AtsPipelineTabProps> = ({
         <div className="flex items-center gap-2 text-primary-container">
           <ShieldCheck className="w-4 h-4 text-secondary-mint flex-shrink-0" />
           <span className="font-medium">
-            <strong>Autonomous Verification Pipeline:</strong> All candidates shown have verified institutional emails ending in <code className="text-secondary-mint font-bold">.edu</code>.
+            {language === "bn" ? (
+              <>
+                <strong>স্বয়ংক্রিয় যাচাইকরণ পাইপলাইন:</strong> প্রদর্শিত সকল প্রার্থীর অনুমোদিত বিশ্ববিদ্যালয়ের{" "}
+                <code className="text-secondary-mint font-bold">.edu</code> ইমেইল রয়েছে।
+              </>
+            ) : (
+              <>
+                <strong>Autonomous Verification Pipeline:</strong> All candidates shown have verified institutional emails ending in{" "}
+                <code className="text-secondary-mint font-bold">.edu</code>.
+              </>
+            )}
           </span>
         </div>
         <div className="text-outline text-[11px]">
-          Showing {filteredApplicants.length} of {applicants.length} candidates
+          {language === "bn"
+            ? `${applicants.length} জনের মধ্যে ${filteredApplicants.length} জন প্রার্থী প্রদর্শিত হচ্ছে`
+            : `Showing ${filteredApplicants.length} of ${applicants.length} candidates`}
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { CandidateProfile, JobListing } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Terminal,
   Cpu,
@@ -32,6 +33,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
   onNavigateToProfile,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const topMatches = jobs.slice(0, 3);
 
   return (
@@ -62,7 +64,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary-container border border-secondary-container/30 text-xs font-mono font-bold flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" />
-                  ABET Verified
+                  {language === "bn" ? "ABET অনুমোদিত" : "ABET Verified"}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-white/80 font-medium">
@@ -83,14 +85,14 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <div className="p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-4 self-stretch md:self-auto justify-between md:justify-start">
             <div>
               <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
-                AST Vector Match Score
+                {t.candidate.astScoreLabel}
               </div>
               <div className="text-3xl font-extrabold font-mono tabular-nums text-secondary-container">
                 94.2%
               </div>
             </div>
             <div className="w-12 h-12 rounded-full border-2 border-secondary-container/40 flex items-center justify-center text-xs font-bold text-secondary-container">
-              Top 6%
+              {language === "bn" ? "শীর্ষ ৬%" : "Top 6%"}
             </div>
           </div>
         </div>
@@ -103,10 +105,10 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
               <Terminal className="w-3.5 h-3.5 text-secondary-mint" />
-              Verified Repository
+              {t.candidate.verifiedRepoLabel}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
-              Clean AST
+              {t.candidate.cleanAstBadge}
             </span>
           </div>
           <div>
@@ -114,17 +116,21 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
               distributed-kv-store
             </h3>
             <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              Raft consensus with log replication &amp; RPC state machine in Go.
+              {language === "bn"
+                ? "গো ভাষায় তৈরি রাফট কনসেনসাস ও আরপিসি স্টেট মেশিন।"
+                : "Raft consensus with log replication & RPC state machine in Go."}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-slate-100 font-mono">
             <div>
-              <span className="text-outline text-[10px]">Nodes:</span>
+              <span className="text-outline text-[10px]">{t.candidate.nodesLabel}</span>
               <p className="font-bold text-on-surface">14,280</p>
             </div>
             <div>
-              <span className="text-outline text-[10px]">Safety:</span>
-              <p className="font-bold text-secondary-mint">98th %ile</p>
+              <span className="text-outline text-[10px]">{t.candidate.safetyLabel}</span>
+              <p className="font-bold text-secondary-mint">
+                {language === "bn" ? "৯৮তম পার্সেন্টাইল" : "98th %ile"}
+              </p>
             </div>
           </div>
         </div>
@@ -134,7 +140,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
               <Cpu className="w-3.5 h-3.5 text-secondary-mint" />
-              Algorithmic Depth
+              {t.candidate.algorithmicDepthLabel}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
               O(log n)
@@ -145,7 +151,9 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
               96.0%
             </div>
             <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              Data structure traversal benchmarks match Tier-1 engineering standards.
+              {language === "bn"
+                ? "শীর্ষ ইঞ্জিনিয়ারিং মানের সাথে ডেটা স্ট্রাকচার ট্রাভার্সাল মানানসই।"
+                : "Data structure traversal benchmarks match Tier-1 engineering standards."}
             </p>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
@@ -158,23 +166,25 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
-              Recruiter Reviews
+              {t.candidate.recruiterReviewsLabel}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary font-bold">
-              Active
+              {language === "bn" ? "সক্রিয়" : "Active"}
             </span>
           </div>
           <div>
             <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-              14 Lead Reviews
+              {language === "bn" ? "১৪টি লিড রিভিউ" : "14 Lead Reviews"}
             </div>
             <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              Leads from ScaleOps, Veritas, and NeuralFlow inspected your dossier.
+              {language === "bn"
+                ? "ScaleOps, Veritas, এবং NeuralFlow-এর প্রকৌশলীরা আপনার ডজিয়ার পরিদর্শন করেছেন।"
+                : "Leads from ScaleOps, Veritas, and NeuralFlow inspected your dossier."}
             </p>
           </div>
           <div className="pt-2 text-[11px] border-t border-slate-100 flex items-center gap-1 text-secondary-mint font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>ATS Filters Bypassed</span>
+            <span>{t.candidate.atsBypassedLabel}</span>
           </div>
         </div>
 
@@ -183,18 +193,20 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-secondary-mint" />
-              Profile Health
+              {t.candidate.profileHealthLabel}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/15 text-secondary-mint font-bold">
-              99% Syntax
+              {language === "bn" ? "৯৯% সিনট্যাক্স" : "99% Syntax"}
             </span>
           </div>
           <div>
             <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-              {profile.skills.length} Skills
+              {profile.skills.length} {language === "bn" ? "দক্ষতা" : "Skills"}
             </div>
             <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              Resume SHA-256 synced with active AST vector tokenizer.
+              {language === "bn"
+                ? "সক্রিয় AST ভেক্টর টোকেনাইজারের সাথে রিজিউমে SHA-256 সিঙ্ক করা হয়েছে।"
+                : "Resume SHA-256 synced with active AST vector tokenizer."}
             </p>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -203,7 +215,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
               onClick={onNavigateToProfile}
               className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
             >
-              <span>Edit Profile</span>
+              <span>{t.candidate.editProfileBtn}</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
@@ -218,21 +230,26 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
           </div>
           <div>
             <h4 className="text-sm font-bold text-on-surface">
-              1 Target Architectural Gap Detected
+              {t.candidate.gapDetectedTitle}
             </h4>
             <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-              Raft consensus split-brain quorum failure recovery. Complete the 4-hour AST
-              sandbox benchmark to unlock an additional 5 Tier-1 roles.
+              {t.candidate.gapDetectedDesc}
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          onClick={() => onTriggerToast("Initializing ephemeral AST Code Sandbox benchmark...")}
+          onClick={() =>
+            onTriggerToast(
+              language === "bn"
+                ? "AST কোড স্যান্ডবক্স বেঞ্চমার্ক চালু হচ্ছে..."
+                : "Initializing ephemeral AST Code Sandbox benchmark..."
+            )
+          }
           className="px-4 py-2 rounded-xl bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-sm"
         >
-          Launch Sandbox Challenge
+          {t.candidate.launchSandboxBtn}
         </button>
       </div>
 
@@ -241,10 +258,12 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-extrabold text-on-surface tracking-tight">
-              Top Algorithmic Matches
+              {language === "bn" ? "শীর্ষ অ্যালগোরিদমিক ম্যাচ" : "Top Algorithmic Matches"}
             </h2>
             <p className="text-xs text-on-surface-variant">
-              High-confidence positions matching your verified CS curriculum.
+              {language === "bn"
+                ? "আপনার যাচাইকৃত সিএস পাঠ্যক্রমের সাথে মানানসই উচ্চ-আস্থার পদসমূহ।"
+                : "High-confidence positions matching your verified CS curriculum."}
             </p>
           </div>
 
@@ -253,7 +272,11 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
             onClick={onNavigateToAllJobs}
             className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
           >
-            <span>Browse All {jobs.length} Jobs</span>
+            <span>
+              {language === "bn"
+                ? `সকল ${jobs.length}টি চাকরি দেখুন`
+                : `Browse All ${jobs.length} Jobs`}
+            </span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -268,7 +291,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-primary">{job.company}</span>
                   <span className="text-xs font-mono font-bold text-secondary-mint bg-secondary/10 px-2 py-0.5 rounded">
-                    {job.matchScore}% Match
+                    {job.matchScore}% {language === "bn" ? "ম্যাচ" : "Match"}
                   </span>
                 </div>
                 <div>
@@ -282,12 +305,12 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-[11px] text-secondary-mint font-semibold flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  <span>Fast-Tracked</span>
+                  <span>{language === "bn" ? "ফাস্ট-ট্র্যাক" : "Fast-Tracked"}</span>
                 </span>
 
                 {job.isApplied ? (
                   <span className="text-[11px] font-bold text-secondary-mint bg-secondary/15 px-2 py-1 rounded-lg">
-                    Applied ✓
+                    {language === "bn" ? "আবেদিত ✓" : "Applied ✓"}
                   </span>
                 ) : (
                   <button
@@ -295,7 +318,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
                     onClick={() => onApplyJob(job)}
                     className="px-3 py-1 rounded-lg bg-primary-container text-white text-xs font-bold hover:bg-primary-hover transition-colors cursor-pointer"
                   >
-                    1-Click Apply
+                    {language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}
                   </button>
                 )}
               </div>

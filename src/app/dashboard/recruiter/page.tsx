@@ -302,7 +302,11 @@ function RecruiterDashboardContent() {
       )
     );
 
-    triggerToast(`Interview confirmed with ${scheduleCandidate.name} on ${scheduleDate} at ${scheduleTime}!`);
+    const toastMsg =
+      language === "bn"
+        ? `${scheduleCandidate.name}-এর সাথে সাক্ষাৎকার নিশ্চিত হয়েছে (${scheduleDate} তারিখ, ${scheduleTime} সময়)!`
+        : `Interview confirmed with ${scheduleCandidate.name} on ${scheduleDate} at ${scheduleTime}!`;
+    triggerToast(toastMsg);
     setScheduleCandidate(null);
   };
 
@@ -513,10 +517,10 @@ function RecruiterDashboardContent() {
               <div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold uppercase mb-1">
                   <Calendar className="w-3 h-3 text-secondary-mint" />
-                  <span>Technical Evaluation Session</span>
+                  <span>{t.recruiter.techEvalSession}</span>
                 </div>
                 <h3 className="text-base font-black text-on-surface">
-                  Schedule Interview with {scheduleCandidate.name}
+                  {t.recruiter.scheduleInterviewWith} {scheduleCandidate.name}
                 </h3>
                 <p className="text-xs text-outline mt-0.5">
                   {scheduleCandidate.university} • {scheduleCandidate.degree} • AST Match:{" "}
@@ -538,7 +542,7 @@ function RecruiterDashboardContent() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Date
+                    {t.recruiter.dateLabel}
                   </label>
                   <input
                     type="date"
@@ -551,7 +555,7 @@ function RecruiterDashboardContent() {
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Time (PST)
+                    {t.recruiter.timeLabel}
                   </label>
                   <input
                     type="time"
@@ -565,7 +569,7 @@ function RecruiterDashboardContent() {
 
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Interview Format &amp; Focus Area
+                  {t.recruiter.formatLabel}
                 </label>
                 <select
                   value={scheduleFormat}
@@ -573,19 +577,26 @@ function RecruiterDashboardContent() {
                   className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
                 >
                   <option value="AST Code Deep-Dive & Systems Architecture">
-                    AST Code Deep-Dive &amp; Systems Architecture (60 min)
+                    {language === "bn"
+                      ? "AST কোড বিশ্লেষণ ও সিস্টেম আর্কিটেকচার (৬০ মিনিট)"
+                      : "AST Code Deep-Dive & Systems Architecture (60 min)"}
                   </option>
                   <option value="Live Distributed Systems Coding & Concurrency">
-                    Live Distributed Systems Coding &amp; Concurrency (45 min)
+                    {language === "bn"
+                      ? "লাইভ ডিস্ট্রিবিউটেড সিস্টেমস কোডিং ও কনকারেন্সি (৪৫ মিনিট)"
+                      : "Live Distributed Systems Coding & Concurrency (45 min)"}
                   </option>
                   <option value="Engineering VP & Team Cultural Fit Discussion">
-                    Engineering VP &amp; Team Cultural Fit Discussion (30 min)
+                    {language === "bn"
+                      ? "ইঞ্জিনিয়ারিং ভিপি ও টিম কালচারাল ফিট আলোচনা (৩০ মিনিট)"
+                      : "Engineering VP & Team Cultural Fit Discussion (30 min)"}
                   </option>
                 </select>
               </div>
 
               <div className="p-3 rounded-xl bg-surface-container-low border border-slate-200 text-outline text-[11px] leading-relaxed">
-                A calendar invitation with secure video conferencing link and AST syntax audit dossier will be automatically dispatched to <span className="font-mono text-on-surface font-semibold">{scheduleCandidate.email}</span>.
+                {t.recruiter.calendarInviteNotice}{" "}
+                <span className="font-mono text-on-surface font-semibold">{scheduleCandidate.email}</span>.
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
@@ -594,14 +605,14 @@ function RecruiterDashboardContent() {
                   onClick={() => setScheduleCandidate(null)}
                   className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-on-surface hover:bg-surface-container-low cursor-pointer transition-colors"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white font-bold cursor-pointer transition-all shadow-sm flex items-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5 text-secondary-mint" />
-                  <span>Send Calendar Invite</span>
+                  <span>{t.recruiter.sendCalendarInvite}</span>
                 </button>
               </div>
             </form>

@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 import { verifyOtpAction, resendOtpAction } from "@/server/actions/authActions";
 import {
   ArrowLeft,
@@ -20,6 +22,7 @@ import {
 function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t, language } = useLanguage();
 
   const email = searchParams.get("email") || "alex.chen@berkeley.edu";
   const role = (searchParams.get("role") || "candidate") as "candidate" | "recruiter";
@@ -119,7 +122,10 @@ function VerifyOtpContent() {
 
       if (!result.success) {
         setIsVerifying(false);
-        setErrorMessage(result.error || "Invalid verification code.");
+        setErrorMessage(
+          result.error ||
+            (language === "bn" ? "ভুল যাচাইকরণ কোড।" : "Invalid verification code.")
+        );
         return;
       }
 
@@ -130,7 +136,11 @@ function VerifyOtpContent() {
       }, 700);
     } catch {
       setIsVerifying(false);
-      setErrorMessage("Network error during code verification. Please try again.");
+      setErrorMessage(
+        language === "bn"
+          ? "কোড যাচাইকরণে নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।"
+          : "Network error during code verification. Please try again."
+      );
     }
   };
 
@@ -138,7 +148,9 @@ function VerifyOtpContent() {
     e.preventDefault();
     const code = digits.join("");
     if (code.length < 6) {
-      setErrorMessage("Please enter all 6 digits.");
+      setErrorMessage(
+        language === "bn" ? "অনুগ্রহ করে সম্পূর্ণ ৬ ডিজিট প্রদান করুন।" : "Please enter all 6 digits."
+      );
       return;
     }
     executeVerification(code);
@@ -155,11 +167,17 @@ function VerifyOtpContent() {
       setCountdown(60);
       setIsResending(false);
       const codeSuffix = res.data?.otpCode ? ` (Code: ${res.data.otpCode})` : "";
-      setResendNotification(`A fresh 6-digit verification code${codeSuffix} has been dispatched to your inbox.`);
+      setResendNotification(
+        language === "bn"
+          ? `আপনার ইনবক্সে একটি নতুন ৬-সংখ্যার কোড${codeSuffix} পাঠানো হয়েছে।`
+          : `A fresh 6-digit verification code${codeSuffix} has been dispatched to your inbox.`
+      );
       setTimeout(() => setResendNotification(null), 8000);
     } catch {
       setIsResending(false);
-      setErrorMessage("Failed to resend code. Please try again.");
+      setErrorMessage(
+        language === "bn" ? "কোড পুনরায় পাঠাতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।" : "Failed to resend code. Please try again."
+      );
     }
   };
 
@@ -191,11 +209,11 @@ function VerifyOtpContent() {
       <div className="p-6 border-b border-slate-100 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-bold text-on-surface">
           <KeyRound className="w-4 h-4 text-secondary-mint" />
-          <span>Two-Factor Authentication</span>
+          <span>{t.auth.twoFactorAuth}</span>
         </div>
         <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/10 text-[11px] font-semibold text-secondary-mint">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>256-Bit Encrypted</span>
+          <span>{t.auth.encryptedBadge}</span>
         </div>
       </div>
 
@@ -207,17 +225,17 @@ function VerifyOtpContent() {
           </div>
 
           <h1 className="text-2xl font-extrabold text-on-surface tracking-tight">
-            Verify Your Email
+            {t.auth.verifyEmailTitle}
           </h1>
 
           <p className="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
-            We sent a 6-digit cryptographic verification code to:
+            {t.auth.verifyEmailSubtitle}
           </p>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low border border-slate-200 text-xs font-mono font-bold text-on-surface">
             <span>{maskedEmail}</span>
             <span className="text-[10px] uppercase font-sans text-secondary-mint px-1.5 py-0.2 rounded bg-secondary/15">
-              {role}
+              {role === "candidate" ? t.common.candidate : t.common.recruiter}
             </span>
           </div>
         </div>
@@ -242,7 +260,7 @@ function VerifyOtpContent() {
         {isSuccess && (
           <div className="p-3.5 rounded-xl bg-secondary/15 border border-secondary-mint flex items-center justify-center gap-2 text-xs text-primary font-bold">
             <CheckCircle2 className="w-5 h-5 text-secondary-mint animate-bounce" />
-            <span>Identity Confirmed! Launching Session...</span>
+            <span>{t.auth.identityConfirmed}</span>
           </div>
         )}
 
@@ -280,21 +298,21 @@ function VerifyOtpContent() {
             <button
               type="submit"
               disabled={isVerifying || isSuccess || digits.join("").length < 6}
-              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm transition-all disabled:opacity-50"
+              className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover active:scale-[0.98] text-white text-sm font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               {isVerifying ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Verifying Code...</span>
+                  <span>{t.auth.verifyingCode}</span>
                 </>
               ) : isSuccess ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Verified</span>
+                  <span>{t.auth.verifiedBtn}</span>
                 </>
               ) : (
                 <>
-                  <span>Verify &amp; Enter Dashboard</span>
+                  <span>{t.auth.verifyEnterDashboard}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -304,10 +322,10 @@ function VerifyOtpContent() {
             <button
               type="button"
               onClick={handleFillDemoCode}
-              className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary-mint/50 bg-secondary/5 hover:bg-secondary/10 text-xs font-semibold text-primary transition-all"
+              className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary-mint/50 bg-secondary/5 hover:bg-secondary/10 text-xs font-semibold text-primary transition-all cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>Demo Key: Auto-fill &quot;123456&quot;</span>
+              <span>{t.auth.demoKeyBtn}</span>
             </button>
           </div>
         </form>
@@ -316,10 +334,10 @@ function VerifyOtpContent() {
         <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
           <div className="text-on-surface-variant font-medium">
             {canResend ? (
-              <span className="text-outline">Didn&apos;t receive code?</span>
+              <span className="text-outline">{t.auth.didntReceiveCode}</span>
             ) : (
               <span className="font-mono tabular-nums text-outline">
-                Resend code in {formatTimer(countdown)}
+                {t.auth.resendCodeIn} {formatTimer(countdown)}
               </span>
             )}
           </div>
@@ -334,7 +352,7 @@ function VerifyOtpContent() {
                 : "text-outline/60 cursor-not-allowed"
             }`}
           >
-            {isResending ? "Dispatching..." : "Resend Code"}
+            {isResending ? t.auth.dispatching : t.auth.resendCodeBtn}
           </button>
         </div>
 
@@ -345,7 +363,7 @@ function VerifyOtpContent() {
             className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Use different sign in method</span>
+            <span>{t.auth.useDifferentMethod}</span>
           </Link>
         </div>
       </div>
@@ -354,6 +372,8 @@ function VerifyOtpContent() {
 }
 
 export default function VerifyOtpPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen w-full flex flex-col bg-surface font-sans selection:bg-secondary/20 selection:text-primary">
       {/* Top Utility Header */}
@@ -364,19 +384,22 @@ export default function VerifyOtpPage() {
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-on-surface-variant hover:text-primary-container transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>Return to Login</span>
+            <span>{t.auth.returnToLogin}</span>
           </Link>
           <BrandLogo size="sm" />
-          <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
-            <ShieldCheck className="w-4 h-4 text-secondary-mint" />
-            <span>SOC-2 Verified Gateway</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-on-surface-variant">
+              <ShieldCheck className="w-4 h-4 text-secondary-mint" />
+              <span>{t.auth.soc2Gateway}</span>
+            </div>
+            <LanguageSwitcher variant="pill" />
           </div>
         </div>
       </header>
 
       {/* Main Form Container with Suspense Boundary */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-        <Suspense fallback={<div className="text-sm text-outline">Loading verification challenge...</div>}>
+        <Suspense fallback={<div className="text-sm text-outline">{t.common.loading}</div>}>
           <VerifyOtpContent />
         </Suspense>
       </main>

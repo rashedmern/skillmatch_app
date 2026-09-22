@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { JobListing } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Search,
   Filter,
@@ -24,6 +25,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
   onApplyJob,
   onNavigateToApplications,
 }) => {
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState<string>("All");
   const [selectedDomain, setSelectedDomain] = useState<string>("All");
@@ -43,6 +45,22 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
     return matchesSearch && matchesModel && matchesDomain;
   });
 
+  const getModelLabel = (model: string) => {
+    if (language !== "bn") return model;
+    switch (model) {
+      case "All":
+        return t.candidate.allModels;
+      case "Remote":
+        return t.candidate.remote;
+      case "Hybrid":
+        return t.candidate.hybrid;
+      case "On-site":
+        return t.candidate.onSite;
+      default:
+        return model;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -53,22 +71,26 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container backdrop-blur-sm border border-white/15">
               <Flame className="w-3.5 h-3.5 text-accent-gap" />
-              <span>Verified Computer Science Engineering Marketplace</span>
+              <span>
+                {language === "bn"
+                  ? "যাচাইকৃত কম্পিউটার সায়েন্স ইঞ্জিনিয়ারিং মার্কেটপ্লেস"
+                  : "Verified Computer Science Engineering Marketplace"}
+              </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              All Engineering Job Openings
+              {t.candidate.allJobsMarketplaceTitle}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
-              Browse positions from verified enterprise recruiters. Match percentages are dynamically computed from your AST syntax tree benchmarks. Apply instantly with 1-click dossier dispatch.
+              {t.candidate.allJobsMarketplaceSubtitle}
             </p>
           </div>
 
           <div className="p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md text-right self-stretch md:self-auto">
             <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
-              Available Positions
+              {t.candidate.availablePositions}
             </div>
             <div className="text-3xl font-extrabold font-mono tabular-nums text-secondary-container">
-              {jobs.length} Active
+              {jobs.length} {language === "bn" ? "সক্রিয়" : "Active"}
             </div>
           </div>
         </div>
@@ -81,7 +103,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" />
           <input
             type="text"
-            placeholder="Search by role title, company name, or technology (e.g. Raft, eBPF, Go)..."
+            placeholder={t.candidate.searchJobsPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-10 pl-10 pr-4 rounded-xl bg-surface-container-low border border-slate-200 text-xs text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus:ring-2 focus:ring-secondary/15 transition-all"
@@ -91,7 +113,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
         {/* Work Model Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
           <span className="text-[11px] font-bold text-outline uppercase tracking-wider mr-1 hidden sm:inline">
-            Model:
+            {t.candidate.modelFilter}
           </span>
           {["All", "Remote", "Hybrid", "On-site"].map((model) => (
             <button
@@ -104,7 +126,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
                   : "bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
               }`}
             >
-              {model}
+              {getModelLabel(model)}
             </button>
           ))}
         </div>
@@ -117,11 +139,21 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
             onChange={(e) => setSelectedDomain(e.target.value)}
             className="h-10 text-xs bg-surface-container-low border border-slate-200 rounded-xl px-3 text-on-surface focus:outline-none focus:border-secondary-mint font-medium cursor-pointer"
           >
-            <option value="All">All Engineering Domains</option>
-            <option value="Distributed Systems">Distributed Systems</option>
-            <option value="Cloud & SRE">Cloud &amp; SRE</option>
-            <option value="Database Engines">Database Engines</option>
-            <option value="Kernel & Systems">Kernel &amp; Systems</option>
+            <option value="All">
+              {language === "bn" ? "সকল ইঞ্জিনিয়ারিং ডোমেইন" : "All Engineering Domains"}
+            </option>
+            <option value="Distributed Systems">
+              {language === "bn" ? "ডিস্ট্রিবিউটেড সিস্টেমস" : "Distributed Systems"}
+            </option>
+            <option value="Cloud & SRE">
+              {language === "bn" ? "ক্লাউড ও এসআরই" : "Cloud & SRE"}
+            </option>
+            <option value="Database Engines">
+              {language === "bn" ? "ডাটাবেজ ইঞ্জিন" : "Database Engines"}
+            </option>
+            <option value="Kernel & Systems">
+              {language === "bn" ? "কার্নেল ও সিস্টেমস" : "Kernel & Systems"}
+            </option>
           </select>
         </div>
       </div>
@@ -129,14 +161,22 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
       {/* Job Results Count */}
       <div className="flex items-center justify-between text-xs text-on-surface-variant font-medium px-1">
         <span>
-          Showing <strong className="text-on-surface">{filteredJobs.length}</strong> verified roles
+          {language === "bn" ? (
+            <>
+              প্রদর্শিত হচ্ছে <strong className="text-on-surface">{filteredJobs.length}</strong>টি যাচাইকৃত পদ
+            </>
+          ) : (
+            <>
+              Showing <strong className="text-on-surface">{filteredJobs.length}</strong> verified roles
+            </>
+          )}
         </span>
         <button
           type="button"
           onClick={onNavigateToApplications}
           className="text-primary hover:text-primary-hover font-bold hover:underline flex items-center gap-1 cursor-pointer"
         >
-          <span>View My Applications Pipeline</span>
+          <span>{language === "bn" ? "আমার আবেদন পাইপলাইন দেখুন" : "View My Applications Pipeline"}</span>
           <ArrowRight className="w-3 h-3" />
         </button>
       </div>
@@ -169,7 +209,9 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
                 {/* Match Score Badge */}
                 <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary/15 text-secondary-mint border border-secondary/30 text-xs font-mono font-bold shrink-0">
                   <Sparkles className="w-3 h-3" />
-                  <span>{job.matchScore}% Match</span>
+                  <span>
+                    {job.matchScore}% {language === "bn" ? "ম্যাচ" : "Match"}
+                  </span>
                 </div>
               </div>
 
@@ -189,7 +231,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
                   {job.location}
                 </span>
                 <span className="px-2 py-0.5 rounded bg-surface-container-low text-[10px] font-bold text-on-surface-variant">
-                  {job.workModel}
+                  {getModelLabel(job.workModel)}
                 </span>
               </div>
 
@@ -210,7 +252,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] text-secondary-mint font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" />
-                <span>Direct Lead Dispatch</span>
+                <span>{language === "bn" ? "ডাইরেক্ট লিড ডিসপ্যাচ" : "Direct Lead Dispatch"}</span>
               </span>
 
               {job.isApplied ? (
@@ -220,7 +262,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
                   className="px-4 py-2 rounded-xl bg-secondary/15 text-secondary-mint border border-secondary/30 text-xs font-bold flex items-center gap-1.5 cursor-default"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Applied</span>
+                  <span>{t.candidate.applied}</span>
                 </button>
               ) : (
                 <button
@@ -229,7 +271,7 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
                   id={`apply-btn-${job.id}`}
                   className="px-4 py-2 rounded-xl bg-primary-container hover:bg-primary-hover active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                 >
-                  <span>1-Click Apply</span>
+                  <span>{language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { JobPosting } from "./types";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   PlusCircle,
   Briefcase,
@@ -32,6 +33,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
   onNavigateToPipeline,
   onTriggerToast,
 }) => {
+  const { t, language } = useLanguage();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Form State
@@ -84,7 +86,11 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
       description: description || `Architect and build next-generation ${team.toLowerCase()} systems with verified AST benchmarks.`,
     });
 
-    onTriggerToast(`Position '${title}' published! Candidates from ABET network will be alerted.`);
+    onTriggerToast(
+      language === "bn"
+        ? `'${title}' পদটি প্রকাশিত হয়েছে! ABET নেটওয়ার্কের শিক্ষার্থীরা বিজ্ঞপ্তি পাবে।`
+        : `Position '${title}' published! Candidates from ABET network will be alerted.`
+    );
     setShowCreateModal(false);
     setTitle("");
     setDescription("");
@@ -100,13 +106,15 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-secondary-container backdrop-blur-sm border border-white/15">
               <Briefcase className="w-3.5 h-3.5 text-secondary-mint" />
-              <span>Engineering Position Lifecycle</span>
+              <span>{language === "bn" ? "ইঞ্জিনিয়ারিং পদ লাইফসাইকেল" : "Engineering Position Lifecycle"}</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              Job Postings &amp; Sourcing Requirements
+              {language === "bn" ? "চাকরির বিজ্ঞপ্তি ও মেধা সংগ্রহের শর্তাবলী" : "Job Postings & Sourcing Requirements"}
             </h1>
             <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
-              Create new roles with strict AST algorithmic criteria. Our matching engine automatically parses candidate code repositories to calculate compatibility without keyword spam.
+              {language === "bn"
+                ? "কঠোর AST অ্যালগোরিদমিক মানদণ্ড অনুযায়ী নতুন পদ তৈরি করুন। কিওয়ার্ড স্প্যাম ছাড়াই আমাদের ইঞ্জিন স্বয়ংক্রিয়ভাবে প্রার্থীর কোড বিশ্লেষণ করে ম্যাচ হিসাব করে।"
+                : "Create new roles with strict AST algorithmic criteria. Our matching engine automatically parses candidate code repositories to calculate compatibility without keyword spam."}
             </p>
           </div>
 
@@ -117,7 +125,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
             className="px-5 py-2.5 rounded-xl bg-secondary-mint hover:bg-secondary-mint/90 active:scale-95 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-level-2 transition-all cursor-pointer self-stretch md:self-auto"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Create New Role</span>
+            <span>{t.recruiter.createJobBtn}</span>
           </button>
         </div>
       </div>
@@ -125,9 +133,11 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
       {/* Postings Counter Toolbar */}
       <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-stroke-card shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-extrabold text-on-surface">Active Positions</span>
+          <span className="text-sm font-extrabold text-on-surface">
+            {language === "bn" ? "সক্রিয় চাকরির পদ" : "Active Positions"}
+          </span>
           <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold">
-            {jobs.length} Total
+            {jobs.length} {language === "bn" ? "মোট" : "Total"}
           </span>
         </div>
 
@@ -137,7 +147,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
           className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Quick Create</span>
+          <span>{language === "bn" ? "দ্রুত তৈরি করুন" : "Quick Create"}</span>
         </button>
       </div>
 
@@ -166,7 +176,9 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                       : "bg-slate-100 text-outline border border-slate-200"
                   }`}
                 >
-                  {job.status}
+                  {job.status === "Active"
+                    ? (language === "bn" ? "সক্রিয়" : "Active")
+                    : (language === "bn" ? "স্থগিত" : "Paused")}
                 </span>
               </div>
 
@@ -187,7 +199,9 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 </span>
                 <span>•</span>
                 <span className="text-[11px] font-mono font-bold text-primary">
-                  Min {job.minMatch}% AST Match
+                  {language === "bn"
+                    ? `ন্যূনতম ${job.minMatch}% AST ম্যাচ`
+                    : `Min ${job.minMatch}% AST Match`}
                 </span>
               </div>
 
@@ -212,14 +226,20 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 className="font-bold text-primary hover:underline flex items-center gap-1.5 cursor-pointer"
               >
                 <Users className="w-3.5 h-3.5" />
-                <span>{job.applicantsCount} Applicants</span>
+                <span>
+                  {job.applicantsCount} {language === "bn" ? "আবেদনকারী" : "Applicants"}
+                </span>
               </button>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => onToggleJobStatus(job.id)}
-                  title={job.status === "Active" ? "Pause Applications" : "Activate Role"}
+                  title={
+                    job.status === "Active"
+                      ? (language === "bn" ? "আবেদন স্থগিত করুন" : "Pause Applications")
+                      : (language === "bn" ? "বিজ্ঞপ্তি চালু করুন" : "Activate Role")
+                  }
                   className="p-1.5 rounded-lg border border-slate-200 hover:bg-surface-container-low text-outline hover:text-on-surface transition-colors cursor-pointer"
                 >
                   {job.status === "Active" ? (
@@ -232,7 +252,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 <button
                   type="button"
                   onClick={() => onDeleteJob(job.id)}
-                  title="Delete Role"
+                  title={language === "bn" ? "বিজ্ঞপ্তি মুছে ফেলুন" : "Delete Role"}
                   className="p-1.5 rounded-lg border border-slate-200 hover:bg-accent-gap/10 text-outline hover:text-accent-gap transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -251,7 +271,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
               <div className="flex items-center gap-2">
                 <PlusCircle className="w-5 h-5 text-primary" />
                 <h3 className="text-base font-extrabold text-on-surface">
-                  Create New Engineering Role
+                  {language === "bn" ? "নতুন ইঞ্জিনিয়ারিং পদ তৈরি করুন" : "Create New Engineering Role"}
                 </h3>
               </div>
               <button
@@ -266,12 +286,16 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Job Title
+                  {t.recruiter.jobTitle}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Distributed Database Engine Architect"
+                  placeholder={
+                    language === "bn"
+                      ? "যেমন Distributed Database Engine Architect"
+                      : "e.g. Distributed Database Engine Architect"
+                  }
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm focus:outline-none focus:bg-white focus:border-secondary-mint"
@@ -281,33 +305,33 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Engineering Team / Domain
+                    {t.recruiter.engineeringTeam}
                   </label>
                   <select
                     value={team}
                     onChange={(e) => setTeam(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
                   >
                     <option value="Core Infrastructure">Core Infrastructure</option>
                     <option value="Platform SRE">Platform SRE</option>
                     <option value="Database Engines">Database Engines</option>
-                    <option value="Kernel &amp; Systems">Kernel &amp; Systems</option>
+                    <option value="Kernel & Systems">Kernel &amp; Systems</option>
                     <option value="Cloud Security">Cloud Security</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Work Model
+                    {language === "bn" ? "কাজের ধরন" : "Work Model"}
                   </label>
                   <select
                     value={workModel}
                     onChange={(e) => setWorkModel(e.target.value as "Remote" | "Hybrid" | "On-site")}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint"
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer"
                   >
-                    <option value="Hybrid">Hybrid</option>
-                    <option value="Remote">Remote</option>
-                    <option value="On-site">On-site</option>
+                    <option value="Hybrid">{language === "bn" ? "হাইব্রিড" : "Hybrid"}</option>
+                    <option value="Remote">{language === "bn" ? "রিমোট" : "Remote"}</option>
+                    <option value="On-site">{language === "bn" ? "অন-সাইট" : "On-site"}</option>
                   </select>
                 </div>
               </div>
@@ -315,7 +339,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Location
+                    {t.recruiter.location}
                   </label>
                   <input
                     type="text"
@@ -327,7 +351,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
 
                 <div className="space-y-1">
                   <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                    Annual Compensation Range
+                    {t.recruiter.salaryRange}
                   </label>
                   <input
                     type="text"
@@ -340,7 +364,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
 
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Min AST Match % Cutoff
+                  {t.recruiter.minAstCutoff}
                 </label>
                 <div className="flex items-center gap-3">
                   <input
@@ -356,19 +380,25 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                   </span>
                 </div>
                 <p className="text-[10px] text-outline">
-                  Candidates below this syntax benchmark will be filtered out automatically.
+                  {language === "bn"
+                    ? "এই সিনট্যাক্স বেঞ্চমার্কের নিচের প্রার্থীরা স্বয়ংক্রিয়ভাবে ফিল্টার হয়ে যাবে।"
+                    : "Candidates below this syntax benchmark will be filtered out automatically."}
                 </p>
               </div>
 
               {/* Skills Tag Manager */}
               <div className="space-y-2">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Required Technical Skills
+                  {t.recruiter.skillsRequired}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder="Add skill requirement (e.g. Raft, Rust, eBPF)..."
+                    placeholder={
+                      language === "bn"
+                        ? "দক্ষতার নাম লিখুন (যেমন Raft, Rust, eBPF)..."
+                        : "Add skill requirement (e.g. Raft, Rust, eBPF)..."
+                    }
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -382,9 +412,9 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                   <button
                     type="button"
                     onClick={() => handleAddSkill()}
-                    className="h-9 px-3 rounded-xl bg-primary-container text-white font-bold text-xs"
+                    className="h-9 px-3 rounded-xl bg-primary-container text-white font-bold text-xs cursor-pointer"
                   >
-                    Add
+                    {language === "bn" ? "যোগ করুন" : "Add"}
                   </button>
                 </div>
 
@@ -398,7 +428,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveSkill(s)}
-                        className="text-outline hover:text-accent-gap"
+                        className="text-outline hover:text-accent-gap cursor-pointer"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -407,7 +437,7 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1 text-[11px] text-outline">
-                  <span className="font-bold">Suggestions:</span>
+                  <span className="font-bold">{language === "bn" ? "পরামর্শ:" : "Suggestions:"}</span>
                   {suggestedJobSkills
                     .filter((s) => !skills.includes(s))
                     .map((s) => (
@@ -425,13 +455,17 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
 
               <div className="space-y-1">
                 <label className="block font-bold text-on-surface uppercase tracking-wider text-[11px]">
-                  Role Responsibilities &amp; Architecture Details
+                  {t.recruiter.jobDescription}
                 </label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Detail core distributed problems, state replication challenges, and throughput expectations..."
+                  placeholder={
+                    language === "bn"
+                      ? "মূল ডিস্ট্রিবিউটেড চ্যালেঞ্জ, স্টেট রেপ্লিকেশন সমস্যা এবং থ্রুপুট প্রত্যাশা লিখুন..."
+                      : "Detail core distributed problems, state replication challenges, and throughput expectations..."
+                  }
                   className="w-full p-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs leading-relaxed focus:outline-none focus:bg-white focus:border-secondary-mint"
                 />
               </div>
@@ -440,17 +474,17 @@ export const PostJobTab: React.FC<PostJobTabProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-on-surface font-semibold hover:bg-surface-container-low transition-colors"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-on-surface font-semibold hover:bg-surface-container-low transition-colors cursor-pointer"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
 
                 <button
                   type="submit"
                   id="confirm-publish-role-btn"
-                  className="px-5 py-2 rounded-xl bg-primary-container hover:bg-primary-hover text-white font-bold transition-all shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-primary-container hover:bg-primary-hover text-white font-bold transition-all shadow-sm cursor-pointer"
                 >
-                  Publish Role to ABET Network
+                  {language === "bn" ? "ABET নেটওয়ার্কে বিজ্ঞপ্তি প্রকাশ করুন" : "Publish Role to ABET Network"}
                 </button>
               </div>
             </form>
