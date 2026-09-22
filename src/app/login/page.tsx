@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
+import { ValidationService } from "@/server/services/validationService";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,6 +17,7 @@ import {
   Sparkles,
   Building2,
   Code2,
+  AlertCircle,
 } from "lucide-react";
 
 // Crisp inline SVGs for OAuth providers
@@ -50,21 +53,44 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" })
 );
 
 export default function LoginPage() {
+  const router = useRouter();
   const [persona, setPersona] = useState<"candidate" | "recruiter">("candidate");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsLoading(true);
-    // Simulating authentication flow
+
+    // Enforce .edu validation for candidate persona
+    if (persona === "candidate") {
+      const isEdu = ValidationService.isEduEmail(email);
+      if (!isEdu) {
+        setIsLoading(false);
+        setErrorMessage(
+          "Candidate registration requires a valid university institutional (.edu) email."
+        );
+        setTimeout(() => {
+          router.push(
+            `/auth/error?error=invalid_domain&email=${encodeURIComponent(email)}&role=candidate`
+          );
+        }, 700);
+        return;
+      }
+    }
+
+    // Direct to OTP verification screen
     setTimeout(() => {
       setIsLoading(false);
-      alert(`Authenticated as ${persona}: ${email}`);
-    }, 1000);
+      router.push(
+        `/auth/verify-otp?email=${encodeURIComponent(email)}&role=${persona}&provider=email`
+      );
+    }, 500);
   };
 
   return (
@@ -200,7 +226,13 @@ export default function LoginPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => alert("GitHub AST OAuth integration")}
+                  onClick={() =>
+                    router.push(
+                      `/auth/callback/github?role=${persona}&email=${encodeURIComponent(
+                        email || "alex.chen@berkeley.edu"
+                      )}`
+                    )
+                  }
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
                 >
                   <GithubIcon className="w-4 h-4" />
@@ -212,13 +244,26 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() => alert("Google SSO integration")}
+                  onClick={() => router.push(`/auth/google?role=${persona}`)}
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm"
                 >
                   <GoogleIcon className="w-4 h-4" />
                   <span>Google SSO</span>
                 </button>
               </div>
+
+              {/* Security Error Banner */}
+              {errorMessage && (
+                <div className="p-3.5 rounded-xl bg-accent-gap/10 border border-accent-gap/30 flex items-start gap-2.5 text-xs text-accent-gap animate-shake">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">{errorMessage}</p>
+                    <p className="text-[11px] text-accent-gap/80 mt-0.5">
+                      Redirecting to university verification guidelines...
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Divider */}
               <div className="relative flex items-center justify-center">
