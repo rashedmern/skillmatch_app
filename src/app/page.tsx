@@ -3,6 +3,8 @@ import { HeroSection } from "@/components/sections/hero/HeroSection";
 import { TalentMetrics } from "@/components/sections/metrics/TalentMetrics";
 import { TracksSection } from "@/components/sections/tracks/TracksSection";
 import { HowItWorks } from "@/components/sections/how-it-works/HowItWorks";
+import { FinalCtaBanner } from "@/components/sections/cta/FinalCtaBanner";
+import { Footer } from "@/components/sections/footer/Footer";
 
 export default function Home() {
   return (
@@ -21,6 +23,13 @@ export default function Home() {
 
       {/* 5. How It Works 3-Step Pipeline Organism */}
       <HowItWorks />
+
+      {/* 6. Final Call-to-Action Banner Organism */}
+      <FinalCtaBanner />
+
+      {/* 7. Institutional Directory & Compliance Footer */}
+      <Footer />
     </main>
   );
 }
+
