@@ -111,6 +111,12 @@ function RegisterFormContent() {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    const roleName = role === "candidate" ? "CANDIDATE" : "RECRUITER";
+    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=3600; SameSite=Lax`;
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
+
   const getPasswordStrength = () => {
     if (!password) return { level: 0, text: "None", color: "bg-slate-200" };
     if (password.length < 6) return { level: 1, text: "Weak", color: "bg-accent-gap" };
@@ -240,7 +246,8 @@ function RegisterFormContent() {
 
             <button
               type="button"
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              onClick={handleGoogleSignIn}
+              id="register-google-btn"
               className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
             >
               <GoogleIcon className="w-4 h-4" />

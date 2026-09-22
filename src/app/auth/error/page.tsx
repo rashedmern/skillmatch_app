@@ -3,6 +3,7 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import {
   ShieldAlert,
@@ -16,11 +17,20 @@ import {
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const errorType = searchParams.get("error") || "invalid_domain";
+  const rawError = searchParams.get("error") || "InvalidDomain";
   const attemptedEmail = searchParams.get("email") || "";
-  const role = searchParams.get("role") || "candidate";
+  const role = searchParams.get("role") || "CANDIDATE";
 
-  const isInvalidDomain = errorType === "invalid_domain";
+  const isInvalidDomain =
+    rawError.toLowerCase() === "invaliddomain" ||
+    rawError.toLowerCase() === "invalid_domain" ||
+    rawError.toLowerCase() === "accessdenied";
+
+  const handleRetryGoogle = () => {
+    const roleName = role.toUpperCase() === "RECRUITER" ? "RECRUITER" : "CANDIDATE";
+    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=3600; SameSite=Lax`;
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
 
   return (
     <div className="w-full max-w-xl mx-auto rounded-2xl bg-white border border-stroke-card shadow-level-2 overflow-hidden">
@@ -88,13 +98,15 @@ function AuthErrorContent() {
 
         {/* Action Buttons */}
         <div className="space-y-3 pt-2">
-          <Link
-            href={`/auth/google?role=${role}`}
-            className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-sm font-bold shadow-sm transition-all active:scale-[0.98]"
+          <button
+            type="button"
+            onClick={handleRetryGoogle}
+            id="retry-google-btn"
+            className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-lg bg-primary-container hover:bg-primary-hover text-white text-sm font-bold shadow-sm transition-all active:scale-[0.98] cursor-pointer"
           >
             <GraduationCap className="w-4 h-4" />
-            <span>Sign In with University (.edu) Account</span>
-          </Link>
+            <span>Select Different Google Account (.edu)</span>
+          </button>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
