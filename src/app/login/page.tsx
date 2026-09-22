@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { ValidationService } from "@/server/services/validationService";
@@ -240,13 +241,14 @@ export default function LoginPage() {
                   </span>
                 </Link>
 
-                <Link
-                  href={`/auth/google?role=${persona}`}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group"
+                <button
+                  type="button"
+                  onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-surface-container-lowest hover:bg-surface-container-low text-xs font-semibold text-on-surface transition-all active:scale-[0.98] shadow-sm group cursor-pointer"
                 >
                   <GoogleIcon className="w-4 h-4" />
-                  <span>Google SSO</span>
-                </Link>
+                  <span>Continue with Google</span>
+                </button>
               </div>
 
               {/* Security Error Banner */}

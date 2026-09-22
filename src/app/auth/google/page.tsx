@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { ValidationService } from "@/server/services/validationService";
 import { googleAuthAction } from "@/server/actions/authActions";
@@ -151,6 +152,16 @@ function GoogleAuthContent() {
             <span className="font-bold text-primary capitalize">{role}</span>.
           </p>
         </div>
+
+        {/* Live Google SSO Window Trigger */}
+        <button
+          type="button"
+          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          className="w-full h-11 inline-flex items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-on-surface transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+        >
+          <GoogleSvg className="w-4 h-4" />
+          <span>Launch Google Browser Account Pop-up</span>
+        </button>
 
         {/* Security Policy Alert for Candidates */}
         {role === "candidate" && (
