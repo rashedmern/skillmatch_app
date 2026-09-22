@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useSyncExternalStore } from "react";
 import { Search } from "lucide-react";
 
 interface CommandSearchBarProps {
@@ -9,20 +9,20 @@ interface CommandSearchBarProps {
   onSearchClick?: () => void;
 }
 
+const emptySubscribe = () => () => {};
+const getClientIsMac = () =>
+  typeof window !== "undefined" && /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
+const getServerIsMac = () => false;
+
 export const CommandSearchBar: React.FC<CommandSearchBarProps> = ({
   className = "",
   placeholder = "Search roles, skills...",
   onSearchClick,
 }) => {
-  const [isMac, setIsMac] = useState(false);
+  const isMac = useSyncExternalStore(emptySubscribe, getClientIsMac, getServerIsMac);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Detect OS for shortcut display
-    if (typeof window !== "undefined") {
-      setIsMac(/(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent));
-    }
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
