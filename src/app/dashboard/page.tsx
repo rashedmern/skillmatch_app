@@ -18,11 +18,23 @@ function DashboardDispatcherContent() {
 
   useEffect(() => {
     // Read role cookie or query param
-    const roleCookieMatch = document.cookie.match(/skillmatch_auth_role=([^;]+)/);
+    const roleCookieMatch = document.cookie.match(/(?:^|;\s*)(?:__Secure-)?skillmatch_auth_role=([^;]+)/);
     const roleFromCookie = roleCookieMatch ? roleCookieMatch[1].toUpperCase() : null;
     const roleFromQuery = searchParams.get("role")?.toUpperCase();
 
-    const targetRole = roleFromQuery || roleFromCookie || "CANDIDATE";
+    const targetRole =
+      roleFromQuery === "RECRUITER" || roleFromCookie === "RECRUITER"
+        ? "RECRUITER"
+        : "CANDIDATE";
+
+    // Persist role cookie securely if missing or updated from query
+    if (typeof document !== "undefined") {
+      const isSecure = window.location.protocol === "https:";
+      document.cookie = `skillmatch_auth_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+      if (isSecure) {
+        document.cookie = `__Secure-skillmatch_auth_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+      }
+    }
 
     // Auto-redirect to appropriate role dashboard
     if (targetRole === "RECRUITER") {

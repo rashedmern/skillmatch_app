@@ -28,8 +28,12 @@ function AuthErrorContent() {
 
   const handleRetryGoogle = () => {
     const roleName = role.toUpperCase() === "RECRUITER" ? "RECRUITER" : "CANDIDATE";
-    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=3600; SameSite=Lax`;
-    signIn("google", { callbackUrl: "/dashboard" });
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+    if (isSecure) {
+      document.cookie = `__Secure-skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+    }
+    signIn("google", { callbackUrl: `/dashboard?role=${roleName}` });
   };
 
   return (

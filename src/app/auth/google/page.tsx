@@ -156,7 +156,15 @@ function GoogleAuthContent() {
         {/* Live Google SSO Window Trigger */}
         <button
           type="button"
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          onClick={() => {
+            const roleName = role === "candidate" ? "CANDIDATE" : "RECRUITER";
+            const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+            document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+            if (isSecure) {
+              document.cookie = `__Secure-skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+            }
+            signIn("google", { callbackUrl: `/dashboard?role=${roleName}` });
+          }}
           className="w-full h-11 inline-flex items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-on-surface transition-all active:scale-[0.98] shadow-sm cursor-pointer"
         >
           <GoogleSvg className="w-4 h-4" />

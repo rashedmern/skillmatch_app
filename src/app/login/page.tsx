@@ -113,14 +113,22 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = () => {
     const roleName = persona === "candidate" ? "CANDIDATE" : "RECRUITER";
-    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=3600; SameSite=Lax`;
-    signIn("google", { callbackUrl: "/dashboard" });
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+    if (isSecure) {
+      document.cookie = `__Secure-skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+    }
+    signIn("google", { callbackUrl: `/dashboard?role=${roleName}` });
   };
 
   const handleGitHubSignIn = () => {
     const roleName = persona === "candidate" ? "CANDIDATE" : "RECRUITER";
-    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=3600; SameSite=Lax`;
-    signIn("github", { callbackUrl: "/dashboard" });
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+    document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+    if (isSecure) {
+      document.cookie = `__Secure-skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+    }
+    signIn("github", { callbackUrl: `/dashboard?role=${roleName}` });
   };
 
   return (
