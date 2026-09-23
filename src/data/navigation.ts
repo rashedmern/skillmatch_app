@@ -21,7 +21,7 @@ export const FOOTER_DIRECTORY: FooterColumn[] = [
   {
     title: "For Candidates",
     links: [
-      { label: "GitHub Code Verification", href: "#signup" },
+      { label: "GitHub Code Verification", href: "/register" },
       { label: "1-Click Skill Gap Modules", href: "#prep", badge: "New" },
       { label: "Technical Interview Prep", href: "#prep" },
       { label: "Candidate Success Stories", href: "#benchmarks" },
@@ -34,8 +34,8 @@ export const FOOTER_DIRECTORY: FooterColumn[] = [
       { label: "Verified Candidate Dossiers", href: "#recruiters" },
       { label: "Custom Tech Stack Mapping", href: "#recruiters" },
       { label: "Direct Hiring Manager Screen", href: "#recruiters" },
-      { label: "Employer Sign In", href: "#login" },
-      { label: "Schedule Engineering Demo", href: "#demo" },
+      { label: "Employer Sign In", href: "/login" },
+      { label: "Schedule Engineering Demo", href: "/register?role=recruiter" },
     ],
   },
   {
