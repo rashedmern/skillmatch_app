@@ -24,8 +24,22 @@ function VerifyOtpContent() {
   const searchParams = useSearchParams();
   const { t, language } = useLanguage();
 
-  const email = searchParams.get("email") || "alex.chen@berkeley.edu";
+  const [email, setEmail] = useState<string>(() => {
+    return searchParams.get("email") || "";
+  });
   const role = (searchParams.get("role") || "candidate") as "candidate" | "recruiter";
+
+  useEffect(() => {
+    const qEmail = searchParams.get("email");
+    if (qEmail) {
+      setEmail(qEmail);
+    } else if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|;\s*)skillmatch_otp_email=([^;]+)/);
+      if (match && match[1]) {
+        setEmail(decodeURIComponent(match[1]));
+      }
+    }
+  }, [searchParams]);
 
   // 6 individual input digit states
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
@@ -218,6 +232,7 @@ function VerifyOtpContent() {
 
   // Mask target email for visual privacy
   const maskedEmail = (() => {
+    if (!email) return "your account";
     if (!email.includes("@")) return email;
     const [user, domain] = email.split("@");
     if (user.length <= 2) return `${user}***@${domain}`;

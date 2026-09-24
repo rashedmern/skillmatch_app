@@ -59,17 +59,14 @@ const initializeDbStore = (): MockDatabaseStore => {
   return store;
 };
 
-// Singleton instance retrieval
+// Singleton instance retrieval with persistent cross-request lifecycle
 export const getDatabase = (): MockDatabaseStore => {
-  if (process.env.NODE_ENV === "production") {
-    return initializeDbStore();
+  const g = globalThis as unknown as { __skillmatch_db_store__?: MockDatabaseStore };
+  if (!g.__skillmatch_db_store__) {
+    g.__skillmatch_db_store__ = initializeDbStore();
   }
 
-  if (!global.__skillmatch_db_store__) {
-    global.__skillmatch_db_store__ = initializeDbStore();
-  }
-
-  return global.__skillmatch_db_store__;
+  return g.__skillmatch_db_store__;
 };
 
 // Live database connection string verification for production deployment

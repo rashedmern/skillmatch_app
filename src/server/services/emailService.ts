@@ -1,14 +1,186 @@
 /**
  * Email & OTP Dispatch Service
  * Encapsulates cryptographic OTP token generation, verification, and live email dispatch
- * using Resend API or Nodemailer SMTP transports.
+ * using Resend API or Nodemailer SMTP transports with serverless-resilient signed cookie persistence.
  */
 
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
+import { cookies } from "next/headers";
 import { getDatabase } from "../db/client";
 import { DbOtpToken } from "../db/schema";
+
+function getSecretKey(): string {
+  return (
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "skillmatch-production-secure-32-character-random-salt-key-2026"
+  );
+}
+
+/**
+ * Creates an HMAC-SHA256 signed tamper-proof challenge payload.
+ * Safe for cross-serverless lambda execution on Vercel without database race conditions.
+ */
+function createSignedChallenge(email: string, code: string, expiresAtMs: number): string {
+  const secret = getSecretKey();
+  const cleanEmail = email.toLowerCase().trim();
+  const codeHash = crypto
+    .createHmac("sha256", secret)
+    .update(`${cleanEmail}:${code.trim()}`)
+    .digest("hex");
+
+  const payload = JSON.stringify({
+    email: cleanEmail,
+    codeHash,
+    expiresAt: expiresAtMs,
+    createdAt: Date.now(),
+  });
+
+  const payloadB64 = Buffer.from(payload).toString("base64url");
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(payloadB64)
+    .digest("base64url");
+
+  return `${payloadB64}.${signature}`;
+}
+
+/**
+ * Verifies an HMAC-SHA256 signed challenge token against an incoming code.
+ */
+function verifySignedChallenge(
+  tokenString: string,
+  incomingCode: string,
+  expectedEmail?: string
+): { isValid: boolean; email?: string; error?: string } {
+  try {
+    const parts = tokenString.split(".");
+    if (parts.length !== 2) {
+      return { isValid: false, error: "Invalid verification challenge signature format." };
+    }
+
+    const [payloadB64, signature] = parts;
+    const secret = getSecretKey();
+    const expectedSig = crypto
+      .createHmac("sha256", secret)
+      .update(payloadB64)
+      .digest("base64url");
+
+    const sigBuf = Buffer.from(signature);
+    const expectedSigBuf = Buffer.from(expectedSig);
+
+    if (sigBuf.length !== expectedSigBuf.length || !crypto.timingSafeEqual(sigBuf, expectedSigBuf)) {
+      return { isValid: false, error: "Verification challenge signature has been tampered with." };
+    }
+
+    const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf-8"));
+    const cleanEmail = payload.email?.toLowerCase().trim();
+
+    if (expectedEmail) {
+      const cleanExpected = expectedEmail.toLowerCase().trim();
+      if (cleanExpected && cleanEmail !== cleanExpected) {
+        return {
+          isValid: false,
+          error: `Verification challenge was issued for ${cleanEmail}, not ${cleanExpected}.`,
+        };
+      }
+    }
+
+    if (Date.now() > payload.expiresAt) {
+      return {
+        isValid: false,
+        error: "Verification code has expired. Please click Resend to receive a fresh code.",
+      };
+    }
+
+    const incomingHash = crypto
+      .createHmac("sha256", secret)
+      .update(`${cleanEmail}:${incomingCode.trim()}`)
+      .digest("hex");
+
+    const hashBuf = Buffer.from(incomingHash);
+    const expectedHashBuf = Buffer.from(payload.codeHash);
+
+    if (hashBuf.length !== expectedHashBuf.length || !crypto.timingSafeEqual(hashBuf, expectedHashBuf)) {
+      return {
+        isValid: false,
+        error: "Invalid verification code. Please check your inbox or click Resend.",
+      };
+    }
+
+    return { isValid: true, email: cleanEmail };
+  } catch (err) {
+    console.error("[verifySignedChallenge error]:", err);
+    return { isValid: false, error: "Failed to verify challenge token." };
+  }
+}
+
+/**
+ * Safely sets the serverless challenge cookie on active requests.
+ */
+async function setChallengeCookie(challengeToken: string, email: string) {
+  try {
+    const cookieStore = await cookies();
+    const isProd = process.env.NODE_ENV === "production";
+    cookieStore.set("skillmatch_otp_challenge", challengeToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600, // 10 minutes
+    });
+    cookieStore.set("skillmatch_otp_email", email, {
+      httpOnly: false,
+      secure: isProd,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600,
+    });
+    if (isProd) {
+      cookieStore.set("__Secure-skillmatch_otp_challenge", challengeToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 600,
+      });
+    }
+  } catch {
+    // cookies() unavailable outside active request scope, skip
+  }
+}
+
+/**
+ * Safely retrieves the serverless challenge cookie from active request headers.
+ */
+async function getChallengeCookie(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    return (
+      cookieStore.get("__Secure-skillmatch_otp_challenge")?.value ||
+      cookieStore.get("skillmatch_otp_challenge")?.value ||
+      null
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Safely clears the challenge cookie after successful consumption.
+ */
+async function clearChallengeCookie() {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("skillmatch_otp_challenge");
+    cookieStore.delete("__Secure-skillmatch_otp_challenge");
+    cookieStore.delete("skillmatch_otp_email");
+  } catch {
+    // ignore
+  }
+}
 
 /**
  * Generates an Oceanic Intelligence styled HTML email for OTP verification.
@@ -117,7 +289,7 @@ export class EmailService {
 
   /**
    * Dispatches a real verification email containing the 6-digit OTP code
-   * using Resend API or Nodemailer SMTP, and saves the active record.
+   * using Resend API or Nodemailer SMTP, and saves both in-memory and signed challenge cookies.
    */
   static async sendOtpVerificationEmail(
     email: string,
@@ -126,8 +298,10 @@ export class EmailService {
     const cleanEmail = email.toLowerCase().trim();
     const code = this.generateOtpCode();
     const expiresInMinutes = 10;
-    const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000).toISOString();
+    const expiresAtMs = Date.now() + expiresInMinutes * 60 * 1000;
+    const expiresAt = new Date(expiresAtMs).toISOString();
 
+    // 1. Store in local in-memory store
     const db = getDatabase();
     const tokenRecord: DbOtpToken = {
       id: `otp_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`,
@@ -139,8 +313,11 @@ export class EmailService {
       createdAt: new Date().toISOString(),
     };
 
-    // Store in active database
-    db.otpTokens.set(tokenRecord.email, tokenRecord);
+    db.otpTokens.set(cleanEmail, tokenRecord);
+
+    // 2. Set cryptographically signed HTTP-only challenge cookie (guarantees cross-serverless survival on Vercel)
+    const challengeToken = createSignedChallenge(cleanEmail, code, expiresAtMs);
+    await setChallengeCookie(challengeToken, cleanEmail);
 
     let deliveredVia = "console_telemetry";
 
@@ -149,7 +326,7 @@ export class EmailService {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         const fromAddress = process.env.RESEND_FROM_EMAIL || "SkillMatch Verification <onboarding@resend.dev>";
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
           from: fromAddress,
           to: cleanEmail,
           subject: `Your SkillMatch Verification Code: ${code}`,
@@ -161,14 +338,20 @@ export class EmailService {
             expiresInMinutes,
           }),
         });
-        deliveredVia = "resend_api";
-        console.log(`[EmailService] Successfully sent OTP code to ${cleanEmail} via Resend API.`);
+
+        if (error) {
+          console.error(`[EmailService] Resend API dispatch error for ${cleanEmail}:`, error.message || error);
+        } else {
+          deliveredVia = "resend_api";
+          console.log(`[EmailService] Successfully dispatched OTP to ${cleanEmail} via Resend (id: ${data?.id}).`);
+        }
       } catch (err) {
-        console.error("[EmailService] Failed sending via Resend API:", err);
+        console.error("[EmailService] Failed dispatching via Resend API:", err);
       }
     }
-    // Method B: Nodemailer SMTP Dispatch (Gmail, SES, SendGrid, Brevo, custom SMTP)
-    else if (process.env.SMTP_HOST || process.env.EMAIL_SERVER_HOST) {
+
+    // Method B: Nodemailer SMTP Dispatch (fallback if Resend not used or failed)
+    if (deliveredVia !== "resend_api" && (process.env.SMTP_HOST || process.env.EMAIL_SERVER_HOST)) {
       try {
         const host = process.env.SMTP_HOST || process.env.EMAIL_SERVER_HOST;
         const port = Number(process.env.SMTP_PORT || process.env.EMAIL_SERVER_PORT || 587);
@@ -203,7 +386,7 @@ export class EmailService {
       }
     }
 
-    // Terminal telemetry log (essential for local development before configuring external SMTP)
+    // Terminal telemetry log (always active to verify dispatch and unblock local developers)
     console.log(`\n======================================================`);
     console.log(`[SKILLMATCH AUTH] REAL-TIME EMAIL DISPATCH`);
     console.log(`Delivered Via: ${deliveredVia}`);
@@ -212,7 +395,7 @@ export class EmailService {
     console.log(`OTP Code:      >>> ${code} <<<`);
     console.log(`Expires At:    ${expiresAt}`);
     if (deliveredVia === "console_telemetry") {
-      console.log(`Notice:        Set RESEND_API_KEY or SMTP_HOST in .env.local to dispatch real emails.`);
+      console.log(`Notice:        Set RESEND_API_KEY or SMTP_HOST in environment variables to deliver live inbox emails.`);
     }
     console.log(`======================================================\n`);
 
@@ -220,15 +403,15 @@ export class EmailService {
   }
 
   /**
-   * Strictly verifies a cryptographic OTP code against active records.
+   * Strictly verifies a cryptographic OTP code against active records and signed challenge cookies.
    * Disallows fake/demo codes and enforces single-use and expiration.
    */
   static async verifyOtpCode(
     email: string,
     code: string
   ): Promise<{ isValid: boolean; error?: string }> {
-    const cleanEmail = email.toLowerCase().trim();
-    const cleanCode = code.trim();
+    const cleanCode = code ? code.trim() : "";
+    let cleanEmail = email ? email.toLowerCase().trim() : "";
 
     if (!cleanCode || cleanCode.length !== 6 || !/^\d{6}$/.test(cleanCode)) {
       return {
@@ -238,57 +421,79 @@ export class EmailService {
     }
 
     const db = getDatabase();
-    const record = db.otpTokens.get(cleanEmail);
 
-    if (!record) {
-      return {
-        isValid: false,
-        error: "No active verification code found for this email. Please request a new code.",
-      };
+    // Strategy 1: Check in-memory persistent database store
+    if (cleanEmail && db.otpTokens.has(cleanEmail)) {
+      const record = db.otpTokens.get(cleanEmail)!;
+
+      if (!record.consumed && new Date() <= new Date(record.expiresAt)) {
+        if (record.attempts >= 5) {
+          record.consumed = true;
+          await clearChallengeCookie();
+          return {
+            isValid: false,
+            error: "Too many failed attempts. For your security, this code has been invalidated. Please request a new code.",
+          };
+        }
+
+        if (record.codeHash === cleanCode) {
+          // Success! Consume token and clear challenge cookie
+          record.consumed = true;
+          await clearChallengeCookie();
+
+          const user = db.users.get(cleanEmail);
+          if (user) {
+            user.isEmailVerified = true;
+            user.updatedAt = new Date().toISOString();
+          }
+
+          return { isValid: true };
+        } else {
+          record.attempts += 1;
+          const remaining = 5 - record.attempts;
+          return {
+            isValid: false,
+            error: `Invalid verification code. Please check your inbox (${remaining} attempt${remaining === 1 ? "" : "s"} remaining).`,
+          };
+        }
+      }
     }
 
-    if (record.consumed) {
-      return {
-        isValid: false,
-        error: "This verification code has already been used. Please request a new code.",
-      };
+    // Strategy 2: Check cryptographically signed serverless challenge cookie (Vercel multi-lambda resilience)
+    const challengeCookie = await getChallengeCookie();
+    if (challengeCookie) {
+      const cookieVerifyResult = verifySignedChallenge(challengeCookie, cleanCode, cleanEmail);
+
+      if (cookieVerifyResult.isValid && cookieVerifyResult.email) {
+        // Success via verified cryptographic signature!
+        const resolvedEmail = cookieVerifyResult.email;
+        await clearChallengeCookie();
+
+        const user = db.users.get(resolvedEmail);
+        if (user) {
+          user.isEmailVerified = true;
+          user.updatedAt = new Date().toISOString();
+        }
+
+        // Also mark in-memory record if exists
+        const memRecord = db.otpTokens.get(resolvedEmail);
+        if (memRecord) {
+          memRecord.consumed = true;
+        }
+
+        return { isValid: true };
+      }
+
+      if (cookieVerifyResult.error) {
+        return { isValid: false, error: cookieVerifyResult.error };
+      }
     }
 
-    if (new Date() > new Date(record.expiresAt)) {
-      return {
-        isValid: false,
-        error: "Verification code has expired. Please click Resend to receive a fresh code.",
-      };
-    }
-
-    if (record.attempts >= 5) {
-      record.consumed = true;
-      return {
-        isValid: false,
-        error: "Too many failed attempts. For your security, this code has been invalidated. Please request a new code.",
-      };
-    }
-
-    // Exact cryptographic match check
-    if (record.codeHash !== cleanCode) {
-      record.attempts += 1;
-      const remaining = 5 - record.attempts;
-      return {
-        isValid: false,
-        error: `Invalid verification code. Please check your inbox (${remaining} attempt${remaining === 1 ? "" : "s"} remaining).`,
-      };
-    }
-
-    // Mark token as consumed (single-use constraint)
-    record.consumed = true;
-
-    // Mark user as verified in database
-    const user = db.users.get(cleanEmail);
-    if (user) {
-      user.isEmailVerified = true;
-      user.updatedAt = new Date().toISOString();
-    }
-
-    return { isValid: true };
+    // If both Strategy 1 and Strategy 2 failed to find an active token
+    console.warn(`[EmailService.verifyOtpCode] No active challenge found for email: "${cleanEmail}".`);
+    return {
+      isValid: false,
+      error: "No active verification code found for this email. Please click Resend to receive a fresh code.",
+    };
   }
 }
