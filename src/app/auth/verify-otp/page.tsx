@@ -16,7 +16,7 @@ import {
   AlertCircle,
   KeyRound,
   ArrowRight,
-  Sparkles,
+  Inbox,
 } from "lucide-react";
 
 function VerifyOtpContent() {
@@ -55,18 +55,45 @@ function VerifyOtpContent() {
     return () => clearInterval(interval);
   }, [countdown]);
 
-  // Handle individual digit change
+  // Handle individual digit change with mobile/browser one-time-code auto-fill support
   const handleChange = (index: number, value: string) => {
-    // Only accept numeric inputs
-    const numericChar = value.replace(/\D/g, "").slice(-1);
+    const numericOnly = value.replace(/\D/g, "");
 
+    // Cleared input
+    if (!numericOnly) {
+      const newDigits = [...digits];
+      newDigits[index] = "";
+      setDigits(newDigits);
+      return;
+    }
+
+    // Auto-fill or multi-digit paste/fill detection (e.g. from browser autoComplete="one-time-code")
+    if (numericOnly.length > 1) {
+      const newDigits = [...digits];
+      const slice = numericOnly.slice(0, 6);
+      for (let i = 0; i < 6; i++) {
+        newDigits[i] = slice[i] || "";
+      }
+      setDigits(newDigits);
+      setErrorMessage(null);
+
+      const targetFocus = Math.min(slice.length, 5);
+      inputRefs.current[targetFocus]?.focus();
+
+      if (slice.length === 6) {
+        executeVerification(slice);
+      }
+      return;
+    }
+
+    // Standard single-digit typing
     const newDigits = [...digits];
-    newDigits[index] = numericChar;
+    newDigits[index] = numericOnly;
     setDigits(newDigits);
     setErrorMessage(null);
 
     // Auto-advance focus to next input
-    if (numericChar && index < 5) {
+    if (numericOnly && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
@@ -77,7 +104,7 @@ function VerifyOtpContent() {
     }
   };
 
-  // Handle backspace navigation
+  // Handle backspace and arrow navigation
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace") {
       if (!digits[index] && index > 0) {
@@ -156,36 +183,30 @@ function VerifyOtpContent() {
     executeVerification(code);
   };
 
-  // Handle resend code
+  // Handle resend code via live email dispatch
   const handleResend = async () => {
     if (!canResend || isResending) return;
     setIsResending(true);
     setErrorMessage(null);
 
     try {
-      const res = await resendOtpAction({ email, role });
+      await resendOtpAction({ email, role });
       setCountdown(60);
       setIsResending(false);
-      const codeSuffix = res.data?.otpCode ? ` (Code: ${res.data.otpCode})` : "";
       setResendNotification(
         language === "bn"
-          ? `আপনার ইনবক্সে একটি নতুন ৬-সংখ্যার কোড${codeSuffix} পাঠানো হয়েছে।`
-          : `A fresh 6-digit verification code${codeSuffix} has been dispatched to your inbox.`
+          ? "আপনার ইনবক্সে একটি নতুন ৬-সংখ্যার যাচাইকরণ কোড পাঠানো হয়েছে।"
+          : "A fresh 6-digit verification code has been dispatched to your email address."
       );
       setTimeout(() => setResendNotification(null), 8000);
     } catch {
       setIsResending(false);
       setErrorMessage(
-        language === "bn" ? "কোড পুনরায় পাঠাতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।" : "Failed to resend code. Please try again."
+        language === "bn"
+          ? "কোড পুনরায় পাঠাতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।"
+          : "Failed to resend code. Please try again."
       );
     }
-  };
-
-  // Demo auto-fill helper for frictionless review
-  const handleFillDemoCode = () => {
-    const demoCode = "123456";
-    setDigits(demoCode.split(""));
-    executeVerification(demoCode);
   };
 
   // Format countdown string MM:SS
@@ -195,7 +216,7 @@ function VerifyOtpContent() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Mask target email for visual security
+  // Mask target email for visual privacy
   const maskedEmail = (() => {
     if (!email.includes("@")) return email;
     const [user, domain] = email.split("@");
@@ -234,7 +255,7 @@ function VerifyOtpContent() {
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low border border-slate-200 text-xs font-mono font-bold text-on-surface">
             <span>{maskedEmail}</span>
-            <span className="text-[10px] uppercase font-sans text-secondary-mint px-1.5 py-0.2 rounded bg-secondary/15">
+            <span className="text-[10px] uppercase font-sans text-secondary-mint px-1.5 py-0.5 rounded bg-secondary/15 font-semibold">
               {role === "candidate" ? t.common.candidate : t.common.recruiter}
             </span>
           </div>
@@ -264,7 +285,7 @@ function VerifyOtpContent() {
           </div>
         )}
 
-        {/* 6-Digit Boxed Inputs Form */}
+        {/* 6-Digit Boxed Inputs Form with Native One-Time-Code Auto-Fill */}
         <form onSubmit={handleManualSubmit} className="space-y-6">
           <div className="flex items-center justify-center gap-2 sm:gap-3">
             {digits.map((digit, idx) => (
@@ -275,8 +296,9 @@ function VerifyOtpContent() {
                 }}
                 type="text"
                 inputMode="numeric"
+                autoComplete={idx === 0 ? "one-time-code" : "off"}
                 pattern="[0-9]*"
-                maxLength={1}
+                maxLength={idx === 0 ? 6 : 1}
                 value={digit}
                 aria-label={`Digit ${idx + 1} of 6`}
                 disabled={isVerifying || isSuccess}
@@ -294,7 +316,7 @@ function VerifyOtpContent() {
             ))}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Button & Live Delivery Trust Indicator */}
           <div className="space-y-3">
             <button
               type="submit"
@@ -319,15 +341,11 @@ function VerifyOtpContent() {
               )}
             </button>
 
-            {/* Quick Demo Bypass Button */}
-            <button
-              type="button"
-              onClick={handleFillDemoCode}
-              className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary-mint/50 bg-secondary/5 hover:bg-secondary/10 text-xs font-semibold text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
-              <span>{t.auth.demoKeyBtn}</span>
-            </button>
+            {/* Email Delivery Advisory */}
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 pt-1">
+              <Inbox className="w-3.5 h-3.5 text-secondary-mint shrink-0" />
+              <span>Real-time email dispatch active • Check spam/junk if not received within 60s</span>
+            </div>
           </div>
         </form>
 
