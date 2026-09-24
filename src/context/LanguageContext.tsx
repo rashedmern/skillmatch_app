@@ -290,7 +290,8 @@ export interface Translations {
     verifyingCode: string;
     verifiedBtn: string;
     verifyEnterDashboard: string;
-    demoKeyBtn: string;
+    demoKeyBtn?: string;
+    emailDeliveryNotice: string;
     didntReceiveCode: string;
     resendCodeIn: string;
     resendCodeBtn: string;
@@ -588,7 +589,7 @@ export const translations: Record<Language, Translations> = {
       verifyingCode: "Verifying Code...",
       verifiedBtn: "Verified",
       verifyEnterDashboard: "Verify & Enter Dashboard",
-      demoKeyBtn: 'Demo Key: Auto-fill "123456"',
+      emailDeliveryNotice: "A real-time 6-digit cryptographic verification code has been dispatched to your email address.",
       didntReceiveCode: "Didn't receive code?",
       resendCodeIn: "Resend code in",
       resendCodeBtn: "Resend Code",
@@ -884,7 +885,7 @@ export const translations: Record<Language, Translations> = {
       verifyingCode: "কোড যাচাই করা হচ্ছে...",
       verifiedBtn: "যাচাই সম্পন্ন",
       verifyEnterDashboard: "যাচাই করুন ও ড্যাশবোর্ডে প্রবেশ করুন",
-      demoKeyBtn: 'ডেমো কি: স্বয়ংক্রিয় পূরণ "123456"',
+      emailDeliveryNotice: "আপনার প্রাতিষ্ঠানিক ইমেইল ঠিকানায় একটি ৬-সংখ্যার ক্রিপ্টোগ্রাফিক যাচাইকরণ কোড পাঠানো হয়েছে।",
       didntReceiveCode: "কোড পাননি?",
       resendCodeIn: "পুনরায় কোড পাঠাতে বাকি",
       resendCodeBtn: "পুনরায় কোড পাঠান",

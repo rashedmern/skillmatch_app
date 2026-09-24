@@ -18,7 +18,6 @@ export interface ActionResponse<T = unknown> {
 export interface AuthSuccessPayload {
   user: DbUser;
   redirectUrl: string;
-  otpCode?: string;
 }
 
 /**
@@ -40,7 +39,6 @@ export async function loginAction(formData: {
       success: true,
       data: {
         user: result.user,
-        otpCode: result.otpCode,
         redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}`,
       },
     };
@@ -72,7 +70,6 @@ export async function registerAction(formData: {
       success: true,
       data: {
         user: result.user,
-        otpCode: result.otpCode,
         redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&name=${encodeURIComponent(formData.name)}`,
       },
     };
@@ -109,19 +106,18 @@ export async function verifyOtpAction(formData: {
 }
 
 /**
- * Server Action for resending OTP code.
+ * Server Action for resending OTP code via live email.
  */
 export async function resendOtpAction(formData: {
   email: string;
   role: "candidate" | "recruiter";
-}): Promise<ActionResponse<{ sentAt: string; otpCode?: string }>> {
+}): Promise<ActionResponse<{ sentAt: string }>> {
   try {
     const result = await EmailService.sendOtpVerificationEmail(formData.email, formData.role);
     return {
       success: true,
       data: {
         sentAt: result.expiresAt,
-        otpCode: result.code,
       },
     };
   } catch (error) {
@@ -149,7 +145,6 @@ export async function googleAuthAction(formData: {
       success: true,
       data: {
         user: result.user,
-        otpCode: result.otpCode,
         redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=google`,
       },
     };
@@ -182,7 +177,6 @@ export async function githubAuthAction(formData: {
       success: true,
       data: {
         user: result.user,
-        otpCode: result.otpCode,
         redirectUrl: `/auth/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}&provider=github&gh=${encodeURIComponent(formData.githubUsername)}`,
       },
     };

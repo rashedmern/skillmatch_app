@@ -10,7 +10,7 @@
 
 **A high-precision early-career recruiting engine built for Computer Science & Engineering (CSE) talent and technical hiring teams.**
 
-[Explore Design Specs](../Plans/DESIGN(landingpage).md) • [Read PRD](../Plans/PRD(landingpage).md) • [Component Architecture](../Plans/ARCHITECTURE(landingpage).md)
+[Explore Design Specs](../Plans/DESIGN(landingpage).md) • [Read PRD](../Plans/PRD(landingpage).md) • [Component Architecture](../Plans/ARCHITECTURE(landingpage).md) • [GitHub OAuth Setup Guide](docs/GITHUB_OAUTH_SETUP.md)
 
 </div>
 
@@ -123,6 +123,12 @@ skillmatch_app/
 
 4. **Access the application**:
    Open [http://localhost:3000](http://localhost:3000) in your browser. The page will hot-reload automatically upon modifying files.
+
+### 🔐 OAuth 2.0 Configuration (GitHub & Google SSO)
+
+SkillMatch integrates with Google Workspace SSO and GitHub Code Verification:
+* **GitHub OAuth**: Follow the [GitHub OAuth Professional Setup Guide](docs/GITHUB_OAUTH_SETUP.md) to configure your OAuth app under a GitHub Organization (e.g. `@SkillMatchOfficial`) so the authorization consent screen strictly displays **SkillMatch** with official squircle branding and no personal developer names.
+* **Branding Assets**: Use `public/images/skillmatch-oauth-logo.png` (512x512 PNG) for the GitHub Application Logo badge.
 
 ---
 

@@ -269,7 +269,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           pathname.startsWith("/dashboard") ||
           pathname.startsWith("/auth/error") ||
           pathname.startsWith("/auth/verify-otp") ||
-          pathname.startsWith("/auth/google")
+          pathname.startsWith("/auth/google") ||
+          pathname.startsWith("/auth/github")
         ) {
           return `${cleanBaseUrl}${pathname}${search}`;
         }
