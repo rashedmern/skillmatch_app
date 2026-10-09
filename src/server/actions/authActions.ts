@@ -185,3 +185,79 @@ export async function githubAuthAction(formData: {
     return { success: false, error: "Server error during GitHub authorization." };
   }
 }
+
+/**
+ * Server Action: Fetches candidate profile from Supabase PostgreSQL.
+ */
+export async function getCandidateProfileAction(email: string): Promise<ActionResponse<any>> {
+  try {
+    const profile = await AuthService.getCandidateProfile(email);
+    if (!profile) return { success: false, error: "Candidate profile not found." };
+    return { success: true, data: profile };
+  } catch (error) {
+    console.error("[getCandidateProfileAction error]:", error);
+    return { success: false, error: "Failed to fetch candidate profile." };
+  }
+}
+
+/**
+ * Server Action: Updates candidate profile and syncs to Supabase PostgreSQL.
+ */
+export async function updateCandidateProfileAction(profileData: {
+  email: string;
+  name?: string;
+  headline?: string;
+  university?: string;
+  degree?: string;
+  graduationYear?: string;
+  avatarUrl?: string | null;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  resumeFileName?: string;
+  resumeSha256?: string;
+  skills?: string[];
+}): Promise<ActionResponse<any>> {
+  try {
+    const updated = await AuthService.updateCandidateProfile(profileData);
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("[updateCandidateProfileAction error]:", error);
+    return { success: false, error: "Failed to update candidate profile." };
+  }
+}
+
+/**
+ * Server Action: Fetches recruiter profile from Supabase PostgreSQL.
+ */
+export async function getRecruiterProfileAction(email: string): Promise<ActionResponse<any>> {
+  try {
+    const profile = await AuthService.getRecruiterProfile(email);
+    if (!profile) return { success: false, error: "Recruiter profile not found." };
+    return { success: true, data: profile };
+  } catch (error) {
+    console.error("[getRecruiterProfileAction error]:", error);
+    return { success: false, error: "Failed to fetch recruiter profile." };
+  }
+}
+
+/**
+ * Server Action: Updates recruiter profile and syncs to Supabase PostgreSQL.
+ */
+export async function updateRecruiterProfileAction(profileData: {
+  email: string;
+  recruiterName?: string;
+  roleTitle?: string;
+  companyName?: string;
+  industry?: string;
+  location?: string;
+  avatarUrl?: string | null;
+}): Promise<ActionResponse<any>> {
+  try {
+    const updated = await AuthService.updateRecruiterProfile(profileData);
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("[updateRecruiterProfileAction error]:", error);
+    return { success: false, error: "Failed to update recruiter profile." };
+  }
+}

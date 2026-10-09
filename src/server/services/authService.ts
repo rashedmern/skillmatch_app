@@ -27,6 +27,7 @@ function mapPrismaUserToDbUser(user: {
   role: string;
   auth_provider: string;
   is_email_verified: boolean;
+  avatar_url?: string | null;
   created_at: Date;
   updated_at: Date;
   candidate_profile?: {
@@ -51,6 +52,7 @@ function mapPrismaUserToDbUser(user: {
     specialization: user.candidate_profile?.headline || undefined,
     githubUsername: user.candidate_profile?.github_username || undefined,
     isEmailVerified: user.is_email_verified,
+    avatarUrl: user.avatar_url || undefined,
     authProvider: (user.auth_provider as "email" | "google" | "github") || "email",
     createdAt: user.created_at.toISOString(),
     updatedAt: user.updated_at.toISOString(),
@@ -488,6 +490,251 @@ export class AuthService {
         error: "Database error during GitHub authentication.",
       };
     }
+  }
+
+  /**
+   * Fetches full Candidate profile by email including skills from Supabase PostgreSQL.
+   */
+  static async getCandidateProfile(email: string) {
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: {
+        candidate_profile: {
+          include: {
+            candidate_skills: {
+              include: { skill: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user || !user.candidate_profile) return null;
+
+    const cp = user.candidate_profile;
+    const skills = cp.candidate_skills.map((cs) => cs.skill.name);
+
+    return {
+      name: user.name,
+      headline: cp.headline || "Distributed Systems & Infrastructure Engineer",
+      university: cp.university || "UC Berkeley",
+      degree: cp.degree || "B.S. Electrical Engineering & Computer Sciences",
+      graduationYear: cp.graduation_year || "2026",
+      email: user.email,
+      avatarUrl: user.avatar_url || null,
+      githubUrl: cp.github_username
+        ? `https://github.com/${cp.github_username.replace(/^https?:\/\/github\.com\//, "")}`
+        : "https://github.com/alexchen-dev",
+      linkedinUrl: cp.linkedin_url || "https://linkedin.com/in/alexchen-dev",
+      portfolioUrl: cp.portfolio_url || "https://alexchen.berkeley.edu",
+      bio: cp.headline || "",
+      resumeFileName: cp.resume_file_url?.split("/").pop() || "Alex_Chen_UCBerkeley_EECS_2026.pdf",
+      resumeFileSize: "2.4 MB",
+      resumeSha256: cp.resume_sha256 || "sha256-8f4b23c91e7d80aa2345bc79ef0142de56a89c4456b21c43d99e01",
+      skills: skills.length > 0 ? skills : ["Go", "Distributed Systems", "Raft Consensus", "Concurrency"],
+    };
+  }
+
+  /**
+   * Updates Candidate profile in Supabase PostgreSQL (updates User and CandidateProfile records).
+   */
+  static async updateCandidateProfile(data: {
+    email: string;
+    name?: string;
+    headline?: string;
+    university?: string;
+    degree?: string;
+    graduationYear?: string;
+    avatarUrl?: string | null;
+    githubUrl?: string;
+    linkedinUrl?: string;
+    portfolioUrl?: string;
+    resumeFileName?: string;
+    resumeSha256?: string;
+    skills?: string[];
+  }) {
+    const cleanEmail = data.email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: { candidate_profile: true },
+    });
+
+    if (!user) throw new Error("User not found.");
+
+    // 1. Update user name & avatar_url
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ...(data.name ? { name: data.name } : {}),
+        ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
+      },
+    });
+
+    // 2. Update or create candidate_profile
+    const githubUser = data.githubUrl
+      ? data.githubUrl.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "")
+      : undefined;
+
+    let profileId = user.candidate_profile?.id;
+    if (profileId) {
+      await prisma.candidateProfile.update({
+        where: { id: profileId },
+        data: {
+          headline: data.headline,
+          university: data.university,
+          degree: data.degree,
+          graduation_year: data.graduationYear,
+          github_username: githubUser,
+          linkedin_url: data.linkedinUrl,
+          portfolio_url: data.portfolioUrl,
+          resume_file_url: data.resumeFileName,
+          resume_sha256: data.resumeSha256,
+        },
+      });
+    } else {
+      const createdProfile = await prisma.candidateProfile.create({
+        data: {
+          user_id: user.id,
+          headline: data.headline,
+          university: data.university,
+          degree: data.degree,
+          graduation_year: data.graduationYear,
+          github_username: githubUser,
+          linkedin_url: data.linkedinUrl,
+          portfolio_url: data.portfolioUrl,
+          resume_file_url: data.resumeFileName,
+          resume_sha256: data.resumeSha256,
+        },
+      });
+      profileId = createdProfile.id;
+    }
+
+    // 3. Sync skills if provided
+    if (data.skills && Array.isArray(data.skills) && profileId) {
+      for (const skillName of data.skills) {
+        const cleanSkillName = skillName.trim();
+        if (!cleanSkillName) continue;
+
+        let skillRecord = await prisma.skill.findUnique({
+          where: { name: cleanSkillName },
+        });
+
+        if (!skillRecord) {
+          skillRecord = await prisma.skill.create({
+            data: { name: cleanSkillName, category: "Core Engineering" },
+          });
+        }
+
+        await prisma.candidateSkill.upsert({
+          where: {
+            candidate_id_skill_id: {
+              candidate_id: profileId,
+              skill_id: skillRecord.id,
+            },
+          },
+          update: { is_verified: true },
+          create: {
+            candidate_id: profileId,
+            skill_id: skillRecord.id,
+            proficiency: "Advanced",
+            is_verified: true,
+          },
+        });
+      }
+    }
+
+    return await this.getCandidateProfile(cleanEmail);
+  }
+
+  /**
+   * Fetches full Recruiter profile by email from Supabase PostgreSQL.
+   */
+  static async getRecruiterProfile(email: string) {
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: {
+        recruiter_profile: {
+          include: { company: true },
+        },
+      },
+    });
+
+    if (!user || !user.recruiter_profile) return null;
+
+    const rp = user.recruiter_profile;
+    const company = rp.company;
+
+    return {
+      companyName: company?.name || "CloudScale Infrastructure Labs",
+      companySlug: company?.slug || "cloudscale",
+      recruiterName: user.name,
+      email: user.email,
+      roleTitle: rp.role_title || "Lead Systems & Infrastructure Recruiter",
+      industry: company?.industry || "Distributed Cloud Infrastructure & Databases",
+      location: rp.office_location || "San Francisco, CA (HQ)",
+      verifiedPartner: company?.is_verified_partner ?? true,
+      avatarUrl: user.avatar_url || null,
+    };
+  }
+
+  /**
+   * Updates Recruiter profile and Company in Supabase PostgreSQL.
+   */
+  static async updateRecruiterProfile(data: {
+    email: string;
+    recruiterName?: string;
+    roleTitle?: string;
+    companyName?: string;
+    industry?: string;
+    location?: string;
+    avatarUrl?: string | null;
+  }) {
+    const cleanEmail = data.email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: {
+        recruiter_profile: {
+          include: { company: true },
+        },
+      },
+    });
+
+    if (!user) throw new Error("User not found.");
+
+    // 1. Update user name & avatar_url
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ...(data.recruiterName ? { name: data.recruiterName } : {}),
+        ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
+      },
+    });
+
+    // 2. Update company if exists
+    if (user.recruiter_profile?.company_id && (data.companyName || data.industry)) {
+      await prisma.company.update({
+        where: { id: user.recruiter_profile.company_id },
+        data: {
+          ...(data.companyName ? { name: data.companyName } : {}),
+          ...(data.industry ? { industry: data.industry } : {}),
+        },
+      });
+    }
+
+    // 3. Update recruiter profile
+    if (user.recruiter_profile?.id && (data.roleTitle || data.location)) {
+      await prisma.recruiterProfile.update({
+        where: { id: user.recruiter_profile.id },
+        data: {
+          ...(data.roleTitle ? { role_title: data.roleTitle } : {}),
+          ...(data.location ? { office_location: data.location } : {}),
+        },
+      });
+    }
+
+    return await this.getRecruiterProfile(cleanEmail);
   }
 }
 

@@ -14,6 +14,7 @@ export interface DbUser {
   specialization?: string;
   githubUsername?: string;
   isEmailVerified: boolean;
+  avatarUrl?: string;
   authProvider: "email" | "google" | "github";
   createdAt: string;
   updatedAt: string;
