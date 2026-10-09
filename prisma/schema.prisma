@@ -26,6 +26,7 @@ model User {
   role              String             @default("candidate") // "candidate" | "recruiter"
   auth_provider     String             @default("email")     // "email" | "google" | "github"
   is_email_verified Boolean            @default(false)
+  avatar_url        String?
   created_at        DateTime           @default(now())
   updated_at        DateTime           @updatedAt
 

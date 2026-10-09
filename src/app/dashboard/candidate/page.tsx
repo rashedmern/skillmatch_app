@@ -28,6 +28,10 @@ import {
   getCandidateApplicationsAction,
   applyJobAction,
 } from "@/server/actions/jobActions";
+import {
+  getCandidateProfileAction,
+  updateCandidateProfileAction,
+} from "@/server/actions/authActions";
 
 const initialProfile: CandidateProfile = {
   name: "Alex Chen",
@@ -281,10 +285,15 @@ function CandidateDashboardContent() {
     let isMounted = true;
     async function syncSupabaseData() {
       try {
-        const [jobsRes, appsRes] = await Promise.all([
+        const [profileRes, jobsRes, appsRes] = await Promise.all([
+          getCandidateProfileAction(profile.email),
           getJobsAction({ candidateEmail: profile.email }),
           getCandidateApplicationsAction(profile.email),
         ]);
+
+        if (isMounted && profileRes.success && profileRes.data) {
+          setProfile(profileRes.data);
+        }
 
         if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
           setJobs(jobsRes.data);
@@ -302,6 +311,29 @@ function CandidateDashboardContent() {
       isMounted = false;
     };
   }, [profile.email]);
+
+  const handleUpdateCandidateProfile = async (updated: CandidateProfile) => {
+    setProfile(updated);
+    try {
+      await updateCandidateProfileAction({
+        email: updated.email,
+        name: updated.name,
+        headline: updated.headline,
+        university: updated.university,
+        degree: updated.degree,
+        graduationYear: updated.graduationYear,
+        avatarUrl: updated.avatarUrl,
+        githubUrl: updated.githubUrl,
+        linkedinUrl: updated.linkedinUrl,
+        portfolioUrl: updated.portfolioUrl,
+        resumeFileName: updated.resumeFileName,
+        resumeSha256: updated.resumeSha256,
+        skills: updated.skills,
+      });
+    } catch (err) {
+      console.error("[CandidateDashboard] Failed to persist profile to Supabase:", err);
+    }
+  };
 
   // Instant 1-Click Apply Handler with Supabase PostgreSQL persistence & audit logging
   const handleApplyJob = async (job: JobListing) => {
@@ -555,7 +587,7 @@ function CandidateDashboardContent() {
             >
               <ProfileSetupTab
                 profile={profile}
-                onUpdateProfile={(updated) => setProfile(updated)}
+                onUpdateProfile={handleUpdateCandidateProfile}
                 onTriggerToast={triggerToast}
               />
             </section>

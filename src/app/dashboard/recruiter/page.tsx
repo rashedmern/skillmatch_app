@@ -35,6 +35,10 @@ import {
   deleteJobAction,
   updateCandidateStageAction,
 } from "@/server/actions/jobActions";
+import {
+  getRecruiterProfileAction,
+  updateRecruiterProfileAction,
+} from "@/server/actions/authActions";
 
 const initialRecruiterProfile: RecruiterProfile = {
   companyName: "CloudScale Infrastructure Labs",
@@ -259,10 +263,15 @@ function RecruiterDashboardContent() {
     let isMounted = true;
     async function syncRecruiterData() {
       try {
-        const [jobsRes, appsRes] = await Promise.all([
+        const [profileRes, jobsRes, appsRes] = await Promise.all([
+          getRecruiterProfileAction(profile.email),
           getJobsAction(),
           getRecruiterApplicationsAction(profile.email),
         ]);
+
+        if (isMounted && profileRes.success && profileRes.data) {
+          setProfile(profileRes.data);
+        }
 
         if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
           setJobs(jobsRes.data);
@@ -280,6 +289,23 @@ function RecruiterDashboardContent() {
       isMounted = false;
     };
   }, [profile.email]);
+
+  const handleUpdateRecruiterProfile = async (updated: RecruiterProfile) => {
+    setProfile(updated);
+    try {
+      await updateRecruiterProfileAction({
+        email: updated.email,
+        recruiterName: updated.recruiterName,
+        roleTitle: updated.roleTitle,
+        companyName: updated.companyName,
+        industry: updated.industry,
+        location: updated.location,
+        avatarUrl: updated.avatarUrl,
+      });
+    } catch (err) {
+      console.error("[RecruiterDashboard] Failed to persist recruiter profile to Supabase:", err);
+    }
+  };
 
   // Job Management Handlers
   const handleCreateJob = async (newJobData: Omit<JobPosting, "id" | "applicantsCount" | "postedDate">) => {
@@ -655,7 +681,7 @@ function RecruiterDashboardContent() {
             >
               <RecruiterSettingsTab
                 profile={profile}
-                onUpdateProfile={(updated) => setProfile(updated)}
+                onUpdateProfile={handleUpdateRecruiterProfile}
                 onTriggerToast={triggerToast}
               />
             </section>
