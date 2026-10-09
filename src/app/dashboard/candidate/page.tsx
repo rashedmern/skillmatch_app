@@ -23,6 +23,11 @@ import {
 import { StatusDot } from "@/components/ui/StatusDot";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  getJobsAction,
+  getCandidateApplicationsAction,
+  applyJobAction,
+} from "@/server/actions/jobActions";
 
 const initialProfile: CandidateProfile = {
   name: "Alex Chen",
@@ -271,16 +276,44 @@ function CandidateDashboardContent() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Instant 1-Click Apply Handler
-  const handleApplyJob = (job: JobListing) => {
-    // 1. Mark job as applied in job listings state
+  // Live Supabase PostgreSQL Synchronization
+  useEffect(() => {
+    let isMounted = true;
+    async function syncSupabaseData() {
+      try {
+        const [jobsRes, appsRes] = await Promise.all([
+          getJobsAction({ candidateEmail: profile.email }),
+          getCandidateApplicationsAction(profile.email),
+        ]);
+
+        if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
+          setJobs(jobsRes.data);
+        }
+
+        if (isMounted && appsRes.success && appsRes.data && appsRes.data.length > 0) {
+          setApplications(appsRes.data);
+        }
+      } catch (err) {
+        console.warn("[CandidateDashboard] Database sync fallback to initial dataset:", err);
+      }
+    }
+    syncSupabaseData();
+    return () => {
+      isMounted = false;
+    };
+  }, [profile.email]);
+
+  // Instant 1-Click Apply Handler with Supabase PostgreSQL persistence & audit logging
+  const handleApplyJob = async (job: JobListing) => {
+    // 1. Optimistically mark job as applied in job listings state
     setJobs((prev) =>
       prev.map((j) => (j.id === job.id ? { ...j, isApplied: true } : j))
     );
 
     // 2. Prepend new active application to applications pipeline
+    const tempId = `app-${Date.now()}`;
     const newApp: AppliedJob = {
-      id: `app-${Date.now()}`,
+      id: tempId,
       company: job.company,
       role: job.title,
       location: `${job.location} (${job.workModel})`,
@@ -292,8 +325,26 @@ function CandidateDashboardContent() {
     };
 
     setApplications((prev) => [newApp, ...prev]);
-
     triggerToast(`Application submitted to ${job.company} for '${job.title}'! Dossier dispatched.`);
+
+    // 3. Persist to live Supabase PostgreSQL and record initial stage history audit record
+    try {
+      const res = await applyJobAction({
+        candidateEmail: profile.email,
+        jobId: job.id,
+        matchScore: job.matchScore,
+        notes: `1-Click Apply for '${job.title}' at ${job.company}`,
+      });
+
+      if (res.success && res.data?.application?.id) {
+        // Update local application id with real PostgreSQL UUID
+        setApplications((prev) =>
+          prev.map((a) => (a.id === tempId ? { ...a, id: res.data.application.id } : a))
+        );
+      }
+    } catch (err) {
+      console.error("[handleApplyJob] Postgres application sync error:", err);
+    }
   };
 
   const getTabTitle = () => {

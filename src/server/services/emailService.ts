@@ -8,8 +8,7 @@ import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { cookies } from "next/headers";
-import { getDatabase } from "../db/client";
-import { DbOtpToken } from "../db/schema";
+import { prisma } from "../db/client";
 
 function getSecretKey(): string {
   return (
@@ -301,19 +300,19 @@ export class EmailService {
     const expiresAtMs = Date.now() + expiresInMinutes * 60 * 1000;
     const expiresAt = new Date(expiresAtMs).toISOString();
 
-    // 1. Store in local in-memory store
-    const db = getDatabase();
-    const tokenRecord: DbOtpToken = {
-      id: `otp_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`,
-      email: cleanEmail,
-      codeHash: code,
-      expiresAt,
-      consumed: false,
-      attempts: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    db.otpTokens.set(cleanEmail, tokenRecord);
+    // 1. Persist OTP token to Supabase PostgreSQL
+    try {
+      await prisma.otpToken.create({
+        data: {
+          email: cleanEmail,
+          code_hash: code,
+          consumed: false,
+          expires_at: new Date(expiresAtMs),
+        },
+      });
+    } catch (err) {
+      console.warn("[EmailService] Note: Supabase OTP persistence fallback:", err);
+    }
 
     // 2. Set cryptographically signed HTTP-only challenge cookie (guarantees cross-serverless survival on Vercel)
     const challengeToken = createSignedChallenge(cleanEmail, code, expiresAtMs);
@@ -420,42 +419,35 @@ export class EmailService {
       };
     }
 
-    const db = getDatabase();
+    // Strategy 1: Check Supabase PostgreSQL live OTP tokens
+    if (cleanEmail) {
+      try {
+        const dbToken = await prisma.otpToken.findFirst({
+          where: {
+            email: cleanEmail,
+            code_hash: cleanCode,
+            consumed: false,
+            expires_at: { gte: new Date() },
+          },
+          orderBy: { expires_at: "desc" },
+        });
 
-    // Strategy 1: Check in-memory persistent database store
-    if (cleanEmail && db.otpTokens.has(cleanEmail)) {
-      const record = db.otpTokens.get(cleanEmail)!;
+        if (dbToken) {
+          await prisma.otpToken.update({
+            where: { id: dbToken.id },
+            data: { consumed: true },
+          });
 
-      if (!record.consumed && new Date() <= new Date(record.expiresAt)) {
-        if (record.attempts >= 5) {
-          record.consumed = true;
+          await prisma.user.updateMany({
+            where: { email: cleanEmail },
+            data: { is_email_verified: true },
+          });
+
           await clearChallengeCookie();
-          return {
-            isValid: false,
-            error: "Too many failed attempts. For your security, this code has been invalidated. Please request a new code.",
-          };
-        }
-
-        if (record.codeHash === cleanCode) {
-          // Success! Consume token and clear challenge cookie
-          record.consumed = true;
-          await clearChallengeCookie();
-
-          const user = db.users.get(cleanEmail);
-          if (user) {
-            user.isEmailVerified = true;
-            user.updatedAt = new Date().toISOString();
-          }
-
           return { isValid: true };
-        } else {
-          record.attempts += 1;
-          const remaining = 5 - record.attempts;
-          return {
-            isValid: false,
-            error: `Invalid verification code. Please check your inbox (${remaining} attempt${remaining === 1 ? "" : "s"} remaining).`,
-          };
         }
+      } catch (err) {
+        console.warn("[EmailService.verifyOtpCode] Postgres token check fallback:", err);
       }
     }
 
@@ -465,20 +457,16 @@ export class EmailService {
       const cookieVerifyResult = verifySignedChallenge(challengeCookie, cleanCode, cleanEmail);
 
       if (cookieVerifyResult.isValid && cookieVerifyResult.email) {
-        // Success via verified cryptographic signature!
         const resolvedEmail = cookieVerifyResult.email;
         await clearChallengeCookie();
 
-        const user = db.users.get(resolvedEmail);
-        if (user) {
-          user.isEmailVerified = true;
-          user.updatedAt = new Date().toISOString();
-        }
-
-        // Also mark in-memory record if exists
-        const memRecord = db.otpTokens.get(resolvedEmail);
-        if (memRecord) {
-          memRecord.consumed = true;
+        try {
+          await prisma.user.updateMany({
+            where: { email: resolvedEmail },
+            data: { is_email_verified: true },
+          });
+        } catch {
+          // ignore error if user record isn't committed yet
         }
 
         return { isValid: true };
@@ -489,7 +477,7 @@ export class EmailService {
       }
     }
 
-    // If both Strategy 1 and Strategy 2 failed to find an active token
+    // If both failed
     console.warn(`[EmailService.verifyOtpCode] No active challenge found for email: "${cleanEmail}".`);
     return {
       isValid: false,
