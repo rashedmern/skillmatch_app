@@ -27,6 +27,14 @@ import {
 import { StatusDot } from "@/components/ui/StatusDot";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  getJobsAction,
+  getRecruiterApplicationsAction,
+  createJobAction,
+  toggleJobStatusAction,
+  deleteJobAction,
+  updateCandidateStageAction,
+} from "@/server/actions/jobActions";
 
 const initialRecruiterProfile: RecruiterProfile = {
   companyName: "CloudScale Infrastructure Labs",
@@ -246,19 +254,70 @@ function RecruiterDashboardContent() {
     }, 3800);
   };
 
+  // Live Supabase PostgreSQL Synchronization
+  useEffect(() => {
+    let isMounted = true;
+    async function syncRecruiterData() {
+      try {
+        const [jobsRes, appsRes] = await Promise.all([
+          getJobsAction(),
+          getRecruiterApplicationsAction(profile.email),
+        ]);
+
+        if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
+          setJobs(jobsRes.data);
+        }
+
+        if (isMounted && appsRes.success && appsRes.data && appsRes.data.length > 0) {
+          setApplicants(appsRes.data);
+        }
+      } catch (err) {
+        console.warn("[RecruiterDashboard] Supabase sync fallback to initial data:", err);
+      }
+    }
+    syncRecruiterData();
+    return () => {
+      isMounted = false;
+    };
+  }, [profile.email]);
+
   // Job Management Handlers
-  const handleCreateJob = (newJobData: Omit<JobPosting, "id" | "applicantsCount" | "postedDate">) => {
+  const handleCreateJob = async (newJobData: Omit<JobPosting, "id" | "applicantsCount" | "postedDate">) => {
+    const tempId = `job-rec-${Date.now()}`;
     const newJob: JobPosting = {
       ...newJobData,
-      id: `job-rec-${Date.now()}`,
+      id: tempId,
       applicantsCount: 0,
       postedDate: "Just now",
     };
     setJobs((prev) => [newJob, ...prev]);
     triggerToast(`Published new opening: "${newJob.title}"!`);
+
+    try {
+      const res = await createJobAction({
+        title: newJobData.title,
+        team: newJobData.team,
+        location: newJobData.location,
+        workModel: newJobData.workModel,
+        salary: newJobData.salary,
+        minMatch: newJobData.minMatch,
+        description: newJobData.description,
+        skills: newJobData.skills,
+        recruiterEmail: profile.email,
+        companyName: profile.companyName,
+      });
+
+      if (res.success && res.data?.id) {
+        setJobs((prev) =>
+          prev.map((j) => (j.id === tempId ? { ...j, id: res.data.id } : j))
+        );
+      }
+    } catch (err) {
+      console.error("[handleCreateJob] Postgres job creation error:", err);
+    }
   };
 
-  const handleToggleJobStatus = (id: string) => {
+  const handleToggleJobStatus = async (id: string) => {
     setJobs((prev) =>
       prev.map((j) => {
         if (j.id === id) {
@@ -269,36 +328,59 @@ function RecruiterDashboardContent() {
         return j;
       })
     );
+
+    try {
+      await toggleJobStatusAction(id);
+    } catch (err) {
+      console.error("[handleToggleJobStatus] Error:", err);
+    }
   };
 
-  const handleDeleteJob = (id: string) => {
+  const handleDeleteJob = async (id: string) => {
     const job = jobs.find((j) => j.id === id);
     setJobs((prev) => prev.filter((j) => j.id !== id));
     if (job) {
       triggerToast(`Removed listing: "${job.title}".`);
     }
+
+    try {
+      await deleteJobAction(id);
+    } catch (err) {
+      console.error("[handleDeleteJob] Error:", err);
+    }
   };
 
-  // Pipeline Handlers
-  const handleShortlistCandidate = (id: string) => {
+  // Pipeline Handlers with Supabase Audit History
+  const handleShortlistCandidate = async (id: string) => {
     setApplicants((prev) =>
       prev.map((c) => (c.id === id ? { ...c, stage: "Shortlisted" as const } : c))
     );
+    try {
+      await updateCandidateStageAction(id, "Assessment Passed", "Shortlisted by technical recruiter");
+    } catch (err) {
+      console.error("[handleShortlistCandidate] Error:", err);
+    }
   };
 
-  const handleRejectCandidate = (id: string) => {
+  const handleRejectCandidate = async (id: string) => {
     setApplicants((prev) =>
       prev.map((c) => (c.id === id ? { ...c, stage: "Rejected" as const } : c))
     );
+    try {
+      await updateCandidateStageAction(id, "Rejected", "Application rejected by hiring team");
+    } catch (err) {
+      console.error("[handleRejectCandidate] Error:", err);
+    }
   };
 
-  const handleConfirmSchedule = (e: React.FormEvent) => {
+  const handleConfirmSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!scheduleCandidate) return;
 
+    const candId = scheduleCandidate.id;
     setApplicants((prev) =>
       prev.map((c) =>
-        c.id === scheduleCandidate.id ? { ...c, stage: "Interview Scheduled" as const } : c
+        c.id === candId ? { ...c, stage: "Interview Scheduled" as const } : c
       )
     );
 
@@ -308,6 +390,16 @@ function RecruiterDashboardContent() {
         : `Interview confirmed with ${scheduleCandidate.name} on ${scheduleDate} at ${scheduleTime}!`;
     triggerToast(toastMsg);
     setScheduleCandidate(null);
+
+    try {
+      await updateCandidateStageAction(
+        candId,
+        "Interview Scheduled",
+        `Interview confirmed for ${scheduleDate} at ${scheduleTime} (${scheduleFormat})`
+      );
+    } catch (err) {
+      console.error("[handleConfirmSchedule] Error:", err);
+    }
   };
 
   const handleNavigateToPipeline = (jobId?: string) => {
