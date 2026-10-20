@@ -522,7 +522,7 @@ export class AuthService {
       degree: cp.degree || "B.S. Electrical Engineering & Computer Sciences",
       graduationYear: cp.graduation_year || "2026",
       email: user.email,
-      avatarUrl: user.avatar_url || null,
+      avatarUrl: (user as any).avatar_url || null,
       githubUrl: cp.github_username
         ? `https://github.com/${cp.github_username.replace(/^https?:\/\/github\.com\//, "")}`
         : "https://github.com/alexchen-dev",
@@ -555,27 +555,32 @@ export class AuthService {
     skills?: string[];
   }) {
     const cleanEmail = data.email.toLowerCase().trim();
-    let user = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email: cleanEmail },
       include: { candidate_profile: true },
     });
 
-    if (!user) {
-      user = await prisma.user.create({
+    let userId: string;
+    let profileId: string | undefined;
+
+    if (!existingUser) {
+      const newUser = await (prisma.user as any).create({
         data: {
           email: cleanEmail,
           name: data.name || "Candidate",
           role: "candidate",
           auth_provider: "email",
           is_email_verified: true,
-          avatar_url: data.avatarUrl,
+          ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
         },
-        include: { candidate_profile: true },
       });
+      userId = newUser.id;
     } else {
+      userId = existingUser.id;
+      profileId = existingUser.candidate_profile?.id;
       // 1. Update user name & avatar_url
-      await prisma.user.update({
-        where: { id: user.id },
+      await (prisma.user as any).update({
+        where: { id: userId },
         data: {
           ...(data.name ? { name: data.name } : {}),
           ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
@@ -588,7 +593,6 @@ export class AuthService {
       ? data.githubUrl.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "")
       : undefined;
 
-    let profileId = user.candidate_profile?.id;
     if (profileId) {
       await prisma.candidateProfile.update({
         where: { id: profileId },
@@ -607,7 +611,7 @@ export class AuthService {
     } else {
       const createdProfile = await prisma.candidateProfile.create({
         data: {
-          user_id: user.id,
+          user_id: userId,
           headline: data.headline,
           university: data.university,
           degree: data.degree,
@@ -687,7 +691,7 @@ export class AuthService {
       industry: company?.industry || "Distributed Cloud Infrastructure & Databases",
       location: rp.office_location || "San Francisco, CA (HQ)",
       verifiedPartner: company?.is_verified_partner ?? true,
-      avatarUrl: user.avatar_url || null,
+      avatarUrl: (user as any).avatar_url || null,
     };
   }
 
@@ -704,7 +708,7 @@ export class AuthService {
     avatarUrl?: string | null;
   }) {
     const cleanEmail = data.email.toLowerCase().trim();
-    let user = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email: cleanEmail },
       include: {
         recruiter_profile: {
@@ -713,25 +717,28 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      user = await prisma.user.create({
+    let userId: string;
+    let recruiterProfileId: string | undefined;
+    let companyId: string | undefined;
+
+    if (!existingUser) {
+      const newUser = await (prisma.user as any).create({
         data: {
           email: cleanEmail,
           name: data.recruiterName || cleanEmail.split("@")[0],
-          role: "RECRUITER",
+          role: "recruiter",
           is_email_verified: true,
-          avatar_url: data.avatarUrl,
-        },
-        include: {
-          recruiter_profile: {
-            include: { company: true },
-          },
+          ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
         },
       });
+      userId = newUser.id;
     } else {
+      userId = existingUser.id;
+      recruiterProfileId = existingUser.recruiter_profile?.id;
+      companyId = existingUser.recruiter_profile?.company_id;
       // 1. Update user name & avatar_url
-      await prisma.user.update({
-        where: { id: user.id },
+      await (prisma.user as any).update({
+        where: { id: userId },
         data: {
           ...(data.recruiterName ? { name: data.recruiterName } : {}),
           ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
@@ -740,7 +747,6 @@ export class AuthService {
     }
 
     // 2. Ensure company exists or is created/updated
-    let companyId = user.recruiter_profile?.company_id;
     if (!companyId) {
       const compName = data.companyName || "CloudScale Infrastructure Labs";
       const slug = compName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
@@ -771,9 +777,9 @@ export class AuthService {
     }
 
     // 3. Ensure recruiter profile exists or is created/updated
-    if (user.recruiter_profile?.id) {
+    if (recruiterProfileId) {
       await prisma.recruiterProfile.update({
-        where: { id: user.recruiter_profile.id },
+        where: { id: recruiterProfileId },
         data: {
           ...(companyId ? { company_id: companyId } : {}),
           ...(data.roleTitle ? { role_title: data.roleTitle } : {}),
@@ -783,8 +789,8 @@ export class AuthService {
     } else {
       await prisma.recruiterProfile.create({
         data: {
-          user_id: user.id,
-          company_id: companyId,
+          user_id: userId,
+          company_id: companyId!,
           role_title: data.roleTitle || "Lead Systems & Infrastructure Recruiter",
           office_location: data.location || "San Francisco, CA (HQ)",
         },
