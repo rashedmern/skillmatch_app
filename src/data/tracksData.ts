@@ -77,10 +77,10 @@ export const CSE_TRACKS: CseTrackItem[] = [
   },
   {
     id: "track-ai-ml",
-    title: "Applied AI & Machine Learning",
+    title: "Machine Learning & Data Systems",
     category: "Intelligent Systems Engineering",
     description:
-      "LLM inference serving, semantic vector search, embedding pipelines, and model deployment for real-time applications.",
+      "Model inference pipelines, semantic vector search, high-throughput data processing, and deployment for real-time applications.",
     iconName: "brain",
     colSpanDesktop: 3,
     benchmarkMetric: "Low-latency inference & embeddings",

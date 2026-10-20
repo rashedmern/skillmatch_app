@@ -37,11 +37,9 @@ export const Navbar: React.FC = () => {
       {/* 1. FIXED WRAPPER - Always positioned at top, centers the morphing navbar */}
       <div className="fixed top-0 inset-x-0 z-50 flex justify-center pointer-events-none pt-3 sm:pt-4 px-3 sm:px-6">
         {/* 
-          HANDSHAKE UNIFIED MORPHING NAVBAR:
+          Morphing Navigation Header:
           - Starts full width (max-w-[1380px]), transparent background, white text.
           - On scroll: smoothly contracts to max-w-[980px], morphs into white capsule with shadow.
-          - As the width contracts, the logo glides smoothly from the left edge toward the center,
-            and buttons glide smoothly from the right edge toward the center.
         */}
         <motion.header
           layout
@@ -61,7 +59,7 @@ export const Navbar: React.FC = () => {
           }}
           transition={{
             duration: 0.65,
-            ease: [0.16, 1, 0.3, 1], // Handshake fluid cubic-bezier
+            ease: [0.16, 1, 0.3, 1],
           }}
           className={`pointer-events-auto w-full rounded-full flex items-center justify-between gap-3 sm:gap-4 transition-[backdrop-filter] duration-500 ${
             isScrolled ? "backdrop-blur-xl" : "backdrop-blur-none"

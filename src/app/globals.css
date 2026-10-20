@@ -274,14 +274,14 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* Exclude Handshake Search Capsule from focus outline */
-[data-handshake-search],
-[data-handshake-search] input,
-[data-handshake-search] button,
-[data-handshake-search] input:focus,
-[data-handshake-search] input:focus-visible,
-[data-handshake-search] button:focus,
-[data-handshake-search] button:focus-visible {
+/* Exclude Hero Search Capsule from focus outline */
+[data-hero-search],
+[data-hero-search] input,
+[data-hero-search] button,
+[data-hero-search] input:focus,
+[data-hero-search] input:focus-visible,
+[data-hero-search] button:focus,
+[data-hero-search] button:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }

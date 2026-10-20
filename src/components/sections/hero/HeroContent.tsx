@@ -6,7 +6,7 @@ import { StatusDot } from "@/components/ui/StatusDot";
 export const HeroContent: React.FC = () => {
   return (
     <div className="flex flex-col justify-center space-y-6 sm:space-y-7 lg:space-y-8 pt-2 sm:pt-4 lg:pt-6">
-      {/* 1. Handshake-Style Eyebrow Pill */}
+      {/* 1. Eyebrow Pill */}
       <div className="inline-flex items-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-secondary/10 border border-secondary/25 text-xs font-semibold text-primary-container shadow-sm">
           <StatusDot size="sm" />
@@ -16,7 +16,7 @@ export const HeroContent: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Bold, Editorial Handshake Headline */}
+      {/* 2. Editorial Headline */}
       <div className="space-y-3.5 sm:space-y-4">
         <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[56px] font-extrabold tracking-[-0.03em] leading-[1.12] text-on-surface font-sans">
           Where tech talent gets hired, and employers hire the{" "}
@@ -34,7 +34,7 @@ export const HeroContent: React.FC = () => {
         </p>
       </div>
 
-      {/* 4. Dual Handshake-Style Rounded-Full CTAs */}
+      {/* 4. Dual Call-to-Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 pt-1">
         {/* Primary CTA: Candidates */}
         <Link
@@ -56,7 +56,7 @@ export const HeroContent: React.FC = () => {
         </Link>
       </div>
 
-      {/* 5. Handshake-Style Social Proof & Rating Bar */}
+      {/* 5. Social Proof & Rating Bar */}
       <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3 text-xs text-on-surface-variant">
         <div className="flex items-center gap-1 text-amber-500">
           {[...Array(5)].map((_, i) => (
@@ -70,7 +70,7 @@ export const HeroContent: React.FC = () => {
         </span>
       </div>
 
-      {/* 6. Handshake Key Value Bullets */}
+      {/* 6. Key Value Bullets */}
       <div className="pt-4 border-t border-stroke-card/70 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium text-outline">
         <div className="flex items-center gap-1.5">
           <CheckCircle className="w-4 h-4 text-secondary-mint" />

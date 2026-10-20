@@ -512,12 +512,12 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
     );
   }
 
-  // 32. HyperScale AI
-  if (cleanName.includes("hyperscale") || cleanName === "ha") {
+  // 32. HyperScale Systems
+  if (cleanName.includes("hyperscale") || cleanName === "hs" || cleanName === "ha") {
     return (
       <div
         className={`bg-gradient-to-tr from-[#312E81] via-[#4F46E5] to-[#00D4BE] text-white shadow-2xs flex items-center justify-center shrink-0 ${sizeClasses} ${className}`}
-        title="HyperScale AI"
+        title="HyperScale Systems"
       >
         <svg className={iconSizes} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />

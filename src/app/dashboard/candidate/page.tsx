@@ -73,7 +73,7 @@ const initialProfile: CandidateProfile = {
 const initialAppliedJobs: AppliedJob[] = [
   {
     id: "app-1",
-    company: "HyperScale AI",
+    company: "HyperScale Systems",
     role: "Kernel & Memory Systems Engineer",
     location: "San Francisco, CA (Hybrid)",
     salary: "$200,000 - $230,000",
@@ -166,8 +166,8 @@ const initialJobs: JobListing[] = [
   {
     id: "job-4",
     title: "Kernel & Memory Systems Engineer",
-    company: "HyperScale AI",
-    logoText: "HA",
+    company: "HyperScale Systems",
+    logoText: "HS",
     location: "San Francisco, CA",
     workModel: "Hybrid",
     domain: "Kernel & Systems",
@@ -605,7 +605,7 @@ function CandidateDashboardContent() {
 
       {/* Main Full-Width Content View */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Top Navbar matching Handshake clean aesthetic */}
+        {/* Top Navbar */}
         <header
           role="banner"
           className="h-16 w-full border-b border-zinc-200 bg-white sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 select-none"
@@ -781,7 +781,7 @@ function CandidateDashboardContent() {
             </section>
           )}
 
-          {/* TAB 5: INBOX (Exact Handshake Layout) */}
+          {/* TAB 5: INBOX */}
           {activeTab === "inbox" && (
             <CandidateInboxTab onTriggerToast={triggerToast} />
           )}
@@ -830,12 +830,12 @@ function CandidateDashboardContent() {
             </section>
           )}
 
-          {/* TAB 7: EVENTS (Exact Handshake Layout) */}
+          {/* TAB 7: EVENTS */}
           {activeTab === "events" && (
             <CandidateEventsTab onTriggerToast={triggerToast} />
           )}
 
-          {/* TAB 8: EMPLOYERS (Exact Handshake Layout) */}
+          {/* TAB 8: EMPLOYERS */}
           {activeTab === "employers" && (
             <section
               role="tabpanel"

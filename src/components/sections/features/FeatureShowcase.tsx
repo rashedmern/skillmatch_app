@@ -2,22 +2,21 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Building2, CheckCircle2, Sparkles, Code2, Terminal } from "lucide-react";
 
-export const HandshakeFeatureShowcase: React.FC = () => {
+export const FeatureShowcase: React.FC = () => {
   return (
     <section className="w-full py-16 sm:py-24 bg-[#14151C] text-white space-y-24 sm:space-y-32">
       {/* FEATURE 1: Left Dark Green Gradient Canvas + Right "Get hired" */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          {/* Left: Rich Dark Green Gradient Canvas with Floating White Job Cards */}
+          {/* Left: Green Gradient Canvas with Floating Role Cards */}
           <div className="lg:col-span-7">
             <div className="relative rounded-3xl p-6 sm:p-10 overflow-hidden bg-gradient-to-br from-[#051C19] via-[#0D3E35] to-[#095964] border border-[#00D4BE]/25 shadow-2xl shadow-[#051C19]/80">
               {/* Subtle ambient green glow pools */}
               <div className="absolute -top-12 -right-12 w-80 h-80 rounded-full bg-[#00D4BE]/15 blur-3xl pointer-events-none" />
               <div className="absolute -bottom-12 -left-12 w-80 h-80 rounded-full bg-[#051C19]/60 blur-2xl pointer-events-none" />
 
-              {/* Stack of Floating Clean White Cards */}
+              {/* Stack of Floating Role Cards */}
               <div className="space-y-4 relative z-10">
                 {/* Card 1 */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white text-black shadow-xl border border-black/5 transform hover:-translate-y-1 transition-transform">
@@ -101,7 +100,7 @@ export const HandshakeFeatureShowcase: React.FC = () => {
         </div>
       </div>
 
-      {/* FEATURE 2: Left "Work with Real Code" + Right Dashboard Mockup */}
+      {/* FEATURE 2: Left "Work with Real Code" + Right Dashboard */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Left: Headline & Button */}
@@ -122,7 +121,7 @@ export const HandshakeFeatureShowcase: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Rich Dark Green Gradient Canvas with White Projects Dashboard */}
+          {/* Right: Dark Green Gradient Canvas with Projects Dashboard */}
           <div className="lg:col-span-7 order-1 lg:order-2">
             <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden bg-gradient-to-br from-[#051C19] via-[#0D3E35] to-[#095964] border border-[#00D4BE]/25 shadow-2xl shadow-[#051C19]/80">
               {/* Ambient lighting */}
@@ -152,7 +151,7 @@ export const HandshakeFeatureShowcase: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 4 Project Track Cards Grid (Inside White Dashboard) */}
+                {/* 4 Project Track Cards Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                   <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-[#00D4BE] transition-colors">
                     <span className="font-bold text-xs sm:text-sm text-zinc-900 block">
@@ -192,13 +191,13 @@ export const HandshakeFeatureShowcase: React.FC = () => {
 
                   <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-[#00D4BE] transition-colors">
                     <span className="font-bold text-xs sm:text-sm text-zinc-900 block">
-                      AI Evaluation &amp; Inference
+                      Machine Learning &amp; Inference
                     </span>
                     <span className="text-xs font-semibold text-[#095964] mt-1 block">
                       Up to $80/hr
                     </span>
                     <span className="text-[11px] text-zinc-500 mt-2 block">
-                      PyTorch • Latency Benchmarks • LLM Serving
+                      PyTorch • Latency Benchmarks • Model Serving
                     </span>
                   </div>
                 </div>
@@ -208,7 +207,7 @@ export const HandshakeFeatureShowcase: React.FC = () => {
         </div>
       </div>
 
-      {/* FEATURE 3: Laptop / Code Studio Showcase */}
+      {/* FEATURE 3: Code Studio Showcase */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl p-6 sm:p-12 bg-gradient-to-br from-[#051C19] via-[#0D3E35] to-[#091a13] border border-[#00D4BE]/20 text-center space-y-6 overflow-hidden relative shadow-2xl">
           <div className="max-w-2xl mx-auto space-y-3">
@@ -223,7 +222,7 @@ export const HandshakeFeatureShowcase: React.FC = () => {
             </p>
           </div>
 
-          {/* Code IDE Window Mockup */}
+          {/* Code IDE Window */}
           <div className="max-w-4xl mx-auto rounded-2xl bg-[#091412] border border-white/15 shadow-2xl overflow-hidden text-left font-mono text-xs">
             {/* Window Title Bar */}
             <div className="px-4 py-2.5 bg-[#060e0d] border-b border-white/10 flex items-center justify-between">

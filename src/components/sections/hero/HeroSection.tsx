@@ -5,7 +5,7 @@ import { Search, ArrowUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 const FILTER_PILLS = [
-  "AI & ML Interns",
+  "Machine Learning",
   "Software Engineering",
   "Distributed Systems",
   "Remote Internships",
@@ -24,7 +24,7 @@ export const HeroSection: React.FC = () => {
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Typewriter effect mimicking Handshake's animated placeholder
+  // Typewriter effect for animated search placeholder
   useEffect(() => {
     const currentTarget = SEARCH_PLACEHOLDERS[placeholderIdx];
     const typingSpeed = isDeleting ? 40 : 80;
@@ -59,7 +59,7 @@ export const HeroSection: React.FC = () => {
         - Cyber Mint / Green Glow (#00D4BE)
       */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden bg-[#051C19]">
-        {/* Layer 1: Massive ambient dark green radial background */}
+        {/* Layer 1: Ambient dark green radial background */}
         <div
           className="absolute inset-0 opacity-95"
           style={{
@@ -119,12 +119,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
-        {/* 
-          HANDSHAKE EXACT ULTRA-TALL CONDENSED HEADLINE:
-          "LET'S FIND
-           YOUR NEXT INTERN"
-          Using ultra-condensed font style with tight leading & tracking
-        */}
+        {/* Editorial Hero Headline */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -142,10 +137,7 @@ export const HeroSection: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* 
-          HANDSHAKE EXACT GIANT WHITE CAPSULE SEARCH BAR:
-          A pure white rounded pill with left search icon, typewriter text, and top-right arrow button
-        */}
+        {/* Primary Search Bar */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -153,7 +145,7 @@ export const HeroSection: React.FC = () => {
           className="w-full max-w-[760px] mx-auto mt-8 sm:mt-10"
         >
           <form
-            data-handshake-search
+            data-hero-search
             onSubmit={(e) => {
               e.preventDefault();
               if (searchTerm.trim()) {
@@ -184,7 +176,7 @@ export const HeroSection: React.FC = () => {
               )}
             </div>
 
-            {/* Submit Arrow Button (Handshake Circular Arrow with User Green Accent) */}
+            {/* Submit Arrow Button */}
             <button
               type="submit"
               aria-label="Submit search"
@@ -196,10 +188,7 @@ export const HeroSection: React.FC = () => {
           </form>
         </motion.div>
 
-        {/* 
-          HANDSHAKE EXACT 4 FILTER PILLS BELOW SEARCH BAR:
-          Translucent pills with user green hover border & text
-        */}
+        {/* Filter Pills */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}

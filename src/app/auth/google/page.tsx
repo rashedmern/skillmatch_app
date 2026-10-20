@@ -39,7 +39,7 @@ const GoogleSvg: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) 
   </svg>
 );
 
-interface MockGoogleAccount {
+interface GoogleAccountItem {
   name: string;
   email: string;
   avatarUrl: string;
@@ -47,7 +47,7 @@ interface MockGoogleAccount {
   badge: string;
 }
 
-const mockAccounts: MockGoogleAccount[] = [
+const availableAccounts: GoogleAccountItem[] = [
   {
     name: "Alex Chen",
     email: "alex.chen@berkeley.edu",
@@ -81,7 +81,7 @@ function GoogleAuthContent() {
   const [selectedAccountEmail, setSelectedAccountEmail] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAccountSelect = (account: MockGoogleAccount) => {
+  const handleAccountSelect = (account: GoogleAccountItem) => {
     setSelectedAccountEmail(account.email);
     setErrorMessage(null);
     validateAndProceed(account.email, account.name);
@@ -198,7 +198,7 @@ function GoogleAuthContent() {
 
         {/* Account Selector List */}
         <div className="space-y-2">
-          {mockAccounts.map((account) => {
+          {availableAccounts.map((account) => {
             const isInvalidForCandidate =
               role === "candidate" && account.domainType === "personal";
 

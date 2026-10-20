@@ -67,7 +67,7 @@ const INITIAL_EVENTS: EventItem[] = [
   },
   {
     id: "evt-3",
-    title: "Google Cloud & Distributed AI Engineering Series",
+    title: "Google Cloud & Distributed Systems Engineering Series",
     organizer: "Google Core Systems",
     logoText: "G",
     logoBg: "bg-red-50 text-red-600",
@@ -187,7 +187,7 @@ export const CandidateEventsTab: React.FC<CandidateEventsTabProps> = ({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 select-none">
-      {/* 1. TOP SEARCH & QUICK METRICS ROW (Exact Handshake Layout) */}
+      {/* 1. TOP SEARCH & QUICK METRICS ROW */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Left: Search & Filter Dropdowns */}
         <div className="flex flex-wrap items-center gap-2.5">
@@ -311,7 +311,7 @@ export const CandidateEventsTab: React.FC<CandidateEventsTabProps> = ({
         </h1>
       </div>
 
-      {/* 3. 3-COLUMN CARDS GRID (Exact Handshake Layout) */}
+      {/* 3. 3-COLUMN CARDS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {filteredEvents.length === 0 ? (
           <div className="col-span-full p-12 text-center bg-white rounded-2xl border border-zinc-200 text-zinc-400 text-sm">

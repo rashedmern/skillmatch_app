@@ -12,7 +12,7 @@ const OPPORTUNITIES = [
     href: "#tracks",
   },
   {
-    title: "AI & ML Systems Intern",
+    title: "Machine Learning Systems Intern",
     comp: "Up to $65/hr",
     education: "Undergrad & Master's CS Students",
     href: "#tracks",

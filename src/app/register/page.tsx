@@ -433,8 +433,8 @@ function RegisterFormContent() {
                   <option value="Backend & Cloud Infrastructure">
                     {language === "bn" ? "ব্যাকএন্ড ও ক্লাউড ইনফ্রাস্ট্রাকচার" : "Backend & Cloud Infrastructure"}
                   </option>
-                  <option value="AI & Machine Learning Systems">
-                    {language === "bn" ? "এআই ও মেশিন লার্নিং সিস্টেমস" : "AI & Machine Learning Systems"}
+                  <option value="Machine Learning & Data Systems">
+                    {language === "bn" ? "মেশিন লার্নিং ও ডেটা সিস্টেমস" : "Machine Learning & Data Systems"}
                   </option>
                   <option value="Database Engineering & Query Optimization">
                     {language === "bn" ? "ডাটাবেস ইঞ্জিনিয়ারিং ও অপ্টিমাইজেশন" : "Database Engineering"}

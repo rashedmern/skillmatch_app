@@ -33,7 +33,7 @@ interface ScoutCandidate {
   invited?: boolean;
 }
 
-const mockScoutDirectory: ScoutCandidate[] = [
+const initialScoutDirectory: ScoutCandidate[] = [
   {
     id: "scout-1",
     name: "Alex Chen",
@@ -148,7 +148,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
   onTriggerToast,
 }) => {
   const { t, language } = useLanguage();
-  const [candidates, setCandidates] = useState<ScoutCandidate[]>(mockScoutDirectory);
+  const [candidates, setCandidates] = useState<ScoutCandidate[]>(initialScoutDirectory);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("All");
   const [selectedUniversity, setSelectedUniversity] = useState("All");
@@ -368,7 +368,7 @@ export const TalentSearchTab: React.FC<TalentSearchTabProps> = ({
                   </span>
                 </div>
 
-                {/* Featured Project Showcase Card (Clean, Human & Non-AI) */}
+                {/* Featured Project Showcase Card */}
                 <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/90 space-y-1.5 hover:bg-slate-100/70 transition-colors">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 min-w-0">

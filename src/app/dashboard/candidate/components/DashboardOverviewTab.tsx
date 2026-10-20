@@ -51,7 +51,7 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
     });
   };
 
-  // Curated categories mimicking Handshake's exact card sections
+  // Curated job categories
   const newMatches: JobListing[] = [
     {
       id: "hm-1",

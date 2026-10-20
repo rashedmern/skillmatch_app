@@ -35,7 +35,7 @@ export const LiveMatchCard: React.FC = () => {
 
   return (
     <div className="relative w-full max-w-[480px] mx-auto lg:ml-auto select-none pt-6 pb-4">
-      {/* Handshake-Style Floating Pill 1: Top-Right Recruiter Message */}
+      {/* Floating Pill 1: Top-Right Recruiter Message */}
       <motion.div
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -55,7 +55,7 @@ export const LiveMatchCard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Handshake-Style Floating Pill 2: Bottom-Left Offer/Interview Alert */}
+      {/* Floating Pill 2: Bottom-Left Offer/Interview Alert */}
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
@@ -74,7 +74,7 @@ export const LiveMatchCard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Main Handshake Card Container */}
+      {/* Main Match Card Container */}
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

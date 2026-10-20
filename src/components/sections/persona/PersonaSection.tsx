@@ -39,7 +39,7 @@ export const PersonaSection: React.FC = () => {
             Just verified engineering skills.
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Whether you&apos;re a college student hunting for your first summer engineering internship or a tech lead tired of reading ChatGPT resumes, SkillMatch connects you on working code.
+            Whether you&apos;re a college student hunting for your first summer engineering internship or a tech lead tired of screening unverified resumes, SkillMatch connects you directly through working code.
           </p>
 
           {/* Persona Segmented Switcher */}
@@ -142,7 +142,7 @@ export const PersonaSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right: Clean Dark Student Dashboard Mockup */}
+              {/* Right: Student Dashboard Preview */}
               <div className="lg:col-span-6">
                 <div className="rounded-3xl bg-[#121920] border border-white/10 shadow-2xl p-6 sm:p-8 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -233,10 +233,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Cut through 1,000+ AI resumes
+                        Cut through 1,000+ unverified resumes
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Instead of wading through flooded inboxes and ChatGPT-tailored CVs, evaluate students who have already proven they can write clean, functioning code.
+                        Instead of wading through flooded inboxes and keyword-stuffed CVs, evaluate students who have already proven they can write clean, functioning code.
                       </p>
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export const PersonaSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right: Clean Dark Recruiter ATS Pipeline Mockup */}
+              {/* Right: Recruiter ATS Pipeline Preview */}
               <div className="lg:col-span-6">
                 <div className="rounded-3xl bg-[#121920] border border-white/10 shadow-2xl p-6 sm:p-8 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">

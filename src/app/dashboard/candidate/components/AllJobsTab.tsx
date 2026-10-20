@@ -28,7 +28,7 @@ interface AllJobsTabProps {
   onNavigateToApplications: () => void;
 }
 
-const EXTENDED_HANDSHAKE_JOBS: JobListing[] = [
+const EXTENDED_ROLE_LISTINGS: JobListing[] = [
   {
     id: "hs-1",
     title: ".NET Developer - IV",
@@ -179,8 +179,8 @@ export const AllJobsTab: React.FC<AllJobsTabProps> = ({
   onApplyJob,
   onNavigateToApplications,
 }) => {
-  // Combine props jobs with extended Handshake jobs
-  const allAvailableJobs = [...EXTENDED_HANDSHAKE_JOBS, ...jobs];
+  // Combine props jobs with catalog listings
+  const allAvailableJobs = [...EXTENDED_ROLE_LISTINGS, ...jobs];
 
   // Active top sub-nav tab
   const [subTab, setSubTab] = useState<"search" | "saved" | "optimizer">("search");

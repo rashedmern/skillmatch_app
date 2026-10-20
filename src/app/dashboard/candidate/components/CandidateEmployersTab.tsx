@@ -465,7 +465,7 @@ export const CandidateEmployersTab: React.FC<CandidateEmployersTabProps> = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 select-none pb-16">
-      {/* 1. SECTION TITLE (Exact Handshake match) */}
+      {/* 1. SECTION TITLE */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
@@ -480,7 +480,7 @@ export const CandidateEmployersTab: React.FC<CandidateEmployersTabProps> = ({
         </div>
       </div>
 
-      {/* 2. SEARCH & FILTER BAR (Exact Handshake Layout) */}
+      {/* 2. SEARCH & FILTER BAR */}
       <div className="flex flex-wrap items-center gap-2.5">
         {/* Search input pill */}
         <div className="relative min-w-[220px] sm:min-w-[280px]">
@@ -610,7 +610,7 @@ export const CandidateEmployersTab: React.FC<CandidateEmployersTabProps> = ({
         )}
       </div>
 
-      {/* 3. EMPLOYER LIST VIEW (Matching Handshake Rows) */}
+      {/* 3. EMPLOYER LIST VIEW */}
       <div className="bg-white rounded-2xl border border-zinc-200/90 shadow-xs divide-y divide-zinc-200/80 overflow-hidden">
         {filteredEmployers.length > 0 ? (
           filteredEmployers.map((emp) => {
@@ -716,7 +716,7 @@ export const CandidateEmployersTab: React.FC<CandidateEmployersTabProps> = ({
         )}
       </div>
 
-      {/* 4. PAGINATION FOOTER (Matching Handshake page=1&per_page=25) */}
+      {/* 4. PAGINATION FOOTER */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-3 text-xs text-zinc-500">
         <div>
           Showing <span className="font-semibold text-zinc-900">1</span> -{" "}
@@ -1008,7 +1008,7 @@ export const CandidateEmployersTab: React.FC<CandidateEmployersTabProps> = ({
             {/* Drawer Footer */}
             <div className="p-4 border-t border-zinc-200 bg-zinc-50 flex items-center justify-between">
               <span className="text-[11px] text-zinc-500">
-                Verified Handshake Employer Network
+                Verified SkillMatch Employer Network
               </span>
               <button
                 type="button"

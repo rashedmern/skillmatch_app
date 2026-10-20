@@ -42,7 +42,7 @@ function GithubAuthContent() {
   const [candidateHandle, setCandidateHandle] = useState("alexchen-dev");
 
   const telemetryLogs = [
-    "Establishing secure TLS handshake with GitHub Enterprise GraphQL v4...",
+    "Establishing secure TLS connection with GitHub Enterprise GraphQL v4...",
     "Querying public repositories, commit histories & PR review contributions...",
     "Executing AST parser for Go, TypeScript, Python & Rust AST nodes...",
     "Calculating cyclomatic complexity & deterministic code hygiene metrics...",
@@ -122,7 +122,7 @@ function GithubAuthContent() {
                       Official OAuth Connector
                     </div>
                     <h1 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
-                      SkillMatch <span className="text-[#00d4be]">Handshake</span>
+                      SkillMatch <span className="text-[#00d4be]">Verification</span>
                     </h1>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ function GithubAuthContent() {
               </div>
             </div>
 
-            {/* Final Action Handshake */}
+            {/* Final Authorization Action */}
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <button
                 onClick={() => router.push(`/dashboard?role=${role === "recruiter" ? "RECRUITER" : "CANDIDATE"}`)}

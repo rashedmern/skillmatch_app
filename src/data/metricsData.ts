@@ -32,11 +32,11 @@ export const PLATFORM_METRICS: PlatformMetricItem[] = [
   },
   {
     id: "metric-filters",
-    value: "0",
-    unit: "ATS Keyword Bots",
-    label: "Direct Human Engineering Review",
-    subtext: "No robotic resume screening. Evaluated by engineering leads who actually build.",
-    trend: "100% Code-first signal",
+    value: "100",
+    unit: "%",
+    label: "Code-First Direct Evaluations",
+    subtext: "Evaluated on working code, problem-solving, and architecture rather than keywords.",
+    trend: "Code-first signal",
     iconName: "shield",
   },
 ];

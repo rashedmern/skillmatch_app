@@ -5,7 +5,7 @@ import { Navbar } from "@/components/sections/navbar/Navbar";
 import { HeroSection } from "@/components/sections/hero/HeroSection";
 import { OpportunityCards } from "@/components/sections/opportunities/OpportunityCards";
 import { CompanyMarquee } from "@/components/sections/hero/CompanyMarquee";
-import { HandshakeFeatureShowcase } from "@/components/sections/features/HandshakeFeatureShowcase";
+import { FeatureShowcase } from "@/components/sections/features/FeatureShowcase";
 import { PersonaSection } from "@/components/sections/persona/PersonaSection";
 import { TracksSection } from "@/components/sections/tracks/TracksSection";
 import { HowItWorks } from "@/components/sections/how-it-works/HowItWorks";
@@ -51,23 +51,23 @@ export default async function Home() {
   // New or unauthenticated visitor: Render the Landing Page
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#14151C] text-white selection:bg-[#00D4BE] selection:text-[#051C19]">
-      {/* 1. Handshake Floating Capsule Navbar */}
+      {/* 1. Floating Capsule Navbar */}
       <Navbar />
 
       <main className="flex-1 w-full flex flex-col">
-        {/* 2. Handshake 2026 Giant Centered Hero with Exact Production Gradient */}
+        {/* 2. Hero Section */}
         <HeroSection />
 
-        {/* 3. Handshake 6 Opportunity Cards */}
+        {/* 3. Opportunity Cards */}
         <OpportunityCards />
 
-        {/* 4. Handshake Company Logo Strip & Network Header */}
+        {/* 4. Company Logo Strip & Network Header */}
         <CompanyMarquee />
 
-        {/* 5. Handshake Feature Showcases with Lush Green Glow */}
-        <HandshakeFeatureShowcase />
+        {/* 5. Feature Showcase */}
+        <FeatureShowcase />
 
-        {/* 6. Handshake Interactive Persona Switcher (Candidates vs Employers) */}
+        {/* 6. Interactive Persona Switcher (Candidates vs Employers) */}
         <PersonaSection />
 
         {/* 7. Specialization Tracks Bento Grid */}
@@ -79,7 +79,7 @@ export default async function Home() {
         {/* 9. Real-Time Platform Benchmarks */}
         <TalentMetrics />
 
-        {/* 10. Handshake-Style Rounded-3xl Final Banner */}
+        {/* 10. Final Call to Action Banner */}
         <FinalCtaBanner />
       </main>
 

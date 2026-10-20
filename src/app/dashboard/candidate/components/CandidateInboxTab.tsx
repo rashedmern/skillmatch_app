@@ -130,7 +130,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT PANE: Filter Pills & Message List */}
         <div className="w-full sm:w-80 lg:w-96 border-r border-zinc-200 flex flex-col bg-white shrink-0">
-          {/* Top Filter Buttons Bar (Exact Handshake Segmented Pill Filter) */}
+          {/* Top Filter Buttons Bar */}
           <div className="p-3.5 border-b border-zinc-200 flex items-center justify-between gap-2">
             <div className="inline-flex p-1 rounded-lg bg-zinc-100 border border-zinc-200/80 text-xs">
               <button
@@ -177,7 +177,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
                 onTriggerToast(forceEmptyState ? "Loaded sample conversations!" : "Showing empty inbox state");
               }}
               className="text-[11px] font-bold text-[#095964] hover:text-[#00D4BE] px-2 py-1 rounded hover:bg-zinc-50 transition-colors cursor-pointer"
-              title="Toggle between Handshake empty view and sample conversation threads"
+              title="Toggle between empty view and sample conversation threads"
             >
               {forceEmptyState ? "Show Messages" : "Empty View"}
             </button>
@@ -186,7 +186,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
           {/* List Content */}
           <div className="flex-1 overflow-y-auto">
             {filteredMessages.length === 0 ? (
-              /* Handshake Exact Empty State for Left Column: Centered "No messages" */
+              /* Empty State for Left Column: Centered "No messages" */
               <div className="h-full flex items-center justify-center p-8 text-center">
                 <span className="text-sm font-medium text-zinc-400">
                   No messages
@@ -247,7 +247,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
           </div>
         </div>
 
-        {/* RIGHT PANE: Conversation Detail OR Handshake Exact Empty State Illustration */}
+        {/* RIGHT PANE: Conversation Detail OR Empty State Illustration */}
         <div className="hidden sm:flex flex-1 flex-col bg-white">
           {selectedMessage ? (
             /* ACTIVE CONVERSATION THREAD */
@@ -338,9 +338,9 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
               </form>
             </div>
           ) : (
-            /* EXACT HANDSHAKE EMPTY STATE ILLUSTRATION & COPY */
+            /* EMPTY STATE ILLUSTRATION & COPY */
             <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-4">
-              {/* Handshake Tilted Envelope SVG Illustration with Motion Lines */}
+              {/* Envelope SVG Illustration with Motion Lines */}
               <div className="relative w-44 h-44 flex items-center justify-center">
                 <svg
                   className="w-36 h-36 drop-shadow-sm"
@@ -348,7 +348,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {/* Motion burst lines matching Handshake drawing */}
+                  {/* Motion burst lines */}
                   <path
                     d="M32 64L24 58M42 46L36 34M62 38L64 26M102 38L106 26M122 48L130 36M128 66L138 60"
                     stroke="#18181B"
@@ -356,7 +356,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
                     strokeLinecap="round"
                   />
 
-                  {/* Envelope Base (Tilted slightly in Handshake style) */}
+                  {/* Envelope Base */}
                   <g transform="rotate(-6 80 80)">
                     {/* Shadow / Back flap */}
                     <rect
@@ -400,7 +400,7 @@ export const CandidateInboxTab: React.FC<CandidateInboxTabProps> = ({ onTriggerT
                 </svg>
               </div>
 
-              {/* Handshake Exact Headline & Subtitle */}
+              {/* Headline & Subtitle */}
               <div className="space-y-1.5 max-w-sm">
                 <h3 className="text-xl font-bold text-zinc-900 tracking-tight">
                   Stay connected
