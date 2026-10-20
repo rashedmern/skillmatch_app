@@ -274,6 +274,18 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+/* Exclude Handshake Search Capsule from focus outline */
+[data-handshake-search],
+[data-handshake-search] input,
+[data-handshake-search] button,
+[data-handshake-search] input:focus,
+[data-handshake-search] input:focus-visible,
+[data-handshake-search] button:focus,
+[data-handshake-search] button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Respect user's motion preferences (vestibular safety) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -296,5 +308,17 @@ html.lenis, html.lenis body {
 
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
+}
+
+/* Infinite Marquee Animation */
+@keyframes infiniteScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-infinite-scroll {
+  display: flex;
+  width: max-content;
+  animation: infiniteScroll 30s linear infinite;
 }
 

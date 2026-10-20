@@ -53,6 +53,12 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Synchronize internal form state whenever incoming profile updates
+  React.useEffect(() => {
+    setFormData(profile);
+    setAvatarPreview(profile.avatarUrl);
+  }, [profile]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resumeInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,7 +83,17 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
       reader.onloadend = () => {
         const result = reader.result as string;
         setAvatarPreview(result);
-        setFormData((prev) => ({ ...prev, avatarUrl: result }));
+        const updated = { ...formData, avatarUrl: result };
+        setFormData(updated);
+        // Instant sync to parent & localStorage so header & sidebar update right away!
+        onUpdateProfile(updated);
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(updated));
+          }
+        } catch (err) {
+          console.warn("Failed to save avatar to localStorage", err);
+        }
         onTriggerToast(
           language === "bn"
             ? "প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে!"
@@ -90,7 +106,16 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
-    setFormData((prev) => ({ ...prev, avatarUrl: null }));
+    const updated = { ...formData, avatarUrl: null };
+    setFormData(updated);
+    onUpdateProfile(updated);
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(updated));
+      }
+    } catch (err) {
+      console.warn("Failed to remove avatar from localStorage", err);
+    }
     onTriggerToast(
       language === "bn"
         ? "প্রোফাইল ছবি ডিফল্ট আদ্যক্ষরে রিসেট করা হয়েছে।"
@@ -157,6 +182,17 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
     e.preventDefault();
     setIsSaving(true);
 
+    // Instant local backup
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(formData));
+        localStorage.setItem("skillmatch_candidate_email", formData.email);
+        document.cookie = `skillmatch_candidate_email=${encodeURIComponent(formData.email)}; path=/; max-age=2592000; SameSite=Lax`;
+      }
+    } catch (err) {
+      console.warn("Could not write to localStorage in ProfileSetupTab", err);
+    }
+
     setTimeout(() => {
       onUpdateProfile(formData);
       setIsSaving(false);
@@ -165,7 +201,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
           ? "প্রোফাইল পরিবর্তন সফলভাবে সংরক্ষিত ও সিঙ্ক হয়েছে!"
           : "Candidate profile changes saved and synced across network!"
       );
-    }, 600);
+    }, 400);
   };
 
   return (
@@ -230,7 +266,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
                 />
               ) : (
                 <div className="w-20 h-20 rounded-2xl bg-primary-container text-secondary-container font-mono font-extrabold text-2xl flex items-center justify-center border-2 border-white/20 shadow-sm">
-                  AC
+                  {formData.name ? formData.name.slice(0, 2).toUpperCase() : "RA"}
                 </div>
               )}
 
@@ -513,18 +549,19 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
 
                 <div className="space-y-1">
                   <label htmlFor="profile-email" className="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
-                    {language === "bn" ? "যাচাইকৃত প্রাতিষ্ঠানিক (.edu) ইমেইল" : "Verified Institutional (.edu) Email"}
+                    {language === "bn" ? "যাচাইকৃত প্রাতিষ্ঠানিক (.edu) ইমেইল" : "Institutional (.edu) Email"}
                   </label>
                   <input
                     id="profile-email"
                     type="email"
-                    disabled
                     value={formData.email}
-                    className="w-full h-10 px-3 rounded-xl bg-slate-100 border border-slate-200 text-sm font-mono text-slate-500 cursor-not-allowed"
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-sm font-mono text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint focus-visible:ring-2 focus-visible:ring-secondary-mint"
+                    placeholder="student@university.edu"
                     title={
                       language === "bn"
-                        ? "প্রাতিষ্ঠানিক ইমেইল যাচাইকৃত OAuth সেশনের সাথে লক করা রয়েছে।"
-                        : "Institutional email is locked to verified OAuth session."
+                        ? "আপনার বিশ্ববিদ্যালয় প্রাতিষ্ঠানিক ইমেইল"
+                        : "Your institutional university email address"
                     }
                   />
                 </div>

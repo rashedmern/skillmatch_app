@@ -29,11 +29,14 @@ export interface ApplicantCandidate {
   id: string;
   name: string;
   initials: string;
+  avatarUrl?: string;
   university: string;
   degree: string;
   email: string;
   matchScore: number;
-  astNodes: number;
+  astNodes?: number;
+  experience?: string;
+  skills?: string[];
   highlightRepo: string;
   jobId: string;
   jobTitle: string;

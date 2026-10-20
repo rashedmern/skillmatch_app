@@ -5,6 +5,7 @@
  * Dedicated Next.js Server Actions with strict execution boundaries.
  */
 
+import { cookies } from "next/headers";
 import { AuthService } from "../services/authService";
 import { EmailService } from "../services/emailService";
 import { DbUser } from "../db/schema";
@@ -85,6 +86,7 @@ export async function registerAction(formData: {
 export async function verifyOtpAction(formData: {
   email: string;
   code: string;
+  role?: string;
 }): Promise<ActionResponse<{ redirectUrl: string }>> {
   try {
     const result = await EmailService.verifyOtpCode(formData.email, formData.code);
@@ -93,15 +95,66 @@ export async function verifyOtpAction(formData: {
       return { success: false, error: result.error || "Invalid verification code." };
     }
 
+    const cookieStore = await cookies();
+    const roleUpper = formData.role?.toUpperCase() === "RECRUITER" ? "RECRUITER" : "CANDIDATE";
+    const cleanEmail = formData.email.trim().toLowerCase();
+
+    // Set server-side session cookies (30 days persistence)
+    cookieStore.set("skillmatch_session", "authenticated", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: "lax",
+    });
+    cookieStore.set("skillmatch_auth_role", roleUpper, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: "lax",
+    });
+
+    if (roleUpper === "CANDIDATE") {
+      cookieStore.set("skillmatch_candidate_email", cleanEmail, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "lax",
+      });
+    } else {
+      cookieStore.set("skillmatch_recruiter_email", cleanEmail, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "lax",
+      });
+    }
+
+    const redirectUrl = roleUpper === "RECRUITER" ? "/dashboard/recruiter" : "/dashboard/candidate";
+
     return {
       success: true,
       data: {
-        redirectUrl: "/dashboard",
+        redirectUrl,
       },
     };
   } catch (error) {
     console.error("[verifyOtpAction error]:", error);
     return { success: false, error: "Server error occurred while validating code." };
+  }
+}
+
+/**
+ * Server Action for clearing authentication cookies on logout.
+ */
+export async function logoutAction(): Promise<ActionResponse<boolean>> {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("skillmatch_session");
+    cookieStore.delete("__Secure-skillmatch_session");
+    cookieStore.delete("skillmatch_auth_role");
+    cookieStore.delete("__Secure-skillmatch_auth_role");
+    cookieStore.delete("skillmatch_candidate_email");
+    cookieStore.delete("skillmatch_recruiter_email");
+    return { success: true, data: true };
+  } catch (error) {
+    console.error("[logoutAction error]:", error);
+    return { success: false, error: "Failed to clear session cookies" };
   }
 }
 

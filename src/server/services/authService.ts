@@ -555,21 +555,33 @@ export class AuthService {
     skills?: string[];
   }) {
     const cleanEmail = data.email.toLowerCase().trim();
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: cleanEmail },
       include: { candidate_profile: true },
     });
 
-    if (!user) throw new Error("User not found.");
-
-    // 1. Update user name & avatar_url
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        ...(data.name ? { name: data.name } : {}),
-        ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
-      },
-    });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail,
+          name: data.name || "Candidate",
+          role: "candidate",
+          auth_provider: "email",
+          is_email_verified: true,
+          avatar_url: data.avatarUrl,
+        },
+        include: { candidate_profile: true },
+      });
+    } else {
+      // 1. Update user name & avatar_url
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(data.name ? { name: data.name } : {}),
+          ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
+        },
+      });
+    }
 
     // 2. Update or create candidate_profile
     const githubUser = data.githubUrl
@@ -692,7 +704,7 @@ export class AuthService {
     avatarUrl?: string | null;
   }) {
     const cleanEmail = data.email.toLowerCase().trim();
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: cleanEmail },
       include: {
         recruiter_profile: {
@@ -701,21 +713,56 @@ export class AuthService {
       },
     });
 
-    if (!user) throw new Error("User not found.");
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail,
+          name: data.recruiterName || cleanEmail.split("@")[0],
+          role: "RECRUITER",
+          is_email_verified: true,
+          avatar_url: data.avatarUrl,
+        },
+        include: {
+          recruiter_profile: {
+            include: { company: true },
+          },
+        },
+      });
+    } else {
+      // 1. Update user name & avatar_url
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(data.recruiterName ? { name: data.recruiterName } : {}),
+          ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
+        },
+      });
+    }
 
-    // 1. Update user name & avatar_url
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        ...(data.recruiterName ? { name: data.recruiterName } : {}),
-        ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
-      },
-    });
-
-    // 2. Update company if exists
-    if (user.recruiter_profile?.company_id && (data.companyName || data.industry)) {
+    // 2. Ensure company exists or is created/updated
+    let companyId = user.recruiter_profile?.company_id;
+    if (!companyId) {
+      const compName = data.companyName || "CloudScale Infrastructure Labs";
+      const slug = compName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+      const existingComp = await prisma.company.findFirst({
+        where: { OR: [{ slug }, { name: compName }] },
+      });
+      if (existingComp) {
+        companyId = existingComp.id;
+      } else {
+        const createdComp = await prisma.company.create({
+          data: {
+            name: compName,
+            slug: slug || `company-${Date.now()}`,
+            industry: data.industry || "Distributed Cloud Infrastructure & Databases",
+            is_verified_partner: true,
+          },
+        });
+        companyId = createdComp.id;
+      }
+    } else if (companyId && (data.companyName || data.industry)) {
       await prisma.company.update({
-        where: { id: user.recruiter_profile.company_id },
+        where: { id: companyId },
         data: {
           ...(data.companyName ? { name: data.companyName } : {}),
           ...(data.industry ? { industry: data.industry } : {}),
@@ -723,13 +770,23 @@ export class AuthService {
       });
     }
 
-    // 3. Update recruiter profile
-    if (user.recruiter_profile?.id && (data.roleTitle || data.location)) {
+    // 3. Ensure recruiter profile exists or is created/updated
+    if (user.recruiter_profile?.id) {
       await prisma.recruiterProfile.update({
         where: { id: user.recruiter_profile.id },
         data: {
+          ...(companyId ? { company_id: companyId } : {}),
           ...(data.roleTitle ? { role_title: data.roleTitle } : {}),
           ...(data.location ? { office_location: data.location } : {}),
+        },
+      });
+    } else {
+      await prisma.recruiterProfile.create({
+        data: {
+          user_id: user.id,
+          company_id: companyId,
+          role_title: data.roleTitle || "Lead Systems & Infrastructure Recruiter",
+          office_location: data.location || "San Francisco, CA (HQ)",
         },
       });
     }

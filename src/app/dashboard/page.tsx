@@ -30,8 +30,10 @@ function DashboardDispatcherContent() {
     // Persist role cookie securely if missing or updated from query
     if (typeof document !== "undefined") {
       const isSecure = window.location.protocol === "https:";
+      document.cookie = `skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
       document.cookie = `skillmatch_auth_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
       if (isSecure) {
+        document.cookie = `__Secure-skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax; Secure`;
         document.cookie = `__Secure-skillmatch_auth_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax; Secure`;
       }
     }

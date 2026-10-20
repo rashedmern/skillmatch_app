@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { RecruiterSidebar } from "./components/RecruiterSidebar";
 import { RecruiterOverviewTab } from "./components/RecruiterOverviewTab";
 import { PostJobTab } from "./components/PostJobTab";
@@ -56,61 +57,61 @@ const initialJobPostings: JobPosting[] = [
   {
     id: "job-rec-1",
     title: "Staff Distributed Systems Engineer",
-    team: "Core Consensus & Storage Engine",
+    team: "Core Storage & Consensus",
     location: "San Francisco, CA",
     workModel: "Hybrid",
     salary: "$195,000 - $225,000",
     minMatch: 90,
     applicantsCount: 6,
     status: "Active",
-    skills: ["Go", "Raft", "Distributed Systems", "gRPC", "RocksDB"],
+    skills: ["Go", "Distributed Systems", "Raft", "gRPC", "PostgreSQL"],
     description:
-      "Lead design and implementation of fault-tolerant replicated state machines using Raft in Go. Profile p99 tail latency and build zero-copy network pipelines.",
+      "Lead design and implementation of fault-tolerant replicated state machines in Go. Architect high-throughput distributed storage engines with low latency.",
     postedDate: "Sep 18, 2026",
   },
   {
     id: "job-rec-2",
-    title: "Linux Kernel & eBPF Telemetry Specialist",
-    team: "Low-Level Networking & Observability",
+    title: "Senior Backend & Platform Engineer",
+    team: "Cloud Infrastructure",
     location: "San Francisco, CA",
-    workModel: "On-site",
+    workModel: "Hybrid",
     salary: "$185,000 - $215,000",
     minMatch: 88,
     applicantsCount: 4,
     status: "Active",
-    skills: ["C", "Linux Kernel", "eBPF", "DPDK", "BCC"],
+    skills: ["Go", "Kubernetes", "Docker", "AWS", "gRPC"],
     description:
-      "Write high-performance eBPF probes for kernel networking hooks. Trace socket packet drops, compute lock contention metrics, and build low-overhead monitoring daemons.",
+      "Architect cloud-native infrastructure, manage Kubernetes cluster operations, and build high-throughput platform services.",
     postedDate: "Sep 14, 2026",
   },
   {
     id: "job-rec-3",
-    title: "High-Throughput Network Architect (C++/DPDK)",
-    team: "High-Performance Data Plane",
+    title: "High-Throughput Network Systems Engineer",
+    team: "Network Data Plane",
     location: "Remote (US)",
     workModel: "Remote",
     salary: "$190,000 - $220,000",
     minMatch: 92,
     applicantsCount: 3,
     status: "Active",
-    skills: ["C++20", "DPDK", "Zero-Copy", "Ring Buffers", "TCP/IP"],
+    skills: ["C++", "Networking", "TCP/IP", "Linux", "Distributed Systems"],
     description:
-      "Architect microsecond-scale network proxy layers handling millions of concurrent persistent streaming connections with kernel-bypass networking.",
+      "Design and maintain microsecond-scale network proxy layers handling millions of concurrent connections across edge nodes.",
     postedDate: "Sep 10, 2026",
   },
   {
     id: "job-rec-4",
-    title: "Compilers & AST Optimization Engineer",
-    team: "Static Analysis & Tooling",
+    title: "Full-Stack Software Engineer",
+    team: "Product & Dashboard Tools",
     location: "Remote (US)",
     workModel: "Remote",
     salary: "$175,000 - $205,000",
     minMatch: 85,
     applicantsCount: 5,
-    status: "Paused",
-    skills: ["Rust", "LLVM", "Tree-sitter", "Static Analysis", "Compilers"],
+    status: "Active",
+    skills: ["TypeScript", "Next.js", "React", "PostgreSQL", "Tailwind CSS"],
     description:
-      "Develop custom static analysis passes and Tree-sitter parsers for automated algorithmic AST code verification and safety checks.",
+      "Develop mission-critical web applications with clean React components, robust API integrations, and intuitive workflows.",
     postedDate: "Aug 29, 2026",
   },
 ];
@@ -120,12 +121,14 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-1",
     name: "Alex Chen",
     initials: "AC",
+    avatarUrl: "/images/avatars/alex-chen.jpg",
     university: "UC Berkeley",
     degree: "B.S. EECS ('26)",
     email: "alex.chen@berkeley.edu",
-    matchScore: 94.2,
-    astNodes: 14280,
-    highlightRepo: "distributed-kv-store (Raft in Go)",
+    matchScore: 95,
+    experience: "Class of 2026 • UC Berkeley",
+    skills: ["Go", "Distributed Systems", "Raft", "gRPC"],
+    highlightRepo: "distributed-kv-store",
     jobId: "job-rec-1",
     jobTitle: "Staff Distributed Systems Engineer",
     appliedDate: "Sep 20, 2026",
@@ -135,12 +138,14 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-2",
     name: "Elena Rostova",
     initials: "ER",
+    avatarUrl: "/images/avatars/elena-rostova.jpg",
     university: "Stanford University",
     degree: "M.S. Computer Science ('25)",
     email: "elena.r@stanford.edu",
-    matchScore: 96.1,
-    astNodes: 18400,
-    highlightRepo: "raft-consensus-engine (Rust)",
+    matchScore: 97,
+    experience: "Class of 2025 • Stanford",
+    skills: ["Rust", "Tokio", "Concurrency", "C++"],
+    highlightRepo: "raft-consensus-engine",
     jobId: "job-rec-1",
     jobTitle: "Staff Distributed Systems Engineer",
     appliedDate: "Sep 21, 2026",
@@ -150,14 +155,16 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-3",
     name: "Marcus Vance",
     initials: "MV",
+    avatarUrl: "/images/avatars/marcus-vance.jpg",
     university: "Carnegie Mellon",
     degree: "B.S. ECE ('26)",
     email: "m.vance@andrew.cmu.edu",
-    matchScore: 92.4,
-    astNodes: 11200,
-    highlightRepo: "zero-copy-network-stack (C++)",
+    matchScore: 93,
+    experience: "Class of 2026 • CMU",
+    skills: ["C++", "Networking", "TCP/IP", "Linux"],
+    highlightRepo: "zero-copy-network-stack",
     jobId: "job-rec-3",
-    jobTitle: "High-Throughput Network Architect (C++/DPDK)",
+    jobTitle: "High-Throughput Network Systems Engineer",
     appliedDate: "Sep 19, 2026",
     stage: "New Applicant",
   },
@@ -165,14 +172,16 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-4",
     name: "Priya Sharma",
     initials: "PS",
+    avatarUrl: "/images/avatars/priya-sharma.jpg",
     university: "MIT",
     degree: "M.Eng. EECS ('25)",
     email: "psharma@mit.edu",
-    matchScore: 95.8,
-    astNodes: 16900,
-    highlightRepo: "eBPF-kernel-probe (C/Linux)",
+    matchScore: 96,
+    experience: "Class of 2025 • MIT",
+    skills: ["Go", "Kubernetes", "AWS", "Linux"],
+    highlightRepo: "cloud-telemetry-probe",
     jobId: "job-rec-2",
-    jobTitle: "Linux Kernel & eBPF Telemetry Specialist",
+    jobTitle: "Senior Backend & Platform Engineer",
     appliedDate: "Sep 17, 2026",
     stage: "Offer Stage",
   },
@@ -180,14 +189,16 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-5",
     name: "David Kim",
     initials: "DK",
+    avatarUrl: "/images/avatars/david-kim.jpg",
     university: "UIUC",
     degree: "B.S. Computer Science ('26)",
     email: "dkim@illinois.edu",
-    matchScore: 89.5,
-    astNodes: 9800,
-    highlightRepo: "distributed-cache-sync (TypeScript/Go)",
-    jobId: "job-rec-1",
-    jobTitle: "Staff Distributed Systems Engineer",
+    matchScore: 91,
+    experience: "Class of 2026 • UIUC",
+    skills: ["TypeScript", "Next.js", "PostgreSQL", "React"],
+    highlightRepo: "distributed-cache-sync",
+    jobId: "job-rec-4",
+    jobTitle: "Full-Stack Software Engineer",
     appliedDate: "Sep 16, 2026",
     stage: "New Applicant",
   },
@@ -195,14 +206,16 @@ const initialApplicantsData: ApplicantCandidate[] = [
     id: "cand-6",
     name: "Zoe Martinez",
     initials: "ZM",
+    avatarUrl: "/images/avatars/zoe-martinez.jpg",
     university: "Caltech",
     degree: "B.S. Applied Computation ('25)",
     email: "zmartinez@caltech.edu",
-    matchScore: 97.4,
-    astNodes: 21400,
-    highlightRepo: "quantized-llm-kernel (C++/CUDA)",
+    matchScore: 98,
+    experience: "Class of 2025 • Caltech",
+    skills: ["Python", "CUDA", "PyTorch", "C++"],
+    highlightRepo: "quantized-llm-kernel",
     jobId: "job-rec-3",
-    jobTitle: "High-Throughput Network Architect (C++/DPDK)",
+    jobTitle: "High-Throughput Network Systems Engineer",
     appliedDate: "Sep 15, 2026",
     stage: "Shortlisted",
   },
@@ -213,11 +226,57 @@ function RecruiterDashboardContent() {
   const warning = searchParams.get("warning");
   const { t, language } = useLanguage();
 
-  // State Management
+  // State Management with LocalStorage persistence & SSR-safe lazy initializers
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<RecruiterTabType>("overview");
-  const [profile, setProfile] = useState<RecruiterProfile>(initialRecruiterProfile);
-  const [jobs, setJobs] = useState<JobPosting[]>(initialJobPostings);
-  const [applicants, setApplicants] = useState<ApplicantCandidate[]>(initialApplicantsData);
+
+  const [profile, setProfile] = useState<RecruiterProfile>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_recruiter_profile");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === "object" && (parsed.recruiterName || parsed.email)) {
+            return { ...initialRecruiterProfile, ...parsed };
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to read recruiter profile cache:", e);
+      }
+    }
+    return initialRecruiterProfile;
+  });
+
+  const [jobs, setJobs] = useState<JobPosting[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_recruiter_jobs");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to read recruiter jobs cache:", e);
+      }
+    }
+    return initialJobPostings;
+  });
+
+  const [applicants, setApplicants] = useState<ApplicantCandidate[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_recruiter_applicants");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to read recruiter applicants cache:", e);
+      }
+    }
+    return initialApplicantsData;
+  });
+
   const [selectedJobFilter, setSelectedJobFilter] = useState<string>("ALL");
 
   // Layout responsiveness
@@ -234,6 +293,32 @@ function RecruiterDashboardContent() {
   // Security warning dismissal with 4s auto-dismiss
   const [dismissedWarning, setDismissedWarning] = useState<boolean>(false);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
+
+  // Client hydration synchronization effect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cachedProfile = localStorage.getItem("skillmatch_recruiter_profile");
+      if (cachedProfile) {
+        const parsed = JSON.parse(cachedProfile);
+        if (parsed && typeof parsed === "object" && (parsed.recruiterName || parsed.email)) {
+          setProfile((prev) => ({ ...prev, ...parsed }));
+        }
+      }
+      const cachedJobs = localStorage.getItem("skillmatch_recruiter_jobs");
+      if (cachedJobs) {
+        const parsedJobs = JSON.parse(cachedJobs);
+        if (Array.isArray(parsedJobs) && parsedJobs.length > 0) setJobs(parsedJobs);
+      }
+      const cachedApps = localStorage.getItem("skillmatch_recruiter_applicants");
+      if (cachedApps) {
+        const parsedApps = JSON.parse(cachedApps);
+        if (Array.isArray(parsedApps) && parsedApps.length > 0) setApplicants(parsedApps);
+      }
+    } catch (err) {
+      console.warn("Recruiter hydration cache sync failed:", err);
+    }
+  }, []);
 
   useEffect(() => {
     if (warning === "unauthorized_candidate_access") {
@@ -258,40 +343,80 @@ function RecruiterDashboardContent() {
     }, 3800);
   };
 
-  // Live Supabase PostgreSQL Synchronization
+  // Live Supabase PostgreSQL Synchronization with LocalStorage backup
   useEffect(() => {
     let isMounted = true;
     async function syncRecruiterData() {
+      const queryEmail =
+        session?.user?.email ||
+        (typeof window !== "undefined" ? localStorage.getItem("skillmatch_recruiter_email") : null) ||
+        profile.email;
+
+      if (!queryEmail) return;
+
       try {
         const [profileRes, jobsRes, appsRes] = await Promise.all([
-          getRecruiterProfileAction(profile.email),
+          getRecruiterProfileAction(queryEmail),
           getJobsAction(),
-          getRecruiterApplicationsAction(profile.email),
+          getRecruiterApplicationsAction(queryEmail),
         ]);
 
         if (isMounted && profileRes.success && profileRes.data) {
-          setProfile(profileRes.data);
+          setProfile((prev) => {
+            const merged: RecruiterProfile = { ...prev, ...profileRes.data };
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem("skillmatch_recruiter_profile", JSON.stringify(merged));
+                localStorage.setItem("skillmatch_recruiter_email", queryEmail);
+              } catch (e) {
+                console.warn("Failed to cache recruiter profile:", e);
+              }
+            }
+            return merged;
+          });
         }
 
         if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
           setJobs(jobsRes.data);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_recruiter_jobs", JSON.stringify(jobsRes.data));
+            } catch (e) {
+              console.warn("Failed to cache recruiter jobs:", e);
+            }
+          }
         }
 
         if (isMounted && appsRes.success && appsRes.data && appsRes.data.length > 0) {
           setApplicants(appsRes.data);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(appsRes.data));
+            } catch (e) {
+              console.warn("Failed to cache recruiter applicants:", e);
+            }
+          }
         }
       } catch (err) {
-        console.warn("[RecruiterDashboard] Supabase sync fallback to initial data:", err);
+        console.warn("[RecruiterDashboard] Supabase sync fallback to local cache:", err);
       }
     }
     syncRecruiterData();
     return () => {
       isMounted = false;
     };
-  }, [profile.email]);
+  }, [session?.user?.email, profile.email]);
 
   const handleUpdateRecruiterProfile = async (updated: RecruiterProfile) => {
     setProfile(updated);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_recruiter_profile", JSON.stringify(updated));
+        if (updated.email) localStorage.setItem("skillmatch_recruiter_email", updated.email);
+      } catch (e) {
+        console.warn("Failed to persist recruiter profile to localStorage:", e);
+      }
+    }
     try {
       await updateRecruiterProfileAction({
         email: updated.email,
@@ -307,7 +432,7 @@ function RecruiterDashboardContent() {
     }
   };
 
-  // Job Management Handlers
+  // Job Management Handlers with LocalStorage persistence
   const handleCreateJob = async (newJobData: Omit<JobPosting, "id" | "applicantsCount" | "postedDate">) => {
     const tempId = `job-rec-${Date.now()}`;
     const newJob: JobPosting = {
@@ -316,7 +441,17 @@ function RecruiterDashboardContent() {
       applicantsCount: 0,
       postedDate: "Just now",
     };
-    setJobs((prev) => [newJob, ...prev]);
+    setJobs((prev) => {
+      const updated = [newJob, ...prev];
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_jobs", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Failed to cache recruiter jobs:", e);
+        }
+      }
+      return updated;
+    });
     triggerToast(`Published new opening: "${newJob.title}"!`);
 
     try {
@@ -334,9 +469,17 @@ function RecruiterDashboardContent() {
       });
 
       if (res.success && res.data?.id) {
-        setJobs((prev) =>
-          prev.map((j) => (j.id === tempId ? { ...j, id: res.data.id } : j))
-        );
+        setJobs((prev) => {
+          const updated = prev.map((j) => (j.id === tempId ? { ...j, id: res.data.id } : j));
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_recruiter_jobs", JSON.stringify(updated));
+            } catch (e) {
+              console.warn("Failed to cache recruiter jobs:", e);
+            }
+          }
+          return updated;
+        });
       }
     } catch (err) {
       console.error("[handleCreateJob] Postgres job creation error:", err);
@@ -344,16 +487,24 @@ function RecruiterDashboardContent() {
   };
 
   const handleToggleJobStatus = async (id: string) => {
-    setJobs((prev) =>
-      prev.map((j) => {
+    setJobs((prev) => {
+      const updated = prev.map((j) => {
         if (j.id === id) {
-          const nextStatus = j.status === "Active" ? "Paused" : "Active";
+          const nextStatus: "Active" | "Paused" = j.status === "Active" ? "Paused" : "Active";
           triggerToast(`Job "${j.title}" is now ${nextStatus}.`);
           return { ...j, status: nextStatus };
         }
         return j;
-      })
-    );
+      });
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_jobs", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Failed to cache recruiter jobs:", e);
+        }
+      }
+      return updated;
+    });
 
     try {
       await toggleJobStatusAction(id);
@@ -364,7 +515,17 @@ function RecruiterDashboardContent() {
 
   const handleDeleteJob = async (id: string) => {
     const job = jobs.find((j) => j.id === id);
-    setJobs((prev) => prev.filter((j) => j.id !== id));
+    setJobs((prev) => {
+      const updated = prev.filter((j) => j.id !== id);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_jobs", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Failed to cache recruiter jobs:", e);
+        }
+      }
+      return updated;
+    });
     if (job) {
       triggerToast(`Removed listing: "${job.title}".`);
     }
@@ -376,11 +537,19 @@ function RecruiterDashboardContent() {
     }
   };
 
-  // Pipeline Handlers with Supabase Audit History
+  // Pipeline Handlers with Supabase Audit History & LocalStorage persistence
   const handleShortlistCandidate = async (id: string) => {
-    setApplicants((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, stage: "Shortlisted" as const } : c))
-    );
+    setApplicants((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, stage: "Shortlisted" as const } : c));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Failed to cache recruiter applicants:", e);
+        }
+      }
+      return updated;
+    });
     try {
       await updateCandidateStageAction(id, "Assessment Passed", "Shortlisted by technical recruiter");
     } catch (err) {
@@ -389,9 +558,17 @@ function RecruiterDashboardContent() {
   };
 
   const handleRejectCandidate = async (id: string) => {
-    setApplicants((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, stage: "Rejected" as const } : c))
-    );
+    setApplicants((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, stage: "Rejected" as const } : c));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Failed to cache recruiter applicants:", e);
+        }
+      }
+      return updated;
+    });
     try {
       await updateCandidateStageAction(id, "Rejected", "Application rejected by hiring team");
     } catch (err) {
@@ -404,11 +581,19 @@ function RecruiterDashboardContent() {
     if (!scheduleCandidate) return;
 
     const candId = scheduleCandidate.id;
-    setApplicants((prev) =>
-      prev.map((c) =>
+    setApplicants((prev) => {
+      const updated = prev.map((c) =>
         c.id === candId ? { ...c, stage: "Interview Scheduled" as const } : c
-      )
-    );
+      );
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(updated));
+        } catch (err) {
+          console.warn("Failed to cache recruiter applicants:", e);
+        }
+      }
+      return updated;
+    });
 
     const toastMsg =
       language === "bn"
@@ -546,7 +731,16 @@ function RecruiterDashboardContent() {
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={profile.avatarUrl} alt={profile.recruiterName} className="w-full h-full object-cover" />
               ) : (
-                <span>SJ</span>
+                <span>
+                  {profile.recruiterName
+                    ? profile.recruiterName
+                        .split(" ")
+                        .map((w) => w[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : "RC"}
+                </span>
               )}
             </button>
           </div>
@@ -703,20 +897,35 @@ function RecruiterDashboardContent() {
             className="w-full max-w-lg bg-white rounded-2xl shadow-level-3 border border-slate-200 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150"
           >
             <div className="flex items-start justify-between">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold uppercase mb-1">
-                  <Calendar className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
-                  <span>{t.recruiter.techEvalSession}</span>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 shadow-xs">
+                  {scheduleCandidate.avatarUrl ? (
+                    <img
+                      src={scheduleCandidate.avatarUrl}
+                      alt={scheduleCandidate.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary-container to-[#0A2E28] text-white font-extrabold flex items-center justify-center text-sm">
+                      {scheduleCandidate.initials}
+                    </div>
+                  )}
                 </div>
-                <h3 id="schedule-modal-title" className="text-base font-black text-on-surface">
-                  {t.recruiter.scheduleInterviewWith} {scheduleCandidate.name}
-                </h3>
-                <p className="text-xs text-slate-600 mt-0.5 font-medium">
-                  {scheduleCandidate.university} • {scheduleCandidate.degree} • AST Match:{" "}
-                  <span className="font-mono font-bold text-primary-container">
-                    {scheduleCandidate.matchScore.toFixed(1)}%
-                  </span>
-                </p>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-mint/15 text-primary-container text-[11px] font-bold uppercase mb-1">
+                    <Calendar className="w-3 h-3 text-secondary-mint" aria-hidden="true" />
+                    <span>{t.recruiter.techEvalSession}</span>
+                  </div>
+                  <h3 id="schedule-modal-title" className="text-base font-black text-on-surface">
+                    {t.recruiter.scheduleInterviewWith} {scheduleCandidate.name}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                    {scheduleCandidate.university} • {scheduleCandidate.degree} • {language === "bn" ? "স্কিল ম্যাচ:" : "Match:"}{" "}
+                    <span className="font-mono font-bold text-primary-container">
+                      {scheduleCandidate.matchScore.toFixed(0)}%
+                    </span>
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
@@ -769,20 +978,20 @@ function RecruiterDashboardContent() {
                   onChange={(e) => setScheduleFormat(e.target.value)}
                   className="w-full h-10 px-3 rounded-xl bg-surface-container-low border border-slate-200 text-xs font-semibold text-on-surface focus:outline-none focus:bg-white focus:border-secondary-mint cursor-pointer focus-visible:ring-2 focus-visible:ring-secondary-mint"
                 >
-                  <option value="AST Code Deep-Dive & Systems Architecture">
+                  <option value="Technical Interview & System Design">
                     {language === "bn"
-                      ? "AST কোড বিশ্লেষণ ও সিস্টেম আর্কিটেকচার (৬০ মিনিট)"
-                      : "AST Code Deep-Dive & Systems Architecture (60 min)"}
+                      ? "টেকনিক্যাল ইন্টারভিউ ও সিস্টেম ডিজাইন (৬০ মিনিট)"
+                      : "Technical Interview & System Design (60 min)"}
                   </option>
-                  <option value="Live Distributed Systems Coding & Concurrency">
+                  <option value="Live Coding & Problem Solving">
                     {language === "bn"
-                      ? "লাইভ ডিস্ট্রিবিউটেড সিস্টেমস কোডিং ও কনকারেন্সি (৪৫ মিনিট)"
-                      : "Live Distributed Systems Coding & Concurrency (45 min)"}
+                      ? "লাইভ কোডিং ও প্রবলেম সলভিং (৪৫ মিনিট)"
+                      : "Live Coding & Problem Solving (45 min)"}
                   </option>
-                  <option value="Engineering VP & Team Cultural Fit Discussion">
+                  <option value="Hiring Manager & Team Fit Round">
                     {language === "bn"
-                      ? "ইঞ্জিনিয়ারিং ভিপি ও টিম কালচারাল ফিট আলোচনা (৩০ মিনিট)"
-                      : "Engineering VP & Team Cultural Fit Discussion (30 min)"}
+                      ? "হায়ারিং ম্যানেজার ও টিম ফিট রাউন্ড (৩০ মিনিট)"
+                      : "Hiring Manager & Team Fit Round (30 min)"}
                   </option>
                 </select>
               </div>

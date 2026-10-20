@@ -2,8 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { handleAppSignOut } from "@/utils/authClient";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { CompanyLogo } from "@/components/common/CompanyLogo";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { RecruiterProfile, RecruiterTabType } from "./types";
 import { useLanguage } from "@/context/LanguageContext";
@@ -137,8 +138,8 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
         {!isCollapsed && (
           <div className="p-2.5 rounded-xl bg-surface-container-low border border-slate-200/80 space-y-1">
             <div className="flex items-center justify-between text-[11px] font-bold text-on-surface">
-              <span className="flex items-center gap-1.5">
-                <StatusDot size="sm" />
+              <span className="flex items-center gap-1.5 truncate">
+                <CompanyLogo name={profile.companyName} size="xs" />
                 <span className="truncate">{profile.companyName}</span>
               </span>
               <span className="font-mono text-secondary-mint text-[10px] font-bold">PARTNER</span>
@@ -237,8 +238,26 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
             isCollapsed ? "justify-center p-1.5" : ""
           }`}
         >
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20 shadow-sm">
-            <Building2 className="w-4 h-4" aria-hidden="true" />
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20 shadow-sm overflow-hidden">
+            {profile.avatarUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={profile.avatarUrl}
+                alt={profile.recruiterName}
+                className="w-full h-full object-cover"
+              />
+            ) : profile.recruiterName ? (
+              <span>
+                {profile.recruiterName
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
+            ) : (
+              <Building2 className="w-4 h-4" aria-hidden="true" />
+            )}
           </div>
 
           {!isCollapsed && (
@@ -254,7 +273,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
           {!isCollapsed && (
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => handleAppSignOut("/")}
               aria-label={t.common.logOut}
               title={t.common.logOut}
               className="text-slate-500 hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
@@ -267,7 +286,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
         {isCollapsed && (
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => handleAppSignOut("/")}
             title={t.common.logOut}
             aria-label={t.common.logOut}
             className="w-full flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-accent-gap hover:bg-accent-gap/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap cursor-pointer"

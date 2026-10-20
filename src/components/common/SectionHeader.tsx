@@ -26,18 +26,18 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   return (
     <div className={`flex flex-col space-y-3 ${alignmentClasses} ${className}`}>
       {badge && (
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/25 text-xs font-semibold text-primary-container shadow-sm">
-          {badgeDot && <StatusDot size="sm" />}
-          <span className="tracking-wide">{badge}</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-[#D4F85A] shadow-sm">
+          {badgeDot && <span className="w-1.5 h-1.5 rounded-full bg-[#D4F85A] shadow-[0_0_6px_#D4F85A]" />}
+          <span className="tracking-wide uppercase text-[11px]">{badge}</span>
         </div>
       )}
 
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-on-surface tracking-tight font-sans leading-tight">
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight font-sans leading-tight">
         {title}
       </h2>
 
       {subtitle && (
-        <p className="text-sm sm:text-base text-on-surface-variant font-normal max-w-2xl font-sans leading-relaxed">
+        <p className="text-sm sm:text-base text-zinc-400 font-normal max-w-2xl font-sans leading-relaxed">
           {subtitle}
         </p>
       )}
