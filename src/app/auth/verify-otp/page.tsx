@@ -159,7 +159,7 @@ function VerifyOtpContent() {
     setErrorMessage(null);
 
     try {
-      const result = await verifyOtpAction({ email, code });
+      const result = await verifyOtpAction({ email, code, role });
 
       if (!result.success) {
         setIsVerifying(false);
@@ -171,9 +171,31 @@ function VerifyOtpContent() {
       }
 
       setIsSuccess(true);
+      if (typeof window !== "undefined") {
+        try {
+          const roleUpper = role === "recruiter" ? "RECRUITER" : "CANDIDATE";
+          const isSecure = window.location.protocol === "https:";
+          document.cookie = `skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+          document.cookie = `skillmatch_auth_role=${roleUpper}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+          if (isSecure) {
+            document.cookie = `__Secure-skillmatch_auth_role=${roleUpper}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+            document.cookie = `__Secure-skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax; Secure`;
+          }
+          if (role === "candidate" && email) {
+            localStorage.setItem("skillmatch_candidate_email", email.trim().toLowerCase());
+            document.cookie = `skillmatch_candidate_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+          } else if (email) {
+            localStorage.setItem("skillmatch_recruiter_email", email.trim().toLowerCase());
+            document.cookie = `skillmatch_recruiter_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+          }
+        } catch (e) {
+          console.warn("Failed to set cookies in localStorage", e);
+        }
+      }
       // Brief success animation before redirecting to dashboard
       setTimeout(() => {
-        router.push(result.data?.redirectUrl || "/dashboard");
+        const dest = result.data?.redirectUrl || (role === "recruiter" ? "/dashboard/recruiter" : "/dashboard/candidate");
+        router.push(dest);
       }, 700);
     } catch {
       setIsVerifying(false);

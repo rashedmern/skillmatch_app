@@ -5,12 +5,14 @@ interface BrandLogoProps {
   className?: string;
   iconOnly?: boolean;
   size?: "sm" | "md" | "lg";
+  variant?: "dark" | "light" | "capsule";
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = "",
   iconOnly = false,
   size = "md",
+  variant = "dark",
 }) => {
   // Dimensional scaling based on design tokens
   const dimensions = {

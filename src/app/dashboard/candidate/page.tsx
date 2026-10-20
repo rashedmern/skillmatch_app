@@ -2,11 +2,15 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { CandidateSidebar } from "./components/CandidateSidebar";
 import { DashboardOverviewTab } from "./components/DashboardOverviewTab";
 import { AllJobsTab } from "./components/AllJobsTab";
 import { MyApplicationsTab } from "./components/MyApplicationsTab";
 import { ProfileSetupTab } from "./components/ProfileSetupTab";
+import { CandidateInboxTab } from "./components/CandidateInboxTab";
+import { CandidateEventsTab } from "./components/CandidateEventsTab";
+import { CandidateEmployersTab } from "./components/CandidateEmployersTab";
 import {
   CandidateProfile,
   JobListing,
@@ -19,13 +23,26 @@ import {
   Sparkles,
   X,
   Code2,
+  Bell,
+  Mail,
+  Calendar,
+  Building2,
 } from "lucide-react";
 import { StatusDot } from "@/components/ui/StatusDot";
 import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  getJobsAction,
+  getCandidateApplicationsAction,
+  applyJobAction,
+} from "@/server/actions/jobActions";
+import {
+  getCandidateProfileAction,
+  updateCandidateProfileAction,
+} from "@/server/actions/authActions";
 
 const initialProfile: CandidateProfile = {
-  name: "Alex Chen",
+  name: "Rashed",
   headline: "Distributed Systems & Infrastructure Engineer",
   university: "UC Berkeley",
   degree: "B.S. Electrical Engineering & Computer Sciences",
@@ -224,14 +241,72 @@ const initialJobs: JobListing[] = [
 ];
 
 function CandidateDashboardContent() {
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const warning = searchParams.get("warning");
+  const tabQuery = searchParams.get("tab") as CandidateTabType | null;
   const { t, language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<CandidateTabType>("overview");
-  const [profile, setProfile] = useState<CandidateProfile>(initialProfile);
-  const [jobs, setJobs] = useState<JobListing[]>(initialJobs);
-  const [applications, setApplications] = useState<AppliedJob[]>(initialAppliedJobs);
+  const [activeTab, setActiveTab] = useState<CandidateTabType>(() => {
+    if (tabQuery && ["overview", "all-jobs", "applications", "profile", "inbox", "events", "employers", "code-studio"].includes(tabQuery)) {
+      return tabQuery;
+    }
+    return "overview";
+  });
+
+  useEffect(() => {
+    if (tabQuery && ["overview", "all-jobs", "applications", "profile", "inbox", "events", "employers", "code-studio"].includes(tabQuery)) {
+      setActiveTab(tabQuery);
+    }
+  }, [tabQuery]);
+
+  // Persistent Client Profile with LocalStorage Fallback & Lazy Initializer
+  const [profile, setProfile] = useState<CandidateProfile>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_candidate_profile");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === "object" && (parsed.name || parsed.email)) {
+            return { ...initialProfile, ...parsed };
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to read candidate profile cache:", e);
+      }
+    }
+    return initialProfile;
+  });
+
+  const [jobs, setJobs] = useState<JobListing[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_candidate_jobs");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to read jobs cache:", e);
+      }
+    }
+    return initialJobs;
+  });
+
+  const [applications, setApplications] = useState<AppliedJob[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("skillmatch_candidate_applications");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to read applications cache:", e);
+      }
+    }
+    return initialAppliedJobs;
+  });
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -240,6 +315,32 @@ function CandidateDashboardContent() {
   // Security warning banner states
   const [dismissedWarning, setDismissedWarning] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
+
+  // Client hydration synchronization effect for profile, jobs & applications
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cachedProfile = localStorage.getItem("skillmatch_candidate_profile");
+      if (cachedProfile) {
+        const parsed = JSON.parse(cachedProfile);
+        if (parsed && typeof parsed === "object" && (parsed.name || parsed.email)) {
+          setProfile((prev) => ({ ...prev, ...parsed }));
+        }
+      }
+      const cachedJobs = localStorage.getItem("skillmatch_candidate_jobs");
+      if (cachedJobs) {
+        const parsedJobs = JSON.parse(cachedJobs);
+        if (Array.isArray(parsedJobs) && parsedJobs.length > 0) setJobs(parsedJobs);
+      }
+      const cachedApps = localStorage.getItem("skillmatch_candidate_applications");
+      if (cachedApps) {
+        const parsedApps = JSON.parse(cachedApps);
+        if (Array.isArray(parsedApps) && parsedApps.length > 0) setApplications(parsedApps);
+      }
+    } catch (err) {
+      console.warn("Hydration cache sync failed:", err);
+    }
+  }, []);
 
   // Auto-dismiss warning banner after 4 seconds
   useEffect(() => {
@@ -271,16 +372,136 @@ function CandidateDashboardContent() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Instant 1-Click Apply Handler
-  const handleApplyJob = (job: JobListing) => {
-    // 1. Mark job as applied in job listings state
-    setJobs((prev) =>
-      prev.map((j) => (j.id === job.id ? { ...j, isApplied: true } : j))
-    );
+  // Live Supabase PostgreSQL Synchronization
+  useEffect(() => {
+    let isMounted = true;
+    async function syncSupabaseData() {
+      const queryEmail =
+        session?.user?.email ||
+        (typeof window !== "undefined" ? localStorage.getItem("skillmatch_candidate_email") : null) ||
+        profile.email;
+
+      if (!queryEmail) return;
+
+      try {
+        const [profileRes, jobsRes, appsRes] = await Promise.all([
+          getCandidateProfileAction(queryEmail),
+          getJobsAction({ candidateEmail: queryEmail }),
+          getCandidateApplicationsAction(queryEmail),
+        ]);
+
+        if (isMounted && profileRes.success && profileRes.data) {
+          setProfile((prev) => {
+            const merged: CandidateProfile = {
+              ...prev,
+              ...profileRes.data,
+              bio: profileRes.data.bio || prev.bio,
+              skills: profileRes.data.skills?.length ? profileRes.data.skills : prev.skills,
+            };
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(merged));
+              } catch (e) {
+                console.warn("Failed to update profile localStorage", e);
+              }
+            }
+            return merged;
+          });
+        }
+
+        if (isMounted && jobsRes.success && jobsRes.data && jobsRes.data.length > 0) {
+          setJobs(jobsRes.data);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_candidate_jobs", JSON.stringify(jobsRes.data));
+            } catch (e) {
+              console.warn("Failed to cache jobs", e);
+            }
+          }
+        }
+
+        if (isMounted && appsRes.success && appsRes.data && appsRes.data.length > 0) {
+          setApplications(appsRes.data);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_candidate_applications", JSON.stringify(appsRes.data));
+            } catch (e) {
+              console.warn("Failed to cache applications", e);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("[CandidateDashboard] Database sync fallback to local cache:", err);
+      }
+    }
+    syncSupabaseData();
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.user?.email, profile.email]);
+
+  const handleUpdateCandidateProfile = async (updated: CandidateProfile) => {
+    // 1. Immediately persist locally to ensure permanent survival across page refreshes
+    setProfile(updated);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(updated));
+        localStorage.setItem("skillmatch_candidate_email", updated.email);
+        document.cookie = `skillmatch_candidate_email=${encodeURIComponent(updated.email)}; path=/; max-age=2592000; SameSite=Lax`;
+      } catch (e) {
+        console.warn("Failed to save profile locally", e);
+      }
+    }
+
+    // 2. Persist to live Supabase PostgreSQL backend
+    try {
+      const res = await updateCandidateProfileAction({
+        email: updated.email,
+        name: updated.name,
+        headline: updated.headline,
+        university: updated.university,
+        degree: updated.degree,
+        graduationYear: updated.graduationYear,
+        avatarUrl: updated.avatarUrl,
+        githubUrl: updated.githubUrl,
+        linkedinUrl: updated.linkedinUrl,
+        portfolioUrl: updated.portfolioUrl,
+        resumeFileName: updated.resumeFileName,
+        resumeSha256: updated.resumeSha256,
+        skills: updated.skills,
+      });
+
+      if (res.success && res.data) {
+        const merged: CandidateProfile = {
+          ...updated,
+          ...res.data,
+          bio: updated.bio || res.data.bio,
+          skills: updated.skills.length > 0 ? updated.skills : (res.data.skills || []),
+        };
+        setProfile(merged);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(merged));
+          } catch (e) {
+            console.warn("Failed to write merged profile to localStorage", e);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[CandidateDashboard] Failed to persist profile to Supabase:", err);
+    }
+  };
+
+  // Instant 1-Click Apply Handler with Supabase PostgreSQL persistence & audit logging
+  const handleApplyJob = async (job: JobListing) => {
+    // 1. Optimistically mark job as applied in job listings state
+    const updatedJobs = jobs.map((j) => (j.id === job.id ? { ...j, isApplied: true } : j));
+    setJobs(updatedJobs);
 
     // 2. Prepend new active application to applications pipeline
+    const tempId = `app-${Date.now()}`;
     const newApp: AppliedJob = {
-      id: `app-${Date.now()}`,
+      id: tempId,
       company: job.company,
       role: job.title,
       location: `${job.location} (${job.workModel})`,
@@ -291,34 +512,80 @@ function CandidateDashboardContent() {
       nextStep: "Dossier dispatched to technical recruiting lead",
     };
 
-    setApplications((prev) => [newApp, ...prev]);
+    const updatedApps = [newApp, ...applications];
+    setApplications(updatedApps);
+
+    // Write to localStorage for immediate refresh survival
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_candidate_applications", JSON.stringify(updatedApps));
+        localStorage.setItem("skillmatch_candidate_jobs", JSON.stringify(updatedJobs));
+      } catch (e) {
+        console.warn("Failed to cache applied jobs", e);
+      }
+    }
 
     triggerToast(`Application submitted to ${job.company} for '${job.title}'! Dossier dispatched.`);
+
+    // 3. Persist to live Supabase PostgreSQL and record initial stage history audit record
+    try {
+      const res = await applyJobAction({
+        candidateEmail: profile.email,
+        jobId: job.id,
+        matchScore: job.matchScore,
+        notes: `1-Click Apply for '${job.title}' at ${job.company}`,
+      });
+
+      if (res.success && res.data?.application?.id) {
+        // Update local application id with real PostgreSQL UUID
+        setApplications((prev) => {
+          const synced = prev.map((a) => (a.id === tempId ? { ...a, id: res.data.application.id } : a));
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("skillmatch_candidate_applications", JSON.stringify(synced));
+            } catch (e) {
+              console.warn("Failed to update applications cache", e);
+            }
+          }
+          return synced;
+        });
+      }
+    } catch (err) {
+      console.error("[handleApplyJob] Postgres application sync error:", err);
+    }
   };
 
   const getTabTitle = () => {
     switch (activeTab) {
       case "all-jobs":
-        return t.sidebar.allJobs;
+        return "Jobs";
       case "applications":
-        return t.sidebar.myApplications;
+        return "My Applications";
       case "profile":
-        return t.sidebar.profileSetup;
+        return "Profile Setup";
+      case "inbox":
+        return "Inbox";
+      case "events":
+        return "Events";
+      case "employers":
+        return "Employers";
+      case "code-studio":
+        return "Code Studio";
       default:
-        return t.sidebar.overview;
+        return "Home";
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-[#F8FAFB] text-on-surface font-sans selection:bg-secondary/20 selection:text-primary">
+    <div className="min-h-screen w-full flex bg-[#F8FAFB] text-on-surface font-sans selection:bg-[#00D4BE]/20 selection:text-primary">
       {/* Toast Notification */}
       {toastMessage && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-primary-container text-white text-xs font-semibold shadow-level-3 flex items-center gap-3 border border-secondary-mint/30 animate-bounce"
+          className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-[#051C19] text-white text-xs font-semibold shadow-2xl flex items-center gap-3 border border-[#00D4BE]/40 animate-bounce"
         >
-          <Sparkles className="w-4 h-4 text-secondary-container" aria-hidden="true" />
+          <Sparkles className="w-4 h-4 text-[#00D4BE]" aria-hidden="true" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -338,10 +605,10 @@ function CandidateDashboardContent() {
 
       {/* Main Full-Width Content View */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Top Navbar */}
+        {/* Top Navbar matching Handshake clean aesthetic */}
         <header
           role="banner"
-          className="h-16 w-full border-b border-stroke-card bg-white/90 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8"
+          className="h-16 w-full border-b border-zinc-200 bg-white sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 select-none"
         >
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Toggle */}
@@ -350,52 +617,56 @@ function CandidateDashboardContent() {
               onClick={() => setIsMobileOpen(true)}
               aria-label="Open navigation menu"
               aria-expanded={isMobileOpen}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 text-slate-600 hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-zinc-200 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50 transition-colors cursor-pointer"
             >
               <Menu className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <div>
-              <h1 className="text-sm sm:text-base font-extrabold text-on-surface tracking-tight">
+              <h1 className="text-lg sm:text-xl font-extrabold text-zinc-900 tracking-tight">
                 {getTabTitle()}
               </h1>
-              <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-500 font-medium">
-                <StatusDot size="sm" />
-                <span>{language === "bn" ? "ABET যাচাইকৃত শিক্ষার্থী সেশন" : "ABET Verified Student Session"}</span>
-                <span aria-hidden="true">•</span>
-                <span className="font-mono text-primary font-bold">{profile.university}</span>
-              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Sleek Dual Language Switcher */}
             <LanguageSwitcher variant="pill" />
 
-            {/* ABET Institutional Pill */}
-            <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-bold text-primary"
-              aria-label="Institutional status: Candidate"
+            {/* Notifications Bell */}
+            <button
+              type="button"
+              onClick={() => triggerToast("You have 2 new inbound messages from hiring managers!")}
+              className="relative p-2 rounded-full text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 transition-colors cursor-pointer"
+              aria-label="Notifications"
             >
-              <Code2 className="w-3.5 h-3.5 text-secondary-mint" aria-hidden="true" />
-              <span className="hidden sm:inline">{t.common.role}: {t.common.candidate}</span>
-              <span className="sm:hidden font-mono">.EDU</span>
-            </div>
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#00D4BE] shadow-[0_0_6px_#00D4BE]" />
+            </button>
 
-            {/* Quick Profile Avatar Shortcut */}
+            {/* Profile Avatar Pill */}
             <button
               type="button"
               onClick={() => setActiveTab("profile")}
-              title={t.sidebar.profileSetup}
-              aria-label={`${t.sidebar.profileSetup} - ${profile.name}`}
-              className="w-9 h-9 rounded-xl border border-slate-200 bg-surface-container-low hover:border-secondary-mint flex items-center justify-center text-xs font-bold text-primary transition-all overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
+              title="Profile Setup"
+              aria-label={`Profile - ${profile.name}`}
+              className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full hover:bg-zinc-100 transition-all cursor-pointer border border-transparent hover:border-zinc-200"
             >
               {profile.avatarUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name}
+                  className="w-8 h-8 rounded-full object-cover border border-[#00D4BE]/60 shadow-xs shrink-0"
+                />
               ) : (
-                <span>AC</span>
+                <div className="w-8 h-8 rounded-full bg-[#00D4BE]/20 text-[#095964] border border-[#00D4BE]/40 flex items-center justify-center font-bold text-xs shrink-0">
+                  {profile.name ? profile.name.slice(0, 2).toUpperCase() : "RA"}
+                </div>
               )}
+              <span className="hidden sm:inline text-xs font-bold text-zinc-800">
+                {profile.name ? profile.name.split(" ")[0] : "Rashed"}
+              </span>
             </button>
           </div>
         </header>
@@ -504,8 +775,81 @@ function CandidateDashboardContent() {
             >
               <ProfileSetupTab
                 profile={profile}
-                onUpdateProfile={(updated) => setProfile(updated)}
+                onUpdateProfile={handleUpdateCandidateProfile}
                 onTriggerToast={triggerToast}
+              />
+            </section>
+          )}
+
+          {/* TAB 5: INBOX (Exact Handshake Layout) */}
+          {activeTab === "inbox" && (
+            <CandidateInboxTab onTriggerToast={triggerToast} />
+          )}
+
+          {/* TAB 6: CODE STUDIO */}
+          {activeTab === "code-studio" && (
+            <section className="space-y-6">
+              <div className="p-6 rounded-2xl bg-gradient-to-r from-[#051C19] via-[#0D3E35] to-[#095964] text-white border border-[#00D4BE]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#00D4BE]">Interactive Engineering Sandbox</span>
+                  <h2 className="text-xl sm:text-2xl font-black">SkillMatch Code Studio</h2>
+                  <p className="text-xs sm:text-sm text-zinc-300 max-w-xl">
+                    Take hands-on technical challenges. Your passing test suites and benchmarks prove your competence directly to engineering managers.
+                  </p>
+                </div>
+                <button onClick={() => triggerToast("Starting new challenge session...")} className="px-6 py-2.5 rounded-full bg-[#00D4BE] text-[#051C19] font-extrabold text-xs shadow hover:bg-[#00bda8] transition-all cursor-pointer shrink-0">
+                  Launch Challenge
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/90 hover:border-[#00D4BE] transition-all space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#00D4BE]/15 text-[#075951]">Go • Concurrency</span>
+                    <span className="text-xs text-zinc-500 font-mono">45 mins</span>
+                  </div>
+                  <h3 className="font-bold text-base text-zinc-900">Concurrent Key-Value Replication</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed">Implement distributed lock-free state synchronization with heartbeats and failover detection.</p>
+                  <button onClick={() => triggerToast("Loading Concurrent Go workspace...")} className="w-full py-2 rounded-xl bg-zinc-100 hover:bg-[#00D4BE] hover:text-[#051C19] text-zinc-800 font-bold text-xs transition-colors cursor-pointer">
+                    Start Challenge
+                  </button>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/90 hover:border-[#00D4BE] transition-all space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#00D4BE]/15 text-[#075951]">PostgreSQL • SQL</span>
+                    <span className="text-xs text-zinc-500 font-mono">35 mins</span>
+                  </div>
+                  <h3 className="font-bold text-base text-zinc-900">Query Planner &amp; Index Optimization</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed">Fix sequential table scans and optimize multi-column compound index execution under heavy writes.</p>
+                  <button onClick={() => triggerToast("Loading Postgres workspace...")} className="w-full py-2 rounded-xl bg-zinc-100 hover:bg-[#00D4BE] hover:text-[#051C19] text-zinc-800 font-bold text-xs transition-colors cursor-pointer">
+                    Start Challenge
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* TAB 7: EVENTS (Exact Handshake Layout) */}
+          {activeTab === "events" && (
+            <CandidateEventsTab onTriggerToast={triggerToast} />
+          )}
+
+          {/* TAB 8: EMPLOYERS (Exact Handshake Layout) */}
+          {activeTab === "employers" && (
+            <section
+              role="tabpanel"
+              id="candidate-tabpanel-employers"
+              aria-labelledby="candidate-tab-employers"
+              tabIndex={0}
+              className="focus-visible:outline-none"
+            >
+              <CandidateEmployersTab
+                onTriggerToast={triggerToast}
+                onNavigateToJobs={(company) => {
+                  setActiveTab("all-jobs");
+                  triggerToast(company ? `Showing job openings for ${company}` : "Browsing all open jobs");
+                }}
               />
             </section>
           )}

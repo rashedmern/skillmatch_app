@@ -5,29 +5,29 @@ export type { PipelineStepItem };
 export const PIPELINE_STEPS: PipelineStepItem[] = [
   {
     stepNumber: "01",
-    title: "Connect Codebase & Portfolio",
-    subtitle: "AST Static Code Analysis",
+    title: "Connect Your GitHub & Projects",
+    subtitle: "Show Real Repositories",
     description:
-      "Connect your GitHub in one click. Our parsing engine analyzes your actual commits, cyclomatic complexity, concurrency patterns, and test suites—with zero private code retention.",
+      "Link your GitHub in one click. SkillMatch analyzes your actual commits, project structure, test coverage, and code clarity—with zero access to private repos without permission.",
     iconName: "gitBranch",
-    tags: ["Read-only OAuth", "Commit Authorship", "AST Tree Ingestion"],
+    tags: ["OAuth Verified", "Live Repos", "Clean Architecture"],
   },
   {
     stepNumber: "02",
-    title: "Algorithmic Vector Matching",
-    subtitle: "Multi-Dimensional Cosine Embeddings",
+    title: "Hands-On Technical Challenges",
+    subtitle: "Solve Production Problems",
     description:
-      "We convert your verified code structures into multi-dimensional technical vectors, matching your concrete skills directly against engineering teams' active tech stacks.",
+      "Complete practical engineering challenges calibrated to real-world production stacks. Prove how you handle APIs, optimize database queries, and debug edge cases.",
     iconName: "network",
-    tags: ["Cosine Similarity", "No ATS Keywords", "Gap Identification"],
+    tags: ["Real Code Tasks", "Automated Feedback", "No Resume Fluff"],
   },
   {
     stepNumber: "03",
-    title: "Direct Engineering Access",
-    subtitle: "Fast-Track Technical Interviews",
+    title: "Direct Interview Invites",
+    subtitle: "Skip the Recruiter Screen",
     description:
-      "Bypass non-technical recruiters and resume screens. Engineering leads receive pre-verified candidate dossiers and schedule technical deep dives directly on your calendar.",
+      "Engineering managers review your verified solutions and invite you directly to technical rounds—no automated rejection emails or resume black holes.",
     iconName: "calendarCheck",
-    tags: ["14 Days to Screen", "EM Review", "Verified Candidate Tier"],
+    tags: ["Hiring Manager Review", "Faster Offers", "Direct Invites"],
   },
 ];

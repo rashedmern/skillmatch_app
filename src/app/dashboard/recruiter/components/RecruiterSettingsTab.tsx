@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { RecruiterProfile } from "./types";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -10,6 +10,9 @@ import {
   Save,
   Bell,
   Sliders,
+  Camera,
+  Trash2,
+  Upload,
 } from "lucide-react";
 
 interface RecruiterSettingsTabProps {
@@ -24,19 +27,67 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
   onTriggerToast,
 }) => {
   const { t, language } = useLanguage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [companyName, setCompanyName] = useState(profile.companyName);
   const [recruiterName, setRecruiterName] = useState(profile.recruiterName);
   const [roleTitle, setRoleTitle] = useState(profile.roleTitle);
   const [email, setEmail] = useState(profile.email);
   const [industry, setIndustry] = useState(profile.industry);
   const [location, setLocation] = useState(profile.location);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatarUrl || null);
   const [defaultCutoff, setDefaultCutoff] = useState(88);
   const [notifyOnHighMatch, setNotifyOnHighMatch] = useState(true);
   const [dailyDigest, setDailyDigest] = useState(true);
 
+  // Synchronize local form state whenever profile prop updates
+  useEffect(() => {
+    setCompanyName(profile.companyName || "");
+    setRecruiterName(profile.recruiterName || "");
+    setRoleTitle(profile.roleTitle || "");
+    setEmail(profile.email || "");
+    setIndustry(profile.industry || "");
+    setLocation(profile.location || "");
+    setAvatarUrl(profile.avatarUrl || null);
+  }, [profile]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      onTriggerToast(
+        language === "bn"
+          ? "ছবির সাইজ ২ মেগাবাইটের কম হতে হবে!"
+          : "Photo size must be less than 2MB!"
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setAvatarUrl(base64);
+      onTriggerToast(
+        language === "bn"
+          ? "ছবি লোড হয়েছে! সেভ করতে 'সেটিংস সংরক্ষণ করুন' বাটনে ক্লিক করুন।"
+          : "Photo loaded! Click 'Save Settings' to apply permanently."
+      );
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    onTriggerToast(
+      language === "bn" ? "প্রোফাইল ছবি সরানো হয়েছে।" : "Profile photo removed."
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateProfile({
+    const updated: RecruiterProfile = {
       ...profile,
       companyName,
       recruiterName,
@@ -44,13 +95,31 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
       email,
       industry,
       location,
-    });
+      avatarUrl,
+    };
+    onUpdateProfile(updated);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_recruiter_profile", JSON.stringify(updated));
+      } catch (err) {
+        console.warn("Failed to write recruiter profile to localStorage:", err);
+      }
+    }
     const msg =
       language === "bn"
         ? "প্রতিষ্ঠান সেটিংস ও নিয়োগ পছন্দসমূহ সফলভাবে সংরক্ষিত হয়েছে!"
         : "Organization settings and hiring preferences updated successfully!";
     onTriggerToast(msg);
   };
+
+  const initials = recruiterName
+    ? recruiterName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "RC";
 
   return (
     <div className="space-y-6">
@@ -78,6 +147,67 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Recruiter Avatar & Identity Picture */}
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-black text-on-surface uppercase tracking-wider flex items-center gap-2">
+            <Camera className="w-4 h-4 text-secondary-mint" />
+            <span>{language === "bn" ? "নিয়োগকারী প্রোফাইল ছবি" : "Recruiter Profile Picture"}</span>
+          </h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="relative w-20 h-20 rounded-2xl border-2 border-secondary-mint/40 overflow-hidden bg-primary-container text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md">
+              {avatarUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={avatarUrl}
+                  alt={recruiterName || "Recruiter Avatar"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{initials}</span>
+              )}
+            </div>
+
+            <div className="space-y-2 flex-1">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                  id="recruiter-avatar-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3.5 py-2 rounded-xl bg-primary-container hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
+                >
+                  <Upload className="w-3.5 h-3.5 text-secondary-mint" />
+                  <span>{language === "bn" ? "ছবি আপলোড করুন" : "Upload Photo"}</span>
+                </button>
+
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="px-3.5 py-2 rounded-xl bg-accent-gap/10 hover:bg-accent-gap/20 text-accent-gap text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{language === "bn" ? "ছবি মুছুন" : "Remove"}</span>
+                  </button>
+                )}
+              </div>
+
+              <p className="text-[11px] text-slate-500">
+                {language === "bn"
+                  ? "সুপারিশ: ৪০০x৪০০ পিক্সেল (PNG, JPG, WEBP, সর্বোচ্চ ২MB)। এটি টপবার ও সাইডবারে রিয়েল-টাইমে প্রদর্শিত হবে।"
+                  : "Recommended: 400x400px (PNG, JPG, or WEBP, max 2MB). Renders across topbar & sidebar instantly."}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Company & Recruiter Profile */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <h3 className="text-sm font-black text-on-surface uppercase tracking-wider flex items-center gap-2">

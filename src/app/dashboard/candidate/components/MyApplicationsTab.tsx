@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AppliedJob } from "./types";
+import { CompanyLogo } from "@/components/common/CompanyLogo";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   Clock,
@@ -189,11 +190,16 @@ export const MyApplicationsTab: React.FC<MyApplicationsTabProps> = ({
                 {filteredApps.map((job) => (
                   <tr key={job.id} className="hover:bg-surface-container-lowest/60 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-extrabold text-sm text-on-surface">{job.company}</div>
-                      <div className="text-xs text-primary font-bold mt-0.5">{job.role}</div>
-                      <div className="text-[11px] text-slate-600 font-mono mt-0.5">
-                        {job.salary} • {job.location} •{" "}
-                        {language === "bn" ? `আবেদনকৃত ${job.appliedDate}` : `Applied ${job.appliedDate}`}
+                      <div className="flex items-center gap-3">
+                        <CompanyLogo name={job.company} size="sm" className="shrink-0" />
+                        <div>
+                          <div className="font-extrabold text-sm text-on-surface">{job.company}</div>
+                          <div className="text-xs text-primary font-bold mt-0.5">{job.role}</div>
+                          <div className="text-[11px] text-slate-600 font-mono mt-0.5">
+                            {job.salary} • {job.location} •{" "}
+                            {language === "bn" ? `আবেদনকৃত ${job.appliedDate}` : `Applied ${job.appliedDate}`}
+                          </div>
+                        </div>
                       </div>
                     </td>
 

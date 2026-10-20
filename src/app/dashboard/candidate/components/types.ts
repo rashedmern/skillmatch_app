@@ -44,4 +44,12 @@ export interface AppliedJob {
   nextStep: string;
 }
 
-export type CandidateTabType = "overview" | "all-jobs" | "applications" | "profile";
+export type CandidateTabType =
+  | "overview"
+  | "all-jobs"
+  | "applications"
+  | "profile"
+  | "inbox"
+  | "events"
+  | "employers"
+  | "code-studio";

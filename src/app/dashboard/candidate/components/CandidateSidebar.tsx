@@ -2,21 +2,25 @@
 
 import React from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { handleAppSignOut } from "@/utils/authClient";
 import { BrandLogo } from "@/components/common/BrandLogo";
-import { StatusDot } from "@/components/ui/StatusDot";
 import { CandidateProfile, CandidateTabType } from "./types";
-import { useLanguage } from "@/context/LanguageContext";
 import {
-  LayoutDashboard,
+  Home,
   Briefcase,
   FileCheck2,
   UserCheck,
   LogOut,
+  Mail,
+  Calendar,
+  Users,
+  Building2,
+  Compass,
+  Sparkles,
+  Award,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  Building2,
   X,
 } from "lucide-react";
 
@@ -43,38 +47,6 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
 }) => {
-  const { t } = useLanguage();
-
-  const navItems = [
-    {
-      id: "overview" as CandidateTabType,
-      label: t.sidebar.overview,
-      icon: LayoutDashboard,
-      badge: null,
-    },
-    {
-      id: "all-jobs" as CandidateTabType,
-      label: t.sidebar.allJobs,
-      icon: Briefcase,
-      badge: totalJobsCount > 0 ? `${totalJobsCount}` : null,
-      badgeColor: "bg-secondary-mint/15 text-secondary-mint border-secondary-mint/30",
-    },
-    {
-      id: "applications" as CandidateTabType,
-      label: t.sidebar.myApplications,
-      icon: FileCheck2,
-      badge: appliedCount > 0 ? `${appliedCount}` : null,
-      badgeColor: "bg-primary/10 text-primary border-primary/20",
-    },
-    {
-      id: "profile" as CandidateTabType,
-      label: t.sidebar.profileSetup,
-      icon: UserCheck,
-      badge: "ABET",
-      badgeColor: "bg-secondary-container/20 text-secondary-container border-secondary-container/30",
-    },
-  ];
-
   // Handle Escape key to close mobile drawer
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -86,191 +58,253 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMobileOpen, onCloseMobile]);
 
+  const navPrimary = [
+    {
+      id: "overview" as CandidateTabType,
+      label: "Home",
+      icon: Home,
+      badge: null,
+    },
+    {
+      id: "all-jobs" as CandidateTabType,
+      label: "Jobs",
+      icon: Briefcase,
+      badge: totalJobsCount > 0 ? `${totalJobsCount}` : null,
+    },
+  ];
+
+  const navNetwork = [
+    {
+      id: "inbox" as CandidateTabType,
+      label: "Inbox",
+      icon: Mail,
+      badge: "2",
+    },
+    {
+      id: "events" as CandidateTabType,
+      label: "Events",
+      icon: Calendar,
+      badge: null,
+    },
+    {
+      id: "applications" as CandidateTabType,
+      label: "Applications",
+      icon: FileCheck2,
+      badge: appliedCount > 0 ? `${appliedCount}` : null,
+    },
+    {
+      id: "employers" as CandidateTabType,
+      label: "Employers",
+      icon: Building2,
+      badge: null,
+    },
+    {
+      id: "profile" as CandidateTabType,
+      label: "Profile",
+      icon: UserCheck,
+      badge: null,
+    },
+  ];
+
+  const navStudio = [
+    {
+      id: "code-studio" as CandidateTabType,
+      label: "Code Studio",
+      icon: Sparkles,
+      hasDot: true,
+    },
+    {
+      id: "overview" as CandidateTabType,
+      label: "Showcase",
+      icon: Award,
+      hasDot: false,
+    },
+  ];
+
+  const renderNavItem = (item: {
+    id: CandidateTabType;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: string | null;
+    hasDot?: boolean;
+  }) => {
+    const Icon = item.icon;
+    const isActive = activeTab === item.id;
+
+    return (
+      <button
+        key={item.label}
+        type="button"
+        onClick={() => {
+          onTabChange(item.id);
+          if (isMobileOpen) onCloseMobile();
+        }}
+        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer ${
+          isActive
+            ? "bg-[#00D4BE]/15 text-[#075951] font-bold border border-[#00D4BE]/30 shadow-xs"
+            : "text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <Icon
+            className={`w-4 h-4 shrink-0 transition-colors ${
+              isActive ? "text-[#00D4BE]" : "text-zinc-500"
+            }`}
+          />
+          {!isCollapsed && <span className="truncate">{item.label}</span>}
+        </div>
+
+        {!isCollapsed && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            {item.hasDot && (
+              <span className="w-2 h-2 rounded-full bg-[#00D4BE] shadow-[0_0_6px_#00D4BE]" />
+            )}
+            {item.badge && (
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  isActive
+                    ? "bg-[#00D4BE] text-[#051C19]"
+                    : "bg-zinc-200 text-zinc-700"
+                }`}
+              >
+                {item.badge}
+              </span>
+            )}
+          </div>
+        )}
+      </button>
+    );
+  };
+
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between p-4 bg-white border-r border-stroke-card selection:bg-secondary/20 select-none">
+    <div className="h-full flex flex-col justify-between p-4 bg-white border-r border-zinc-200 select-none">
       {/* Top Header & Brand */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between h-12">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between h-10 px-2">
           {!isCollapsed ? (
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <BrandLogo size="sm" />
-            </div>
+            </Link>
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-primary-container text-white flex items-center justify-center font-bold text-sm shadow-sm mx-auto">
-              SM
-            </div>
+            <Link href="/" className="mx-auto">
+              <div className="w-9 h-9 rounded-xl bg-[#095964] text-[#00D4BE] flex items-center justify-center font-bold text-xs shadow-sm">
+                SM
+              </div>
+            </Link>
           )}
 
-          {/* Desktop Collapse Toggle */}
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            id="sidebar-toggle-btn"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-slate-600 hover:text-on-surface hover:bg-surface-container-low transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
-          >
-            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
-
-          {/* Mobile Close Button */}
+          {/* Close button on mobile */}
           <button
             type="button"
             onClick={onCloseMobile}
-            aria-label="Close navigation menu"
-            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-on-surface hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint cursor-pointer"
+            className="md:hidden p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 cursor-pointer"
+            aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Security Telemetry Pill */}
-        {!isCollapsed && (
-          <div className="p-2.5 rounded-xl bg-surface-container-low border border-slate-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-bold text-on-surface">
-              <span className="flex items-center gap-1.5">
-                <StatusDot size="sm" />
-                <span>Verified .edu Identity</span>
-              </span>
-              <span className="font-mono text-secondary-mint font-bold">ABET</span>
+        {/* Group 1: Primary Navigation */}
+        <div className="space-y-1">
+          {navPrimary.map(renderNavItem)}
+        </div>
+
+        {/* Divider */}
+        <hr className="border-t border-zinc-200" />
+
+        {/* Group 2: Student Network */}
+        <div className="space-y-1">
+          {navNetwork.map(renderNavItem)}
+        </div>
+
+        {/* Divider */}
+        <hr className="border-t border-zinc-200" />
+
+        {/* Group 3: Skill Studio & Showcase */}
+        <div className="space-y-1">
+          {navStudio.map(renderNavItem)}
+        </div>
+      </div>
+
+      {/* Bottom Profile & Sign Out */}
+      <div className="pt-4 border-t border-zinc-200 space-y-3">
+        {!isCollapsed ? (
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {profile.avatarUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name}
+                  className="w-8 h-8 rounded-full object-cover border border-[#00D4BE]/60 shadow-xs shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#00D4BE]/20 text-[#095964] border border-[#00D4BE]/40 flex items-center justify-center font-bold text-xs shrink-0">
+                  {profile.name ? profile.name.slice(0, 2).toUpperCase() : "RA"}
+                </div>
+              )}
+              <div className="min-w-0 text-left">
+                <p className="text-xs font-bold text-zinc-900 truncate">
+                  {profile.name || "Rashed"}
+                </p>
+                <p className="text-[10px] text-zinc-500 truncate">
+                  {profile.university || "CSE Student"}
+                </p>
+              </div>
             </div>
-            <p className="text-[10px] text-slate-600 font-medium truncate">{profile.university}</p>
+
+            <button
+              type="button"
+              onClick={() => handleAppSignOut("/")}
+              title="Sign out"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            {profile.avatarUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="w-8 h-8 rounded-full object-cover border border-[#00D4BE]/60 shadow-xs shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#00D4BE]/20 text-[#095964] border border-[#00D4BE]/40 flex items-center justify-center font-bold text-xs">
+                {profile.name ? profile.name.slice(0, 2).toUpperCase() : "RA"}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => handleAppSignOut("/")}
+              title="Sign out"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         )}
 
-        {/* Navigation Items (Accessible Tablist) */}
-        <nav
-          role="tablist"
-          aria-label="Candidate Navigation Tabs"
-          aria-orientation="vertical"
-          className="space-y-1.5"
+        {/* Desktop Collapse Toggle Button */}
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="hidden md:flex w-full items-center justify-center py-1 text-xs text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 rounded-lg transition-colors cursor-pointer"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                role="tab"
-                id={`candidate-tab-${item.id}`}
-                aria-selected={isActive}
-                aria-controls={`candidate-tabpanel-${item.id}`}
-                tabIndex={isActive ? 0 : -1}
-                type="button"
-                onClick={() => {
-                  onTabChange(item.id);
-                  onCloseMobile();
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint focus-visible:ring-offset-1 ${
-                  isActive
-                    ? "bg-primary-container text-white shadow-sm"
-                    : "text-slate-700 hover:text-on-surface hover:bg-surface-container-low"
-                } ${isCollapsed ? "justify-center px-2" : ""}`}
-                title={isCollapsed ? item.label : undefined}
-              >
-                <Icon
-                  className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                    isActive ? "text-secondary-container" : "text-slate-500 group-hover:text-primary"
-                  }`}
-                  aria-hidden="true"
-                />
-
-                {!isCollapsed && (
-                  <span className="flex-1 text-left truncate">{item.label}</span>
-                )}
-
-                {!isCollapsed && item.badge && (
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border ${
-                      isActive
-                        ? "bg-white/20 text-white border-white/30"
-                        : item.badgeColor || "bg-surface-container-high text-on-surface-variant"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Bottom Profile & Sign Out Section */}
-      <div className="pt-4 border-t border-stroke-card space-y-3">
-        {/* Test Recruiter Route Link */}
-        {!isCollapsed ? (
-          <Link
-            href="/dashboard/recruiter"
-            className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-on-surface hover:bg-surface-container-low transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
-            title={t.sidebar.switchToRecruiter}
-          >
-            <Building2 className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-            <span className="truncate">{t.sidebar.switchToRecruiter}</span>
-          </Link>
-        ) : (
-          <Link
-            href="/dashboard/recruiter"
-            className="w-full flex justify-center py-2 text-slate-600 hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded-lg"
-            title={t.sidebar.switchToRecruiter}
-          >
-            <Building2 className="w-4 h-4" aria-hidden="true" />
-          </Link>
-        )}
-
-        {/* User Profile Card */}
-        <div
-          className={`flex items-center gap-3 p-2 rounded-xl bg-surface border border-stroke-card ${
-            isCollapsed ? "justify-center p-1.5" : ""
-          }`}
-        >
-          {profile.avatarUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={profile.avatarUrl}
-              alt={profile.name}
-              className="w-9 h-9 rounded-xl object-cover shrink-0 border border-secondary-mint/40"
-            />
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4" />
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-primary-container text-secondary-container font-bold text-xs flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
-              AC
+            <div className="flex items-center gap-1">
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span className="text-[11px]">Collapse</span>
             </div>
           )}
-
-          {!isCollapsed && (
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-on-surface truncate flex items-center gap-1">
-                <span>{profile.name}</span>
-                <ShieldCheck className="w-3 h-3 text-secondary-mint shrink-0" aria-hidden="true" />
-              </div>
-              <div className="text-[10px] text-slate-600 font-mono truncate">{profile.email}</div>
-            </div>
-          )}
-
-          {!isCollapsed && (
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              aria-label={t.common.logOut}
-              title={t.common.logOut}
-              className="text-slate-500 hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
-            >
-              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
-            </button>
-          )}
-        </div>
-
-        {isCollapsed && (
-          <button
-            type="button"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            title={t.common.logOut}
-            aria-label={t.common.logOut}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-accent-gap hover:bg-accent-gap/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" aria-hidden="true" />
-          </button>
-        )}
+        </button>
       </div>
     </div>
   );
@@ -279,9 +313,8 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
     <>
       {/* Desktop Persistent Sidebar */}
       <aside
-        aria-label="Candidate sidebar"
-        className={`hidden md:block shrink-0 h-screen sticky top-0 transition-all duration-300 z-30 ${
-          isCollapsed ? "w-20" : "w-64"
+        className={`hidden md:block h-screen sticky top-0 transition-all duration-200 z-30 shrink-0 ${
+          isCollapsed ? "w-20" : "w-60"
         }`}
       >
         {sidebarContent}
@@ -290,23 +323,20 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
       {/* Mobile Drawer Backdrop */}
       {isMobileOpen && (
         <div
+          role="presentation"
           onClick={onCloseMobile}
-          aria-hidden="true"
-          className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
         />
       )}
 
-      {/* Mobile Drawer */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation drawer"
-        className={`md:hidden fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-300 ease-in-out ${
-          isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+      {/* Mobile Slide-out Drawer */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white transform transition-transform duration-200 ease-in-out md:hidden ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {sidebarContent}
-      </aside>
+      </div>
     </>
   );
 };

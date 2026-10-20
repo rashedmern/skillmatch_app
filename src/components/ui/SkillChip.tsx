@@ -17,12 +17,12 @@ export const SkillChip: React.FC<SkillChipProps> = ({
   const getStatusStyles = () => {
     switch (status) {
       case "matched":
-        return "bg-secondary/10 text-primary-container border-secondary/25 font-semibold";
+        return "bg-[#00D4BE]/15 text-[#00D4BE] border-[#00D4BE]/30 font-semibold";
       case "gap":
-        return "bg-accent-gap-subtle text-accent-gap border-accent-gap-border font-medium";
+        return "bg-amber-500/10 text-amber-300 border-amber-500/25 font-medium";
       case "neutral":
       default:
-        return "bg-surface-container-low text-on-surface-variant border-stroke-card/70 font-medium hover:border-stroke-hover";
+        return "bg-white/5 text-zinc-300 border-white/10 font-medium hover:border-white/20";
     }
   };
 
@@ -32,11 +32,11 @@ export const SkillChip: React.FC<SkillChipProps> = ({
     >
       {/* Leading Indicator */}
       {status === "matched" && (
-        <span className="w-1.5 h-1.5 rounded-full bg-secondary-mint" />
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00D4BE] shadow-[0_0_5px_#00D4BE]" />
       )}
       {status === "gap" && (
-        <span className="text-[10px] font-bold text-accent-gap leading-none">
-          –
+        <span className="text-[10px] font-bold text-amber-300 leading-none">
+          •
         </span>
       )}
 
@@ -45,7 +45,7 @@ export const SkillChip: React.FC<SkillChipProps> = ({
 
       {/* Optional Embedded Micro-Pill for Proficiency / Repos */}
       {proficiency && (
-        <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono tracking-tight bg-black/5 text-outline">
+        <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono tracking-tight bg-white/10 text-zinc-400">
           {proficiency}
         </span>
       )}

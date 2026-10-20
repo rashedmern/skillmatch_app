@@ -1,19 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { CandidateProfile, JobListing } from "./types";
-import { useLanguage } from "@/context/LanguageContext";
+import { CompanyLogo } from "@/components/common/CompanyLogo";
 import {
-  Terminal,
-  Cpu,
-  Building2,
-  CheckCircle2,
+  Bookmark,
+  ChevronRight,
   Sparkles,
-  AlertCircle,
-  GraduationCap,
-  ShieldCheck,
+  CheckCircle2,
+  Circle,
+  Building2,
+  MapPin,
+  Clock,
   ArrowRight,
-  TrendingUp,
+  ExternalLink,
 } from "lucide-react";
 
 interface DashboardOverviewTabProps {
@@ -33,312 +33,418 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
   onNavigateToProfile,
   onTriggerToast,
 }) => {
-  const { t, language } = useLanguage();
-  const topMatches = jobs.slice(0, 3);
+  // Bookmarked job IDs
+  const [bookmarkedJobs, setBookmarkedJobs] = useState<Record<string, boolean>>({});
 
-  return (
-    <div className="space-y-6">
-      {/* Candidate Identity Dossier Banner */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#002930] via-primary-container to-[#004049] text-white relative overflow-hidden shadow-level-2">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(10,136,125,0.4),transparent_70%)] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(141,206,218,0.25),transparent_70%)] pointer-events-none" />
+  // Checklist state
+  const [checklist, setChecklist] = useState({
+    cv: true,
+    profile: true,
+    preferences: false,
+  });
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            {profile.avatarUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={profile.avatarUrl}
-                alt={profile.name}
-                className="w-16 h-16 rounded-2xl object-cover border-2 border-secondary-mint shadow-md"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-2xl text-secondary-container backdrop-blur-md shadow-inner">
-                AC
+  const toggleBookmark = (id: string, title: string) => {
+    setBookmarkedJobs((prev) => {
+      const next = !prev[id];
+      onTriggerToast(next ? `Saved '${title}' to bookmarks!` : `Removed '${title}' from bookmarks.`);
+      return { ...prev, [id]: next };
+    });
+  };
+
+  // Curated categories mimicking Handshake's exact card sections
+  const newMatches: JobListing[] = [
+    {
+      id: "hm-1",
+      title: "Site Reliability & Backend Intern",
+      company: "Dev Technology Group",
+      logoText: "DT",
+      location: "Ashburn, VA (On-site)",
+      workModel: "Hybrid",
+      domain: "Cloud & SRE",
+      salary: "$45 - $55/hr",
+      matchScore: 96,
+      tags: ["Go", "Kubernetes", "Linux"],
+      description: "Assist engineering teams with cluster provisioning and telemetry pipeline maintenance.",
+      postedDate: "2 days ago • New",
+    },
+    {
+      id: "hm-2",
+      title: "Mobile & Systems Developer Intern",
+      company: "RideCo",
+      logoText: "RC",
+      location: "Waterloo, Ontario (Remote)",
+      workModel: "Remote",
+      domain: "Distributed Systems",
+      salary: "$40 - $50/hr",
+      matchScore: 92,
+      tags: ["TypeScript", "React Native", "APIs"],
+      description: "Build next-generation transit routing and dispatch systems with low-latency APIs.",
+      postedDate: "2 days ago • New",
+    },
+    {
+      id: "hm-3",
+      title: "Platform Infrastructure Intern",
+      company: "Stripe",
+      logoText: "SP",
+      location: "San Francisco, CA",
+      workModel: "Hybrid",
+      domain: "Distributed Systems",
+      salary: "$55 - $70/hr",
+      matchScore: 98,
+      tags: ["Go", "Distributed Storage", "gRPC"],
+      description: "Design high-reliability payment infrastructure serving millions of global transactions.",
+      postedDate: "3 days ago • New",
+    },
+    {
+      id: "hm-4",
+      title: "Security & Systems Trust Intern",
+      company: "Truveta",
+      logoText: "TV",
+      location: "Seattle, WA (Remote)",
+      workModel: "Remote",
+      domain: "Kernel & Systems",
+      salary: "$50 - $60/hr",
+      matchScore: 91,
+      tags: ["Zero-Trust", "Python", "Cloud Security"],
+      description: "Collaborate on cryptographic audit logs and data isolation for distributed healthcare systems.",
+      postedDate: "2 days ago • New",
+    },
+  ];
+
+  const jobPicks: JobListing[] = [
+    {
+      id: "jp-1",
+      title: "Software Engineering Intern",
+      company: "Google, Inc.",
+      logoText: "G",
+      location: "Mountain View, CA",
+      workModel: "Hybrid",
+      domain: "Distributed Systems",
+      salary: "$55 - $65/hr",
+      matchScore: 97,
+      tags: ["C++", "Go", "Distributed Systems"],
+      description: "Build scalable microservices and internal developer tooling used by thousands of engineers.",
+      postedDate: "4 weeks ago",
+    },
+    {
+      id: "jp-2",
+      title: "Site Reliability Graduate Intern",
+      company: "TikTok Inc.",
+      logoText: "TT",
+      location: "San Jose, CA",
+      workModel: "Hybrid",
+      domain: "Cloud & SRE",
+      salary: "$55 - $65/hr",
+      matchScore: 94,
+      tags: ["Linux", "Kubernetes", "Prometheus"],
+      description: "Maintain core multi-region streaming infrastructure and monitor edge server clusters.",
+      postedDate: "4 weeks ago",
+    },
+    {
+      id: "jp-3",
+      title: "Cloud Native Kubernetes Intern",
+      company: "ScaleOps",
+      logoText: "SO",
+      location: "San Francisco, CA",
+      workModel: "Remote",
+      domain: "Distributed Systems",
+      salary: "$45 - $55/hr",
+      matchScore: 95,
+      tags: ["Go", "Docker", "Kubernetes CRDs"],
+      description: "Build custom controllers and automated autoscaling operators for cloud-native clusters.",
+      postedDate: "3 days ago",
+    },
+    {
+      id: "jp-4",
+      title: "Backend Observability Intern",
+      company: "Datadog",
+      logoText: "DD",
+      location: "New York, NY",
+      workModel: "Hybrid",
+      domain: "Cloud & SRE",
+      salary: "$50 - $60/hr",
+      matchScore: 96,
+      tags: ["Go", "PostgreSQL", "Kafka"],
+      description: "Work on ingestion pipelines processing billions of telemetry events with sub-second latency.",
+      postedDate: "1 week ago",
+    },
+  ];
+
+  const goodFits: JobListing[] = [
+    {
+      id: "gf-1",
+      title: "Edge Network Systems Intern",
+      company: "Cloudflare",
+      logoText: "CF",
+      location: "Austin, TX (Remote)",
+      workModel: "Remote",
+      domain: "Kernel & Systems",
+      salary: "$52 - $62/hr",
+      matchScore: 93,
+      tags: ["Rust", "WASM", "HTTP/3"],
+      description: "Help optimize edge workers and low-latency DNS resolution for a third of the internet.",
+      postedDate: "1 day ago",
+    },
+    {
+      id: "gf-2",
+      title: "Distributed Database Engine Intern",
+      company: "CockroachLabs",
+      logoText: "CR",
+      location: "New York, NY",
+      workModel: "Remote",
+      domain: "Database Engines",
+      salary: "$55 - $70/hr",
+      matchScore: 96,
+      tags: ["Go", "Raft", "SQL Execution"],
+      description: "Implement query planner optimizers and distributed multi-region transaction protocols.",
+      postedDate: "2 days ago",
+    },
+    {
+      id: "gf-3",
+      title: "Real-Time Infrastructure Intern",
+      company: "Uber",
+      logoText: "UB",
+      location: "San Francisco, CA",
+      workModel: "Hybrid",
+      domain: "Distributed Systems",
+      salary: "$55 - $65/hr",
+      matchScore: 94,
+      tags: ["Go", "Kafka", "Redis"],
+      description: "Contribute to real-time dispatch pipelines and geofencing distributed state stores.",
+      postedDate: "5 days ago",
+    },
+    {
+      id: "gf-4",
+      title: "Production Engineering Intern",
+      company: "Meta",
+      logoText: "ME",
+      location: "Menlo Park, CA",
+      workModel: "Hybrid",
+      domain: "Cloud & SRE",
+      salary: "$60 - $70/hr",
+      matchScore: 95,
+      tags: ["Python", "Linux Kernel", "BGP"],
+      description: "Troubleshoot large-scale data center networks and automate server fleet deployments.",
+      postedDate: "1 week ago",
+    },
+  ];
+
+  const renderJobCard = (job: JobListing) => {
+    const isBookmarked = !!bookmarkedJobs[job.id];
+
+    return (
+      <div
+        key={job.id}
+        className="group relative bg-white border border-zinc-200/90 hover:border-[#00D4BE]/60 rounded-2xl p-4 sm:p-5 hover:shadow-[0_8px_25px_rgba(0,212,190,0.12)] transition-all flex flex-col justify-between select-none"
+      >
+        <div className="space-y-3">
+          {/* Top Row: Company Info & Bookmark Button */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <CompanyLogo name={job.company} size="md" className="shrink-0" />
+              <div className="min-w-0">
+                <h4 className="font-bold text-xs sm:text-sm text-zinc-900 truncate leading-snug">
+                  {job.company}
+                </h4>
+                <p className="text-[11px] text-zinc-500 truncate">Internet &amp; Software</p>
               </div>
-            )}
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-                  {profile.name}
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary-container border border-secondary-container/30 text-xs font-mono font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  {language === "bn" ? "ABET অনুমোদিত" : "ABET Verified"}
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-white/80 font-medium">
-                <span className="flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5 text-secondary-container" />
-                  {profile.university} ({profile.degree} &apos;{profile.graduationYear})
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1 font-mono">
-                  <ShieldCheck className="w-3.5 h-3.5 text-secondary-mint" />
-                  {profile.email}
-                </span>
-              </div>
             </div>
-          </div>
 
-          {/* AST Match Telemetry */}
-          <div className="p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md flex items-center gap-4 self-stretch md:self-auto justify-between md:justify-start">
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-white/70 font-semibold">
-                {t.candidate.astScoreLabel}
-              </div>
-              <div className="text-3xl font-extrabold font-mono tabular-nums text-secondary-container">
-                94.2%
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-full border-2 border-secondary-container/40 flex items-center justify-center text-xs font-bold text-secondary-container">
-              {language === "bn" ? "শীর্ষ ৬%" : "Top 6%"}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bento Grid: 4 Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Card 1: Verified Codebase */}
-        <div className="p-5 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5 text-secondary-mint" />
-              {t.candidate.verifiedRepoLabel}
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
-              {t.candidate.cleanAstBadge}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-sm font-extrabold text-on-surface font-mono">
-              distributed-kv-store
-            </h3>
-            <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              {language === "bn"
-                ? "গো ভাষায় তৈরি রাফট কনসেনসাস ও আরপিসি স্টেট মেশিন।"
-                : "Raft consensus with log replication & RPC state machine in Go."}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-slate-100 font-mono">
-            <div>
-              <span className="text-outline text-[10px]">{t.candidate.nodesLabel}</span>
-              <p className="font-bold text-on-surface">14,280</p>
-            </div>
-            <div>
-              <span className="text-outline text-[10px]">{t.candidate.safetyLabel}</span>
-              <p className="font-bold text-secondary-mint">
-                {language === "bn" ? "৯৮তম পার্সেন্টাইল" : "98th %ile"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: Algorithmic Efficiency */}
-        <div className="p-5 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-secondary-mint" />
-              {t.candidate.algorithmicDepthLabel}
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/10 text-secondary-mint font-bold">
-              O(log n)
-            </span>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-              96.0%
-            </div>
-            <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed">
-              {language === "bn"
-                ? "শীর্ষ ইঞ্জিনিয়ারিং মানের সাথে ডেটা স্ট্রাকচার ট্রাভার্সাল মানানসই।"
-                : "Data structure traversal benchmarks match Tier-1 engineering standards."}
-            </p>
-          </div>
-          <div
-            role="progressbar"
-            aria-valuenow={96}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={language === "bn" ? "অ্যালগোরিদমিক দক্ষতা পার্সেন্টাইল" : "Algorithmic efficiency percentile"}
-            className="w-full bg-slate-100 rounded-full h-2 overflow-hidden"
-          >
-            <div className="bg-secondary-mint h-full rounded-full" style={{ width: "96%" }} />
-          </div>
-        </div>
-
-        {/* Card 3: Recruiter Reviews */}
-        <div className="p-5 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-secondary-mint" />
-              {t.candidate.recruiterReviewsLabel}
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary font-bold">
-              {language === "bn" ? "সক্রিয়" : "Active"}
-            </span>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-              {language === "bn" ? "১৪টি লিড রিভিউ" : "14 Lead Reviews"}
-            </div>
-            <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">
-              {language === "bn"
-                ? "ScaleOps, Veritas, এবং NeuralFlow-এর প্রকৌশলীরা আপনার ডজিয়ার পরিদর্শন করেছেন।"
-                : "Leads from ScaleOps, Veritas, and NeuralFlow inspected your dossier."}
-            </p>
-          </div>
-          <div className="pt-2 text-[11px] border-t border-slate-100 flex items-center gap-1 text-secondary-mint font-semibold">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{t.candidate.atsBypassedLabel}</span>
-          </div>
-        </div>
-
-        {/* Card 4: Profile & Resume Health */}
-        <div className="p-5 rounded-2xl bg-white border border-stroke-card shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-outline flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-secondary-mint" />
-              {t.candidate.profileHealthLabel}
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/15 text-secondary-mint font-bold">
-              {language === "bn" ? "৯৯% সিনট্যাক্স" : "99% Syntax"}
-            </span>
-          </div>
-          <div>
-            <div className="text-2xl font-extrabold text-on-surface font-mono tabular-nums">
-              {profile.skills.length} {language === "bn" ? "দক্ষতা" : "Skills"}
-            </div>
-            <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed">
-              {language === "bn"
-                ? "সক্রিয় AST ভেক্টর টোকেনাইজারের সাথে রিজিউমে SHA-256 সিঙ্ক করা হয়েছে।"
-                : "Resume SHA-256 synced with active AST vector tokenizer."}
-            </p>
-          </div>
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
             <button
               type="button"
-              onClick={onNavigateToProfile}
-              aria-label={t.candidate.editProfileBtn}
-              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded px-1"
+              onClick={() => toggleBookmark(job.id, job.title)}
+              className="p-1 rounded-md text-zinc-400 hover:text-[#00D4BE] transition-colors cursor-pointer shrink-0"
+              aria-label="Bookmark role"
             >
-              <span>{t.candidate.editProfileBtn}</span>
-              <ArrowRight className="w-3 h-3" aria-hidden="true" />
+              <Bookmark
+                className={`w-4 h-4 transition-transform active:scale-125 ${
+                  isBookmarked ? "fill-[#00D4BE] text-[#00D4BE]" : ""
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Role Title */}
+          <div>
+            <h3 className="font-bold text-sm sm:text-base text-zinc-900 group-hover:text-[#095964] transition-colors line-clamp-2 leading-snug">
+              {job.title}
+            </h3>
+            <p className="text-xs font-semibold text-zinc-700 mt-1">{job.salary} • Full-time internship</p>
+          </div>
+        </div>
+
+        {/* Bottom Details & 1-Click Action */}
+        <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] text-zinc-500">
+          <span className="truncate">{job.location}</span>
+          <button
+            type="button"
+            onClick={() => onApplyJob(job)}
+            className="text-xs font-bold text-[#095964] hover:text-[#00D4BE] transition-colors cursor-pointer shrink-0 ml-2"
+          >
+            Apply &rarr;
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+      {/* 1. WELCOME GREETING */}
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+          Welcome back, {profile.name ? profile.name.split(" ")[0] : "Rashed"}
+        </h1>
+      </div>
+
+      {/* 2. "GET MATCH-READY" CARD (Styled with User's Soft Green Gradient Theme) */}
+      <div className="relative rounded-2xl bg-gradient-to-r from-[#e6fbf7] to-[#f4fdfb] border border-[#00D4BE]/30 p-6 sm:p-7 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          {/* Left: Heading & Subtitle */}
+          <div className="space-y-1.5 max-w-md">
+            <h2 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight">
+              Get search-ready
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-normal">
+              Set up to get matched with the right engineering internships
+            </p>
+          </div>
+
+          {/* Right: 3 Checklist Items */}
+          <div className="space-y-2.5 sm:space-y-3 shrink-0">
+            {/* Item 1: Upload a CV */}
+            <button
+              type="button"
+              onClick={() => {
+                setChecklist((p) => ({ ...p, cv: !p.cv }));
+                onNavigateToProfile();
+              }}
+              className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-zinc-800 hover:text-[#095964] transition-colors cursor-pointer text-left"
+            >
+              {checklist.cv ? (
+                <CheckCircle2 className="w-4 h-4 text-[#00D4BE] shrink-0" />
+              ) : (
+                <Circle className="w-4 h-4 text-zinc-400 shrink-0" />
+              )}
+              <span>Upload a CV or connect GitHub</span>
+            </button>
+
+            {/* Item 2: Complete profile */}
+            <button
+              type="button"
+              onClick={() => {
+                setChecklist((p) => ({ ...p, profile: !p.profile }));
+                onNavigateToProfile();
+              }}
+              className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-zinc-800 hover:text-[#095964] transition-colors cursor-pointer text-left"
+            >
+              {checklist.profile ? (
+                <CheckCircle2 className="w-4 h-4 text-[#00D4BE] shrink-0" />
+              ) : (
+                <Circle className="w-4 h-4 text-zinc-400 shrink-0" />
+              )}
+              <span>Complete your technical profile</span>
+            </button>
+
+            {/* Item 3: Review preferences */}
+            <button
+              type="button"
+              onClick={() => {
+                setChecklist((p) => ({ ...p, preferences: !p.preferences }));
+                onTriggerToast("Preferences updated!");
+              }}
+              className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-zinc-800 hover:text-[#095964] transition-colors cursor-pointer text-left"
+            >
+              {checklist.preferences ? (
+                <CheckCircle2 className="w-4 h-4 text-[#00D4BE] shrink-0" />
+              ) : (
+                <Circle className="w-4 h-4 text-zinc-400 shrink-0" />
+              )}
+              <span>Review your internship preferences</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Target Architectural Gap Card */}
-      <div className="p-5 rounded-2xl bg-white border border-accent-gap/30 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-gap/10 text-accent-gap flex items-center justify-center shrink-0 mt-0.5">
-            <AlertCircle className="w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-on-surface">
-              {t.candidate.gapDetectedTitle}
-            </h4>
-            <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-              {t.candidate.gapDetectedDesc}
-            </p>
-          </div>
-        </div>
+      {/* 3. "LEVEL UP YOUR SKILLS" BANNER (Dark Green Gradient Card) */}
+      <div className="space-y-3">
+        <h3 className="text-base sm:text-lg font-bold text-zinc-900 tracking-tight">
+          Level up your skills
+        </h3>
 
-        <button
-          type="button"
-          onClick={() =>
-            onTriggerToast(
-              language === "bn"
-                ? "AST কোড স্যান্ডবক্স বেঞ্চমার্ক চালু হচ্ছে..."
-                : "Initializing ephemeral AST Code Sandbox benchmark..."
-            )
-          }
-          aria-label={t.candidate.launchSandboxBtn}
-          className="px-4 py-2 rounded-xl bg-accent-gap hover:bg-accent-gap/90 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap focus-visible:ring-offset-2"
-        >
-          {t.candidate.launchSandboxBtn}
-        </button>
-      </div>
+        <div className="relative rounded-2xl bg-gradient-to-r from-[#051C19] via-[#0D3E35] to-[#095964] border border-[#00D4BE]/30 p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 text-white shadow-xl overflow-hidden">
+          {/* Ambient Glow & Sphere */}
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#00D4BE] via-[#0a887d] to-[#051C19] shadow-[0_0_25px_rgba(0,212,190,0.6)] flex items-center justify-center shrink-0 border border-white/20">
+              <Sparkles className="w-6 h-6 text-white animate-pulse" />
+            </div>
 
-      {/* High-Confidence Algorithmic Role Matches Preview */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-extrabold text-on-surface tracking-tight">
-              {language === "bn" ? "শীর্ষ অ্যালগোরিদমিক ম্যাচ" : "Top Algorithmic Matches"}
-            </h2>
-            <p className="text-xs text-on-surface-variant">
-              {language === "bn"
-                ? "আপনার যাচাইকৃত সিএস পাঠ্যক্রমের সাথে মানানসই উচ্চ-আস্থার পদসমূহ।"
-                : "High-confidence positions matching your verified CS curriculum."}
-            </p>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-base sm:text-lg text-white leading-tight">
+                Introducing SkillMatch Code Studio
+              </h4>
+              <p className="text-xs sm:text-sm text-zinc-300 leading-normal max-w-xl">
+                Build projects with real code to get verified experience for any engineering path
+              </p>
+            </div>
           </div>
 
+          {/* Action Button */}
           <button
             type="button"
             onClick={onNavigateToAllJobs}
-            aria-label={
-              language === "bn"
-                ? `সকল ${jobs.length}টি চাকরি দেখুন`
-                : `Browse All ${jobs.length} Jobs`
-            }
-            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint rounded px-1.5 py-0.5"
+            className="relative z-10 px-6 py-2.5 rounded-full text-xs sm:text-sm font-extrabold text-[#051C19] bg-white hover:bg-[#00D4BE] active:scale-95 shadow-md transition-all cursor-pointer shrink-0"
           >
-            <span>
-              {language === "bn"
-                ? `সকল ${jobs.length}টি চাকরি দেখুন`
-                : `Browse All ${jobs.length} Jobs`}
-            </span>
-            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            Explore tracks
           </button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {topMatches.map((job) => (
-            <div
-              key={job.id}
-              className="p-5 rounded-2xl bg-white border border-stroke-card hover:border-secondary-mint/50 transition-all shadow-sm space-y-3 flex flex-col justify-between"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-primary">{job.company}</span>
-                  <span className="text-xs font-mono font-bold text-secondary-mint bg-secondary/10 px-2 py-0.5 rounded">
-                    {job.matchScore}% {language === "bn" ? "ম্যাচ" : "Match"}
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-on-surface line-clamp-1">{job.title}</h4>
-                  <p className="text-xs text-slate-600 font-mono mt-0.5">
-                    {job.salary} • {job.workModel}
-                  </p>
-                </div>
-              </div>
+      {/* 4. SECTION 1: "New matches for your search" */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={onNavigateToAllJobs}
+          className="group inline-flex items-center gap-1.5 text-base sm:text-lg font-bold text-zinc-900 hover:text-[#095964] transition-colors cursor-pointer"
+        >
+          <span>New matches for your search: Software Engineer + 3 more interests</span>
+          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#095964] group-hover:translate-x-0.5 transition-all" />
+        </button>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] text-secondary-mint font-semibold flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" aria-hidden="true" />
-                  <span>{language === "bn" ? "ফাস্ট-ট্র্যাক" : "Fast-Tracked"}</span>
-                </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {newMatches.map(renderJobCard)}
+        </div>
+      </div>
 
-                {job.isApplied ? (
-                  <span className="text-[11px] font-bold text-secondary-mint bg-secondary/15 px-2 py-1 rounded-lg">
-                    {language === "bn" ? "আবেদিত ✓" : "Applied ✓"}
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => onApplyJob(job)}
-                    aria-label={`${language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}: ${job.title} at ${job.company}`}
-                    className="px-3 py-1 rounded-lg bg-primary-container text-white text-xs font-bold hover:bg-primary-hover transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-mint"
-                  >
-                    {language === "bn" ? "১-ক্লিকে আবেদন" : "1-Click Apply"}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+      {/* 5. SECTION 2: "Job picks for software developers and engineers" */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={onNavigateToAllJobs}
+          className="group inline-flex items-center gap-1.5 text-base sm:text-lg font-bold text-zinc-900 hover:text-[#095964] transition-colors cursor-pointer"
+        >
+          <span>Job picks for software developers and engineers</span>
+          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#095964] group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {jobPicks.map(renderJobCard)}
+        </div>
+      </div>
+
+      {/* 6. SECTION 3: "Good fits for software developers and engineers" */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={onNavigateToAllJobs}
+          className="group inline-flex items-center gap-1.5 text-base sm:text-lg font-bold text-zinc-900 hover:text-[#095964] transition-colors cursor-pointer"
+        >
+          <span>Good fits for software developers and engineers</span>
+          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-[#095964] group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {goodFits.map(renderJobCard)}
         </div>
       </div>
     </div>

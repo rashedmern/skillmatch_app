@@ -7,15 +7,15 @@ export const HowItWorks: React.FC = () => {
   return (
     <section
       id="how-it-works"
-      className="relative w-full py-16 sm:py-20 lg:py-24 bg-surface-container-low/30 border-y border-stroke-card/60"
+      className="relative w-full py-16 sm:py-20 lg:py-24 bg-[#14151C] text-white border-y border-white/5"
     >
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* Centered Section Header */}
         <SectionHeader
           align="center"
-          badge="End-to-End Pipeline"
-          title="How SkillMatch Replaces the Broken Application Pipeline."
-          subtitle="Eliminate the resume lottery. From GitHub AST codebase analysis to direct technical interview scheduling in three transparent steps."
+          badge="How It Works"
+          title="From Working Code to Direct Technical Interviews."
+          subtitle="Skip the resume screening lottery. Prove your technical depth through real GitHub code and interactive challenges in three straightforward steps."
         />
 
         {/* 3-Step Responsive Sequential Flow */}

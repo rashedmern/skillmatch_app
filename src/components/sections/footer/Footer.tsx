@@ -30,24 +30,22 @@ const LinkedinIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" 
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full bg-white border-t border-slate-200/80 transition-colors overflow-hidden">
+    <footer className="w-full bg-[#14151C] text-white border-t border-white/10 transition-colors overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content Grid */}
         <div className="pt-12 sm:pt-16 pb-8 sm:pb-12 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8">
           {/* Brand Identity & Summary (4 columns on desktop) */}
           <div className="lg:col-span-4 xl:col-span-4 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <BrandLogo size="md" />
+              <BrandLogo size="md" variant="dark" />
 
-              <p className="text-xs sm:text-sm text-on-surface-variant font-normal leading-relaxed max-w-sm">
-                Replacing broken resumes with verifiable AST code analysis. Connecting top CSE
-                engineering talent directly with high-growth technical teams through empirical skill
-                verification and zero recruiter gatekeeping.
+              <p className="text-xs sm:text-sm text-zinc-400 font-normal leading-relaxed max-w-sm">
+                Connecting computer science students directly with engineering teams through real code challenges and verified GitHub projects. No ATS keyword gatekeeping.
               </p>
 
               {/* Developer CLI / API Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low border border-slate-200 text-xs font-mono text-on-surface-variant max-w-full overflow-hidden truncate">
-                <Terminal className="w-3.5 h-3.5 text-primary-container shrink-0" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 max-w-full overflow-hidden truncate">
+                <Terminal className="w-3.5 h-3.5 text-[#00D4BE] shrink-0" />
                 <span className="truncate">$ npx skillmatch verify --repo</span>
               </div>
             </div>
@@ -58,7 +56,7 @@ export const Footer: React.FC = () => {
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-surface-container-low border border-slate-200/80 flex items-center justify-center text-on-surface-variant hover:text-primary-container hover:border-slate-300 hover:bg-surface-container transition-all duration-150"
+                className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-[#00D4BE] hover:border-[#00D4BE]/30 hover:bg-white/10 transition-all duration-150"
                 aria-label="GitHub Organization"
               >
                 <GithubIcon className="w-4 h-4" />
@@ -67,7 +65,7 @@ export const Footer: React.FC = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-surface-container-low border border-slate-200/80 flex items-center justify-center text-on-surface-variant hover:text-primary-container hover:border-slate-300 hover:bg-surface-container transition-all duration-150"
+                className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-[#00D4BE] hover:border-[#00D4BE]/30 hover:bg-white/10 transition-all duration-150"
                 aria-label="Twitter / X Profile"
               >
                 <TwitterIcon className="w-3.5 h-3.5" />
@@ -76,7 +74,7 @@ export const Footer: React.FC = () => {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-surface-container-low border border-slate-200/80 flex items-center justify-center text-on-surface-variant hover:text-primary-container hover:border-slate-300 hover:bg-surface-container transition-all duration-150"
+                className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-[#00D4BE] hover:border-[#00D4BE]/30 hover:bg-white/10 transition-all duration-150"
                 aria-label="LinkedIn Company Page"
               >
                 <LinkedinIcon className="w-4 h-4" />
@@ -88,7 +86,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-8 xl:col-span-8 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {FOOTER_DIRECTORY.map((column) => (
               <div key={column.title} className="space-y-3 sm:space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface font-sans">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white font-sans">
                   {column.title}
                 </h3>
                 <ul className="space-y-2.5">
@@ -96,13 +94,13 @@ export const Footer: React.FC = () => {
                     <li key={link.label}>
                       <Link
                         href={link.href}
-                        className="group inline-flex items-center text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-150"
+                        className="group inline-flex items-center text-sm text-zinc-400 hover:text-[#00D4BE] transition-colors duration-150"
                       >
                         <span className="group-hover:translate-x-0.5 transition-transform duration-150">
                           {link.label}
                         </span>
                         {link.badge && (
-                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-secondary-container/20 text-secondary-container-foreground border border-secondary-mint/30">
+                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-[#00D4BE]/15 text-[#00D4BE] border border-[#00D4BE]/30">
                             {link.badge}
                           </span>
                         )}

@@ -100,6 +100,15 @@ export default function LoginPage() {
         return;
       }
 
+      if (typeof window !== "undefined" && persona === "candidate") {
+        try {
+          localStorage.setItem("skillmatch_candidate_email", email.trim().toLowerCase());
+          document.cookie = `skillmatch_candidate_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+        } catch (e) {
+          console.warn("Failed to set candidate email in localStorage", e);
+        }
+      }
+
       router.push(result.data.redirectUrl);
     } catch {
       setIsLoading(false);
@@ -115,8 +124,10 @@ export default function LoginPage() {
     const roleName = persona === "candidate" ? "CANDIDATE" : "RECRUITER";
     const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
     document.cookie = `skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
+    document.cookie = `skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax${isSecure ? "; Secure" : ""}`;
     if (isSecure) {
       document.cookie = `__Secure-skillmatch_auth_role=${roleName}; path=/; max-age=2592000; SameSite=Lax; Secure`;
+      document.cookie = `__Secure-skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax; Secure`;
     }
     signIn("google", { callbackUrl: `/dashboard?role=${roleName}` });
   };
