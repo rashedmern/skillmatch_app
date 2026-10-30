@@ -42,7 +42,9 @@ export const RecruiterOverviewTab: React.FC<RecruiterOverviewTabProps> = ({
   const { t, language } = useLanguage();
   const activeJobs = jobs.filter((j) => j.status === "Active");
   const shortlistedApplicants = applicants.filter((a) => a.stage === "Shortlisted");
-  const recentApplicants = applicants.slice(0, 5);
+  const recentApplicants = applicants
+    .filter((a) => a.stage === "New Applicant" || a.stage === "Shortlisted")
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -252,7 +254,14 @@ export const RecruiterOverviewTab: React.FC<RecruiterOverviewTabProps> = ({
           </div>
 
           <div className="space-y-3">
-            {recentApplicants.map((cand) => (
+            {recentApplicants.length === 0 ? (
+              <div className="p-8 text-center rounded-xl bg-white border border-slate-200 text-slate-500 text-xs font-medium">
+                {language === "bn"
+                  ? "সব আবেদনকারীকে ইতিমধ্যে সাক্ষাৎকার শিডিউল করা হয়েছে! নতুন আবেদন জমা হলে এখানে দেখা যাবে।"
+                  : "All recent applicants have been scheduled! New candidates will appear here as they apply."}
+              </div>
+            ) : (
+              recentApplicants.map((cand) => (
               <div
                 key={cand.id}
                 className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-secondary-mint/50 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
@@ -335,7 +344,7 @@ export const RecruiterOverviewTab: React.FC<RecruiterOverviewTabProps> = ({
                   </button>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
 

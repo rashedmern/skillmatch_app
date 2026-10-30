@@ -116,6 +116,113 @@ const initialJobPostings: JobPosting[] = [
   },
 ];
 
+const incomingCandidatePool: Omit<ApplicantCandidate, "id" | "appliedDate" | "stage">[] = [
+  {
+    name: "Tanvir Ahmed",
+    initials: "TA",
+    university: "BUET",
+    degree: "B.S. CSE (\x2726)",
+    email: "tanvir.cse@buet.ac.bd",
+    matchScore: 96,
+    experience: "Class of 2026 • BUET",
+    skills: ["Go", "Distributed Systems", "PostgreSQL", "gRPC"],
+    highlightRepo: "distributed-raft-store",
+    jobId: "job-rec-1",
+    jobTitle: "Staff Distributed Systems Engineer",
+  },
+  {
+    name: "Sophia Lorenzen",
+    initials: "SL",
+    university: "TU Munich",
+    degree: "M.S. Informatics (\x2726)",
+    email: "sophia.l@tum.de",
+    matchScore: 97,
+    experience: "Class of 2026 • TU Munich",
+    skills: ["Rust", "Tokio", "Concurrency", "Linux"],
+    highlightRepo: "zero-alloc-parser",
+    jobId: "job-rec-1",
+    jobTitle: "Staff Distributed Systems Engineer",
+  },
+  {
+    name: "Tariq Al-Mansoor",
+    initials: "TM",
+    university: "Univ. of Washington",
+    degree: "B.S. CS (\x2726)",
+    email: "tariq.m@cs.washington.edu",
+    matchScore: 94,
+    experience: "Class of 2026 • UW",
+    skills: ["C++", "eBPF", "Linux Kernel", "Docker"],
+    highlightRepo: "kernel-packet-filter",
+    jobId: "job-rec-3",
+    jobTitle: "High-Throughput Network Systems Engineer",
+  },
+  {
+    name: "Amina Rahman",
+    initials: "AR",
+    university: "University of Dhaka",
+    degree: "B.S. CSE (\x2725)",
+    email: "amina.rahman@du.ac.bd",
+    matchScore: 95,
+    experience: "Class of 2025 • DU",
+    skills: ["TypeScript", "Next.js", "PostgreSQL", "GraphQL"],
+    highlightRepo: "reactive-event-pipeline",
+    jobId: "job-rec-4",
+    jobTitle: "Full-Stack Software Engineer",
+  },
+  {
+    name: "Liam O\x27Connor",
+    initials: "LO",
+    university: "Georgia Tech",
+    degree: "B.S. Computer Science (\x2726)",
+    email: "loconnor@gatech.edu",
+    matchScore: 93,
+    experience: "Class of 2026 • Georgia Tech",
+    skills: ["Python", "FastAPI", "PostgreSQL", "Redis"],
+    highlightRepo: "distributed-lock-manager",
+    jobId: "job-rec-2",
+    jobTitle: "Senior Backend & Platform Engineer",
+  },
+  {
+    name: "Ananya Roy",
+    initials: "AR",
+    university: "NUS",
+    degree: "B.S. Computer Science (\x2726)",
+    email: "ananya.roy@u.nus.edu",
+    matchScore: 98,
+    experience: "Class of 2026 • NUS",
+    skills: ["PyTorch", "CUDA", "C++", "Python"],
+    highlightRepo: "quantized-tensor-core",
+    jobId: "job-rec-3",
+    jobTitle: "High-Throughput Network Systems Engineer",
+  },
+  {
+    name: "Chloe Dupont",
+    initials: "CD",
+    university: "Cornell University",
+    degree: "M.Eng. CS (\x2725)",
+    email: "cdupont@cornell.edu",
+    matchScore: 95,
+    experience: "Class of 2025 • Cornell",
+    skills: ["Go", "Kubernetes", "AWS", "Prometheus"],
+    highlightRepo: "mesh-traffic-controller",
+    jobId: "job-rec-2",
+    jobTitle: "Senior Backend & Platform Engineer",
+  },
+  {
+    name: "Gabriel Santos",
+    initials: "GS",
+    university: "UT Austin",
+    degree: "B.S. CS (\x2726)",
+    email: "gsantos@utexas.edu",
+    matchScore: 92,
+    experience: "Class of 2026 • UT Austin",
+    skills: ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+    highlightRepo: "realtime-collab-canvas",
+    jobId: "job-rec-4",
+    jobTitle: "Full-Stack Software Engineer",
+  },
+];
+
 const initialApplicantsData: ApplicantCandidate[] = [
   {
     id: "cand-1",
@@ -586,24 +693,43 @@ function RecruiterDashboardContent() {
     if (!scheduleCandidate) return;
 
     const candId = scheduleCandidate.id;
+    const candName = scheduleCandidate.name;
+
+    // Pick a realistic new applicant from pool that is not already in applicants
+    const existingEmails = new Set(applicants.map((a) => a.email.toLowerCase()));
+    const template =
+      incomingCandidatePool.find((c) => !existingEmails.has(c.email.toLowerCase())) ||
+      incomingCandidatePool[Math.floor(Math.random() * incomingCandidatePool.length)];
+
+    const newApplicant: ApplicantCandidate = {
+      ...template,
+      id: "cand-" + Date.now(),
+      appliedDate: language === "bn" ? "এইমাত্র" : "Just now",
+      stage: "New Applicant",
+    };
+
     setApplicants((prev) => {
+      // 1. Move scheduled candidate to "Interview Scheduled"
       const updated = prev.map((c) =>
         c.id === candId ? { ...c, stage: "Interview Scheduled" as const } : c
       );
+      // 2. Prepend the new realistic applicant to the queue!
+      const withNew = [newApplicant, ...updated];
+
       if (typeof window !== "undefined") {
         try {
-          localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(updated));
+          localStorage.setItem("skillmatch_recruiter_applicants", JSON.stringify(withNew));
         } catch (err) {
-          console.warn("Failed to cache recruiter applicants:", e);
+          console.warn("Failed to cache recruiter applicants:", err);
         }
       }
-      return updated;
+      return withNew;
     });
 
     const toastMsg =
       language === "bn"
-        ? `${scheduleCandidate.name}-এর সাথে সাক্ষাৎকার নিশ্চিত হয়েছে (${scheduleDate} তারিখ, ${scheduleTime} সময়)!`
-        : `Interview confirmed with ${scheduleCandidate.name} on ${scheduleDate} at ${scheduleTime}!`;
+        ? `${candName}-কে ক্যালেন্ডার ইনভাইট পাঠানো হয়েছে! নতুন আবেদন জমা পড়েছে: ${newApplicant.name} (${newApplicant.matchScore}% ম্যাচ)`
+        : `Calendar invite sent to ${candName}! New application received: ${newApplicant.name} (${newApplicant.matchScore}% match)`;
     triggerToast(toastMsg);
     setScheduleCandidate(null);
 
