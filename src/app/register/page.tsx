@@ -111,12 +111,17 @@ function RegisterFormContent() {
         );
         return;
       }
-      if (typeof window !== "undefined" && role === "candidate") {
+      if (typeof window !== "undefined") {
         try {
-          localStorage.setItem("skillmatch_candidate_email", email.trim().toLowerCase());
-          document.cookie = `skillmatch_candidate_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+          if (role === "candidate") {
+            localStorage.setItem("skillmatch_candidate_email", email.trim().toLowerCase());
+            document.cookie = `skillmatch_candidate_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+          } else {
+            localStorage.setItem("skillmatch_recruiter_email", email.trim().toLowerCase());
+            document.cookie = `skillmatch_recruiter_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+          }
         } catch (e) {
-          console.warn("Failed to set candidate email in localStorage", e);
+          console.warn("Failed to set email in storage", e);
         }
       }
 

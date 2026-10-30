@@ -22,6 +22,9 @@ const COOKIES_TO_DELETE = [
 ];
 
 async function handleLogout(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const targetUrl = searchParams.get("callbackUrl") || "/";
+
   try {
     const cookieStore = await cookies();
     for (const name of COOKIES_TO_DELETE) {
@@ -32,13 +35,34 @@ async function handleLogout(req: NextRequest) {
     }
   } catch {}
 
-  const response = NextResponse.redirect(new URL("/", req.url), { status: 303 });
+  const response = NextResponse.redirect(new URL(targetUrl, req.url), { status: 303 });
+
+  // 1. Delete all explicit known cookie names
   for (const name of COOKIES_TO_DELETE) {
     try {
       response.cookies.set(name, "", { path: "/", maxAge: 0, expires: new Date(0) });
       response.cookies.delete(name);
     } catch {}
   }
+
+  // 2. Dynamically scan all incoming cookies and expire session/auth/token/csrf cookies (including chunked NextAuth)
+  try {
+    const allCookies = req.cookies.getAll();
+    for (const c of allCookies) {
+      const lower = c.name.toLowerCase();
+      if (
+        lower.includes("auth") ||
+        lower.includes("session") ||
+        lower.includes("skillmatch") ||
+        lower.includes("csrf") ||
+        lower.includes("token") ||
+        lower.includes("callback")
+      ) {
+        response.cookies.set(c.name, "", { path: "/", maxAge: 0, expires: new Date(0) });
+        response.cookies.delete(c.name);
+      }
+    }
+  } catch {}
 
   return response;
 }

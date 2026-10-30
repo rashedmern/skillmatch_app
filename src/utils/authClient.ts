@@ -1,12 +1,10 @@
 "use client";
 
-import { logoutAction } from "@/server/actions/authActions";
-
 /**
  * Enterprise client-side logout handler:
  * 1. Clears session authentication cookies client-side (WITHOUT touching saved user profiles)
- * 2. Fires logoutAction on the server to clear server session cookies
- * 3. Immediately navigates the browser to the landing page ("/")
+ * 2. Navigates the browser to /api/auth/logout which clears all HTTP-only cookies on the server
+ * 3. Redirects cleanly to the landing page ("/")
  */
 export function handleAppSignOut(callbackUrl: string = "/") {
   if (typeof window !== "undefined") {
@@ -46,15 +44,9 @@ export function handleAppSignOut(callbackUrl: string = "/") {
     } catch (e) {
       console.warn("Storage cleanup warning:", e);
     }
-  }
 
-  // 2. Dispatch server-side cookie cleanup
-  try {
-    logoutAction().catch(() => {});
-  } catch {}
-
-  // 3. Synchronously and immediately redirect to the Landing Page
-  if (typeof window !== "undefined") {
-    window.location.replace(callbackUrl);
+    // 2. Perform a full browser navigation through the server logout route
+    // which purges all HTTP-only cookies and redirects to callbackUrl (default "/")
+    window.location.href = `/api/auth/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   }
 }

@@ -7,12 +7,11 @@ import type { NextRequest } from "next/server";
  * Concept:
  * 1. Root / (Landing Page):
  *    - Unauthenticated guest: Shows the full marketing Landing Page.
- *    - Authenticated user: Automatically bypasses landing page and lands on their
- *      role-specific console (/dashboard/candidate or /dashboard/recruiter).
+ *    - Authenticated user: Stays on landing page when visited directly, or navigates to dashboard.
  * 
  * 2. Auth Gateways (/login, /register):
- *    - Unauthenticated: Renders auth portal.
- *    - Already Authenticated: Bypasses to active dashboard.
+ *    - Always accessible directly so visitors and users can select their persona (Candidate/Recruiter),
+ *      authenticate with OAuth (Google/GitHub), or switch accounts.
  * 
  * 3. Role Protection (/dashboard/:path*):
  *    - Unauthenticated: Redirects to /login?callbackUrl=...
@@ -93,11 +92,8 @@ export function middleware(request: NextRequest) {
   // RULE 2: AUTH PAGES (/login, /register)
   // =========================================================================
   if (pathname === "/login" || pathname === "/register") {
-    // If already authenticated, redirect directly to dashboard
-    if (isAuthenticated) {
-      const targetDashboard = currentRole === "RECRUITER" ? "/dashboard/recruiter" : "/dashboard/candidate";
-      return attachRoleCookie(NextResponse.redirect(new URL(targetDashboard, request.url)));
-    }
+    // Auth portals are always accessible directly so users can switch accounts,
+    // toggle between Candidate and Recruiter personas, or sign in via OAuth (Google/GitHub).
     return NextResponse.next();
   }
 
