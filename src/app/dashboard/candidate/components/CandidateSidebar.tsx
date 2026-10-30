@@ -17,7 +17,6 @@ import {
   Building2,
   Compass,
   Sparkles,
-  Award,
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
@@ -112,12 +111,6 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
       label: "Code Studio",
       icon: Sparkles,
       hasDot: true,
-    },
-    {
-      id: "overview" as CandidateTabType,
-      label: "Showcase",
-      icon: Award,
-      hasDot: false,
     },
   ];
 

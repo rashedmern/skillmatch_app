@@ -16,6 +16,8 @@ export function handleAppSignOut(callbackUrl: string = "/") {
       "__Secure-skillmatch_session",
       "skillmatch_auth_role",
       "__Secure-skillmatch_auth_role",
+      "skillmatch_candidate_email",
+      "skillmatch_recruiter_email",
       "skillmatch_otp_challenge",
       "__Secure-skillmatch_otp_challenge",
       "skillmatch_otp_email",
@@ -31,14 +33,19 @@ export function handleAppSignOut(callbackUrl: string = "/") {
 
     const isHttps = window.location.protocol === "https:";
     const secureFlag = isHttps ? "; Secure" : "";
+
     sessionCookies.forEach((name) => {
       document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureFlag}`;
-      document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureFlag}`;
+      document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secureFlag}`;
     });
 
-    // NOTE: DO NOT delete `skillmatch_profile_*`!
-    // The user's account info, profile photo, and credentials are preserved so when they log back in
-    // with the same email, all their previous information remains completely intact!
+    try {
+      localStorage.removeItem("skillmatch_candidate_email");
+      localStorage.removeItem("skillmatch_recruiter_email");
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn("Storage cleanup warning:", e);
+    }
   }
 
   // 2. Dispatch server-side cookie cleanup
