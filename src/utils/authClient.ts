@@ -1,26 +1,27 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import { logoutAction } from "@/server/actions/authActions";
 
 /**
  * Enterprise client-side logout handler:
- * 1. Clears server-side auth & role cookies
- * 2. Clears client-side auth & role cookies across all paths and subdomains
- * 3. Clears localStorage & sessionStorage
- * 4. Signs out of NextAuth (if active)
- * 5. Hard redirects cleanly to "/" (Landing Page)
+ * 1. Clears localStorage & sessionStorage
+ * 2. Clears all accessible client-side cookies
+ * 3. Calls server-side logoutAction
+ * 4. Navigates to /api/auth/logout to erase all HttpOnly cookies on the HTTP response
+ *    and perform a clean redirect to the Landing Page ("/")
  */
-export async function handleAppSignOut(callbackUrl: string = "/?logout=true") {
-  try {
-    // 1. Clear server-side session cookies
-    await logoutAction();
-  } catch (err) {
-    console.warn("logoutAction failed:", err);
-  }
-
+export async function handleAppSignOut(callbackUrl: string = "/") {
   if (typeof window !== "undefined") {
-    // 2. Clear all authentication & role cookies client-side
+    try {
+      localStorage.removeItem("skillmatch_candidate_email");
+      localStorage.removeItem("skillmatch_recruiter_email");
+      localStorage.removeItem("skillmatch_candidate_profile");
+      localStorage.removeItem("skillmatch_recruiter_profile");
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn("Storage cleanup warning:", e);
+    }
+
     const cookiesToClear = [
       "skillmatch_session",
       "__Secure-skillmatch_session",
@@ -28,6 +29,9 @@ export async function handleAppSignOut(callbackUrl: string = "/?logout=true") {
       "__Secure-skillmatch_auth_role",
       "skillmatch_candidate_email",
       "skillmatch_recruiter_email",
+      "skillmatch_otp_challenge",
+      "__Secure-skillmatch_otp_challenge",
+      "skillmatch_otp_email",
       "authjs.session-token",
       "__Secure-authjs.session-token",
       "next-auth.session-token",
@@ -42,26 +46,17 @@ export async function handleAppSignOut(callbackUrl: string = "/?logout=true") {
       document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     });
+  }
 
-    // 3. Clear authentication identifiers in localStorage & sessionStorage
-    try {
-      localStorage.removeItem("skillmatch_candidate_email");
-      localStorage.removeItem("skillmatch_recruiter_email");
-      localStorage.removeItem("skillmatch_candidate_profile");
-      localStorage.removeItem("skillmatch_recruiter_profile");
-      sessionStorage.clear();
-    } catch (e) {
-      console.warn("Error removing auth items from localStorage:", e);
-    }
+  try {
+    await logoutAction();
+  } catch (err) {
+    console.warn("logoutAction error:", err);
+  }
 
-    // 4. Terminate NextAuth session without blocking redirect
-    try {
-      await signOut({ redirect: false });
-    } catch (e) {
-      console.warn("NextAuth signOut error:", e);
-    }
-
-    // 5. Force a full hard browser navigation to landing page
-    window.location.href = callbackUrl;
+  if (typeof window !== "undefined") {
+    // Navigating to /api/auth/logout forces the server to send Set-Cookie Max-Age=0
+    // headers to wipe any HttpOnly cookie and redirects cleanly with status 303 to "/"
+    window.location.href = "/api/auth/logout";
   }
 }

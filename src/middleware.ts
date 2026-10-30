@@ -85,35 +85,7 @@ export function middleware(request: NextRequest) {
   // RULE 1: ROOT LANDING PAGE (/)
   // =========================================================================
   if (pathname === "/") {
-    // If explicitly logging out, purge any remaining cookies and show landing page
-    if (searchParams.has("logout")) {
-      const cleanUrl = new URL("/", request.url);
-      const res = NextResponse.redirect(cleanUrl);
-      const cookiesToPurge = [
-        "skillmatch_session",
-        "__Secure-skillmatch_session",
-        "skillmatch_auth_role",
-        "__Secure-skillmatch_auth_role",
-        "skillmatch_candidate_email",
-        "skillmatch_recruiter_email",
-        "authjs.session-token",
-        "__Secure-authjs.session-token",
-        "next-auth.session-token",
-        "__Secure-next-auth.session-token",
-      ];
-      cookiesToPurge.forEach((name) => {
-        res.cookies.delete(name);
-        res.cookies.set(name, "", { path: "/", maxAge: 0, expires: new Date(0) });
-      });
-      return res;
-    }
-    // If the user has an active session, skip landing page and redirect to their role dashboard
-    if (isAuthenticated) {
-      const targetDashboard = currentRole === "RECRUITER" ? "/dashboard/recruiter" : "/dashboard/candidate";
-      return attachRoleCookie(NextResponse.redirect(new URL(targetDashboard, request.url)));
-    }
-
-    // New visitor / guest: Render the landing page
+    // Landing page is public and always visible to everyone
     return NextResponse.next();
   }
 
