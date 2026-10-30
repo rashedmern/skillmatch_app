@@ -29,9 +29,11 @@ export function handleAppSignOut(callbackUrl: string = "/") {
       "next-auth.callback-url",
     ];
 
+    const isHttps = window.location.protocol === "https:";
+    const secureFlag = isHttps ? "; Secure" : "";
     sessionCookies.forEach((name) => {
-      document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-      document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureFlag}`;
+      document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureFlag}`;
     });
 
     // NOTE: DO NOT delete `skillmatch_profile_*`!
