@@ -255,7 +255,11 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
 
             <button
               type="button"
-              onClick={() => handleAppSignOut("/")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAppSignOut("/");
+              }}
               title="Sign out"
               className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
               aria-label="Sign out"
@@ -279,7 +283,11 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
             )}
             <button
               type="button"
-              onClick={() => handleAppSignOut("/")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAppSignOut("/");
+              }}
               title="Sign out"
               className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
               aria-label="Sign out"

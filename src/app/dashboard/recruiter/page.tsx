@@ -298,7 +298,12 @@ function RecruiterDashboardContent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const cachedProfile = localStorage.getItem("skillmatch_recruiter_profile");
+      const activeEmail =
+        (typeof window !== "undefined" ? localStorage.getItem("skillmatch_recruiter_email") : null) ||
+        profile.email;
+      const cleanEmail = activeEmail ? activeEmail.toLowerCase().trim() : "";
+      const savedEmailProfile = cleanEmail ? localStorage.getItem("skillmatch_profile_" + cleanEmail) : null;
+      const cachedProfile = savedEmailProfile || localStorage.getItem("skillmatch_recruiter_profile");
       if (cachedProfile) {
         const parsed = JSON.parse(cachedProfile);
         if (parsed && typeof parsed === "object" && (parsed.recruiterName || parsed.email)) {

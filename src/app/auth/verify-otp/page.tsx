@@ -182,11 +182,21 @@ function VerifyOtpContent() {
             document.cookie = `__Secure-skillmatch_session=authenticated; path=/; max-age=2592000; SameSite=Lax; Secure`;
           }
           if (role === "candidate" && email) {
-            localStorage.setItem("skillmatch_candidate_email", email.trim().toLowerCase());
-            document.cookie = `skillmatch_candidate_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+            const clean = email.trim().toLowerCase();
+            localStorage.setItem("skillmatch_candidate_email", clean);
+            document.cookie = `skillmatch_candidate_email=${encodeURIComponent(clean)}; path=/; max-age=2592000; SameSite=Lax`;
+            const savedProfile = localStorage.getItem("skillmatch_profile_" + clean);
+            if (savedProfile) {
+              localStorage.setItem("skillmatch_candidate_profile", savedProfile);
+            }
           } else if (email) {
-            localStorage.setItem("skillmatch_recruiter_email", email.trim().toLowerCase());
-            document.cookie = `skillmatch_recruiter_email=${encodeURIComponent(email.trim().toLowerCase())}; path=/; max-age=2592000; SameSite=Lax`;
+            const clean = email.trim().toLowerCase();
+            localStorage.setItem("skillmatch_recruiter_email", clean);
+            document.cookie = `skillmatch_recruiter_email=${encodeURIComponent(clean)}; path=/; max-age=2592000; SameSite=Lax`;
+            const savedProfile = localStorage.getItem("skillmatch_profile_" + clean);
+            if (savedProfile) {
+              localStorage.setItem("skillmatch_recruiter_profile", savedProfile);
+            }
           }
         } catch (e) {
           console.warn("Failed to set cookies in localStorage", e);

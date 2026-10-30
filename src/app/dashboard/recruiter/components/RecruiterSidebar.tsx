@@ -273,7 +273,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
           {!isCollapsed && (
             <button
               type="button"
-              onClick={() => handleAppSignOut("/")}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAppSignOut("/"); }}
               aria-label={t.common.logOut}
               title={t.common.logOut}
               className="text-slate-500 hover:text-accent-gap p-1.5 rounded-lg hover:bg-accent-gap/10 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap"
@@ -286,7 +286,7 @@ export const RecruiterSidebar: React.FC<RecruiterSidebarProps> = ({
         {isCollapsed && (
           <button
             type="button"
-            onClick={() => handleAppSignOut("/")}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAppSignOut("/"); }}
             title={t.common.logOut}
             aria-label={t.common.logOut}
             className="w-full flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-accent-gap hover:bg-accent-gap/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gap cursor-pointer"

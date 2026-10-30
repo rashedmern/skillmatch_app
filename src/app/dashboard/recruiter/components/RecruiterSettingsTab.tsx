@@ -100,6 +100,10 @@ export const RecruiterSettingsTab: React.FC<RecruiterSettingsTabProps> = ({
     onUpdateProfile(updated);
     if (typeof window !== "undefined") {
       try {
+        const cleanEmail = (updated.email || email || "").toLowerCase().trim();
+        if (cleanEmail) {
+          localStorage.setItem("skillmatch_profile_" + cleanEmail, JSON.stringify(updated));
+        }
         localStorage.setItem("skillmatch_recruiter_profile", JSON.stringify(updated));
       } catch (err) {
         console.warn("Failed to write recruiter profile to localStorage:", err);

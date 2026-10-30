@@ -320,7 +320,12 @@ function CandidateDashboardContent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const cachedProfile = localStorage.getItem("skillmatch_candidate_profile");
+      const activeEmail =
+        (typeof window !== "undefined" ? localStorage.getItem("skillmatch_candidate_email") : null) ||
+        profile.email;
+      const cleanEmail = activeEmail ? activeEmail.toLowerCase().trim() : "";
+      const savedEmailProfile = cleanEmail ? localStorage.getItem("skillmatch_profile_" + cleanEmail) : null;
+      const cachedProfile = savedEmailProfile || localStorage.getItem("skillmatch_candidate_profile");
       if (cachedProfile) {
         const parsed = JSON.parse(cachedProfile);
         if (parsed && typeof parsed === "object" && (parsed.name || parsed.email)) {
@@ -400,6 +405,10 @@ function CandidateDashboardContent() {
             };
             if (typeof window !== "undefined") {
               try {
+                const clean = queryEmail ? queryEmail.toLowerCase().trim() : "";
+                if (clean) {
+                  localStorage.setItem("skillmatch_profile_" + clean, JSON.stringify(merged));
+                }
                 localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(merged));
               } catch (e) {
                 console.warn("Failed to update profile localStorage", e);
@@ -445,6 +454,10 @@ function CandidateDashboardContent() {
     setProfile(updated);
     if (typeof window !== "undefined") {
       try {
+        const cleanEmail = updated.email ? updated.email.toLowerCase().trim() : "";
+        if (cleanEmail) {
+          localStorage.setItem("skillmatch_profile_" + cleanEmail, JSON.stringify(updated));
+        }
         localStorage.setItem("skillmatch_candidate_profile", JSON.stringify(updated));
         localStorage.setItem("skillmatch_candidate_email", updated.email);
         document.cookie = `skillmatch_candidate_email=${encodeURIComponent(updated.email)}; path=/; max-age=2592000; SameSite=Lax`;

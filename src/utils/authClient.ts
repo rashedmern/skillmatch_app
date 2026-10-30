@@ -4,31 +4,18 @@ import { logoutAction } from "@/server/actions/authActions";
 
 /**
  * Enterprise client-side logout handler:
- * 1. Clears localStorage & sessionStorage
- * 2. Clears all accessible client-side cookies
- * 3. Calls server-side logoutAction
- * 4. Navigates to /api/auth/logout to erase all HttpOnly cookies on the HTTP response
- *    and perform a clean redirect to the Landing Page ("/")
+ * 1. Clears session authentication cookies client-side (WITHOUT touching saved user profiles)
+ * 2. Fires logoutAction on the server to clear server session cookies
+ * 3. Immediately navigates the browser to the landing page ("/")
  */
-export async function handleAppSignOut(callbackUrl: string = "/") {
+export function handleAppSignOut(callbackUrl: string = "/") {
   if (typeof window !== "undefined") {
-    try {
-      localStorage.removeItem("skillmatch_candidate_email");
-      localStorage.removeItem("skillmatch_recruiter_email");
-      localStorage.removeItem("skillmatch_candidate_profile");
-      localStorage.removeItem("skillmatch_recruiter_profile");
-      sessionStorage.clear();
-    } catch (e) {
-      console.warn("Storage cleanup warning:", e);
-    }
-
-    const cookiesToClear = [
+    // 1. Clear session authentication cookies client-side
+    const sessionCookies = [
       "skillmatch_session",
       "__Secure-skillmatch_session",
       "skillmatch_auth_role",
       "__Secure-skillmatch_auth_role",
-      "skillmatch_candidate_email",
-      "skillmatch_recruiter_email",
       "skillmatch_otp_challenge",
       "__Secure-skillmatch_otp_challenge",
       "skillmatch_otp_email",
@@ -42,21 +29,23 @@ export async function handleAppSignOut(callbackUrl: string = "/") {
       "next-auth.callback-url",
     ];
 
-    cookiesToClear.forEach((name) => {
+    sessionCookies.forEach((name) => {
       document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       document.cookie = `${name}=; path=/; domain=${window.location.hostname}; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     });
+
+    // NOTE: DO NOT delete `skillmatch_profile_*`!
+    // The user's account info, profile photo, and credentials are preserved so when they log back in
+    // with the same email, all their previous information remains completely intact!
   }
 
+  // 2. Dispatch server-side cookie cleanup
   try {
-    await logoutAction();
-  } catch (err) {
-    console.warn("logoutAction error:", err);
-  }
+    logoutAction().catch(() => {});
+  } catch {}
 
+  // 3. Synchronously and immediately redirect to the Landing Page
   if (typeof window !== "undefined") {
-    // Navigating to /api/auth/logout forces the server to send Set-Cookie Max-Age=0
-    // headers to wipe any HttpOnly cookie and redirects cleanly with status 303 to "/"
-    window.location.href = "/api/auth/logout";
+    window.location.replace(callbackUrl);
   }
 }
