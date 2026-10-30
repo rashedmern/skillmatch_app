@@ -145,12 +145,28 @@ export async function verifyOtpAction(formData: {
 export async function logoutAction(): Promise<ActionResponse<boolean>> {
   try {
     const cookieStore = await cookies();
-    cookieStore.delete("skillmatch_session");
-    cookieStore.delete("__Secure-skillmatch_session");
-    cookieStore.delete("skillmatch_auth_role");
-    cookieStore.delete("__Secure-skillmatch_auth_role");
-    cookieStore.delete("skillmatch_candidate_email");
-    cookieStore.delete("skillmatch_recruiter_email");
+    const cookiesToPurge = [
+      "skillmatch_session",
+      "__Secure-skillmatch_session",
+      "skillmatch_auth_role",
+      "__Secure-skillmatch_auth_role",
+      "skillmatch_candidate_email",
+      "skillmatch_recruiter_email",
+      "authjs.session-token",
+      "__Secure-authjs.session-token",
+      "next-auth.session-token",
+      "__Secure-next-auth.session-token",
+      "authjs.csrf-token",
+      "next-auth.csrf-token",
+      "authjs.callback-url",
+      "next-auth.callback-url",
+    ];
+    for (const name of cookiesToPurge) {
+      try {
+        cookieStore.set(name, "", { path: "/", maxAge: 0, expires: new Date(0) });
+        cookieStore.delete(name);
+      } catch {}
+    }
     return { success: true, data: true };
   } catch (error) {
     console.error("[logoutAction error]:", error);
