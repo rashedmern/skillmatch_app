@@ -22,6 +22,18 @@ export const metadata: Metadata = {
   title: "SkillMatch | Early-Career CSE Career Platform",
   description:
     "Land your dream CSE internship based on real code, not broken resumes. Automated GitHub AST verification and vector matching for early-career software engineers.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/skillmatch-app-icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/images/skillmatch-oauth-logo.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
