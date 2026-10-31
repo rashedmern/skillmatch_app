@@ -1,0 +1,64 @@
+{
+  "manifestVersion": "1.0.0",
+  "project": "SkillMatch Career Platform Academic Presentation",
+  "sourceUrl": "https://skillmatchapp-ten.vercel.app/",
+  "repository": "https://github.com/rashedmern/skillmatch_app",
+  "assets": [
+    {
+      "assetId": "brand_logo_mark",
+      "type": "vector_geometry",
+      "format": "native_pptx_shapes",
+      "description": "Hexagonal Hub & Spoke AST Network Glyph inside squircle badge (#095964)",
+      "intendedUse": "Slide master header and title slide brand anchor",
+      "aspectRatio": "1:1",
+      "attribution": "SkillMatch Project Identity System (Oceanic Intelligence)",
+      "isReplaceable": true,
+      "parameters": {
+        "badgeColor": "#095964",
+        "centralHubColor": "#FFFFFF",
+        "nodeMint": "#00D4BE",
+        "nodeCyan": "#67E8F9"
+      }
+    },
+    {
+      "assetId": "brand_wordmark",
+      "type": "formatted_text",
+      "format": "native_pptx_text",
+      "description": "SkillMatch typography wordmark: 'Skill' (#00D4BE) + 'Match' (#67E8F9)",
+      "intendedUse": "Master header logo lockup",
+      "aspectRatio": "3.5:1",
+      "attribution": "SkillMatch Typography Specification",
+      "isReplaceable": true
+    },
+    {
+      "assetId": "cse_badge_pill",
+      "type": "vector_pill",
+      "format": "native_pptx_shapes",
+      "description": "CSE Department specialization badge (#0369A1 text on #E0F2FE fill)",
+      "intendedUse": "Header logo lockup and academic department tag",
+      "aspectRatio": "2.25:1",
+      "attribution": "Computer Science & Engineering Specialization Marker",
+      "isReplaceable": true
+    },
+    {
+      "assetId": "architecture_diagram_vector",
+      "type": "diagram",
+      "format": "native_pptx_shapes_and_connectors",
+      "description": "Multi-tier full-stack system architecture flowchart",
+      "intendedUse": "Slide 9: System Architecture & Slide 10: Process Flowchart",
+      "aspectRatio": "16:9",
+      "attribution": "SkillMatch Engineering Specification",
+      "isReplaceable": true
+    },
+    {
+      "assetId": "database_er_schema_vector",
+      "type": "diagram_and_table",
+      "format": "native_pptx_shapes_and_tables",
+      "description": "Prisma & PostgreSQL relational entity relational schema",
+      "intendedUse": "Slide 11: Database Schema / ER Diagram",
+      "aspectRatio": "16:9",
+      "attribution": "Prisma Schema & Supabase PostgreSQL Migration",
+      "isReplaceable": true
+    }
+  ]
+}
