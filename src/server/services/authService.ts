@@ -94,7 +94,7 @@ export class AuthService {
       if (!user) {
         return {
           success: false,
-          error: "No account found matching this email address. Please register first.",
+          error: "No account found matching this email address. If you registered via Google, please click 'Continue with Google', or sign up first.",
         };
       }
 

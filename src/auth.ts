@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { cookies, headers } from "next/headers";
 import { ValidationService } from "@/server/services/validationService";
+import { prisma } from "@/server/db/client";
 
 // ==============================================================================
 // Vercel & Production Environment Normalization
@@ -208,6 +209,74 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
           // Recruiters signing in via Google with corporate emails (e.g. @company.com) are permitted
+        }
+
+        // 3. Auto-provision and sync user in Supabase PostgreSQL
+        if (email) {
+          try {
+            const roleLower = effectiveRole === "RECRUITER" ? "recruiter" : "candidate";
+            let dbUser = await prisma.user.findUnique({
+              where: { email },
+            });
+
+            if (!dbUser) {
+              if (roleLower === "candidate") {
+                await prisma.user.create({
+                  data: {
+                    email,
+                    name: user.name || "Candidate",
+                    role: "candidate",
+                    auth_provider: provider || "google",
+                    is_email_verified: true,
+                    candidate_profile: {
+                      create: {
+                        headline: "CSE Candidate & Systems Engineer",
+                        university: email.includes("@")
+                          ? `${email.split("@")[1].split(".")[0].toUpperCase()} University`
+                          : "University Partner",
+                        degree: "B.S. Computer Science & Engineering",
+                        graduation_year: "2026",
+                      },
+                    },
+                  },
+                });
+              } else {
+                let company = await prisma.company.findFirst();
+                if (!company) {
+                  company = await prisma.company.create({
+                    data: {
+                      name: "Partner Organization",
+                      slug: "partner-org",
+                      is_verified_partner: true,
+                    },
+                  });
+                }
+                await prisma.user.create({
+                  data: {
+                    email,
+                    name: user.name || "Recruiter",
+                    role: "recruiter",
+                    auth_provider: provider || "google",
+                    is_email_verified: true,
+                    recruiter_profile: {
+                      create: {
+                        company_id: company.id,
+                        role_title: "Technical Talent Lead",
+                        office_location: "Remote / HQ",
+                      },
+                    },
+                  },
+                });
+              }
+            } else if (!dbUser.is_email_verified) {
+              await prisma.user.update({
+                where: { id: dbUser.id },
+                data: { is_email_verified: true },
+              });
+            }
+          } catch (syncErr) {
+            console.warn("[Auth signIn] Background user sync warning:", syncErr);
+          }
         }
 
         return true;
