@@ -84,7 +84,19 @@ export function middleware(request: NextRequest) {
   // RULE 1: ROOT LANDING PAGE (/)
   // =========================================================================
   if (pathname === "/") {
-    // If user is actively authenticated, lock them to their dashboard unless they explicitly log out
+    // If arriving from explicit logout, wipe cookies and show landing page
+    if (searchParams.get("logged_out") === "1" || searchParams.has("logout")) {
+      const res = NextResponse.next();
+      res.cookies.delete("skillmatch_session");
+      res.cookies.delete("skillmatch_auth_role");
+      res.cookies.delete("__Secure-skillmatch_session");
+      res.cookies.delete("__Secure-skillmatch_auth_role");
+      res.cookies.delete("authjs.session-token");
+      res.cookies.delete("__Secure-authjs.session-token");
+      return res;
+    }
+
+    // If actively authenticated, lock user to their dashboard until explicit logout
     if (isAuthenticated) {
       const target = currentRole === "RECRUITER" ? "/dashboard/recruiter" : "/dashboard/candidate";
       return attachRoleCookie(NextResponse.redirect(new URL(target, request.url)));

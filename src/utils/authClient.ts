@@ -1,14 +1,32 @@
 "use client";
 
+import { signOut } from "next-auth/react";
+
 /**
  * Enterprise client-side logout handler:
  * 1. Clears session authentication cookies client-side (WITHOUT touching saved user profiles)
- * 2. Navigates the browser to /api/auth/logout which clears all HTTP-only cookies on the server
- * 3. Redirects cleanly to the landing page ("/")
+ * 2. Purges NextAuth session state
+ * 3. Navigates the browser to /api/auth/logout which clears all HTTP-only cookies on the server
+ * 4. Redirects cleanly to the landing page ("/")
  */
-export function handleAppSignOut(callbackUrl: string = "/") {
+export async function handleAppSignOut(callbackUrl: string = "/") {
   if (typeof window !== "undefined") {
-    // 1. Clear session authentication cookies client-side
+    try {
+      localStorage.removeItem("skillmatch_candidate_email");
+      localStorage.removeItem("skillmatch_recruiter_email");
+      localStorage.removeItem("skillmatch_candidate_active_tab");
+      localStorage.removeItem("skillmatch_recruiter_active_tab");
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn("Storage cleanup warning:", e);
+    }
+
+    // 1. NextAuth sign out
+    try {
+      await signOut({ redirect: false });
+    } catch {}
+
+    // 2. Clear session authentication cookies client-side
     const sessionCookies = [
       "skillmatch_session",
       "__Secure-skillmatch_session",
@@ -37,16 +55,7 @@ export function handleAppSignOut(callbackUrl: string = "/") {
       document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secureFlag}`;
     });
 
-    try {
-      localStorage.removeItem("skillmatch_candidate_email");
-      localStorage.removeItem("skillmatch_recruiter_email");
-      sessionStorage.clear();
-    } catch (e) {
-      console.warn("Storage cleanup warning:", e);
-    }
-
-    // 2. Perform a full browser navigation through the server logout route
-    // which purges all HTTP-only cookies and redirects to callbackUrl (default "/")
+    // 3. Perform a full browser navigation through the server logout route
     window.location.href = `/api/auth/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   }
 }
