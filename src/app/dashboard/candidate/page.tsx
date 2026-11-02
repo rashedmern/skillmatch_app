@@ -524,6 +524,8 @@ function CandidateDashboardContent() {
           }
         }
         triggerToast("✅ Profile saved to live PostgreSQL database!");
+      } else {
+        triggerToast("❌ Database save failed: " + (res.error || "Please check database connection"));
       }
     } catch (err) {
       console.error("[CandidateDashboard] Failed to persist profile to Supabase:", err);
