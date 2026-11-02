@@ -292,7 +292,7 @@ export async function updateCandidateProfileAction(profileData: {
     return { success: true, data: updated };
   } catch (error) {
     console.error("[updateCandidateProfileAction error]:", error);
-    return { success: false, error: "Failed to update candidate profile." };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update candidate profile." };
   }
 }
 
