@@ -335,7 +335,33 @@ function RecruiterDashboardContent() {
 
   // State Management with LocalStorage persistence & SSR-safe lazy initializers
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<RecruiterTabType>("overview");
+  const [activeTab, setActiveTabState] = useState<RecruiterTabType>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("skillmatch_recruiter_active_tab") as RecruiterTabType | null;
+        if (saved && ["overview", "post-job", "pipeline", "talent-search", "settings"].includes(saved)) {
+          return saved;
+        }
+      } catch (e) {
+        console.warn("Failed to read recruiter active tab:", e);
+      }
+    }
+    return "overview";
+  });
+
+  const setActiveTab = (tab: RecruiterTabType) => {
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_recruiter_active_tab", tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        window.history.replaceState({}, "", url.toString());
+      } catch (e) {
+        console.warn("Failed to persist recruiter active tab:", e);
+      }
+    }
+  };
 
   const [profile, setProfile] = useState<RecruiterProfile>(() => {
     if (typeof window !== "undefined") {

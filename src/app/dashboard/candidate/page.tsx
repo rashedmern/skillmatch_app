@@ -247,18 +247,42 @@ function CandidateDashboardContent() {
   const tabQuery = searchParams.get("tab") as CandidateTabType | null;
   const { t, language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<CandidateTabType>(() => {
+  const [activeTab, setActiveTabState] = useState<CandidateTabType>(() => {
     if (tabQuery && ["overview", "all-jobs", "applications", "profile", "inbox", "events", "employers", "code-studio"].includes(tabQuery)) {
       return tabQuery;
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("skillmatch_candidate_active_tab") as CandidateTabType | null;
+        if (saved && ["overview", "all-jobs", "applications", "profile", "inbox", "events", "employers", "code-studio"].includes(saved)) {
+          return saved;
+        }
+      } catch (e) {
+        console.warn("Failed to read active tab cache:", e);
+      }
     }
     return "overview";
   });
 
   useEffect(() => {
     if (tabQuery && ["overview", "all-jobs", "applications", "profile", "inbox", "events", "employers", "code-studio"].includes(tabQuery)) {
-      setActiveTab(tabQuery);
+      setActiveTabState(tabQuery);
     }
   }, [tabQuery]);
+
+  const setActiveTab = (tab: CandidateTabType) => {
+    setActiveTabState(tab);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("skillmatch_candidate_active_tab", tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        window.history.replaceState({}, "", url.toString());
+      } catch (e) {
+        console.warn("Failed to persist active tab:", e);
+      }
+    }
+  };
 
   // Persistent Client Profile with LocalStorage Fallback & Lazy Initializer
   const [profile, setProfile] = useState<CandidateProfile>(() => {

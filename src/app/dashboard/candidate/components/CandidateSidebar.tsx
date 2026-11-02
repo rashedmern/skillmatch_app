@@ -175,11 +175,11 @@ export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between h-10 px-2">
           {!isCollapsed ? (
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/dashboard/candidate" onClick={(e) => { e.preventDefault(); onTabChange("overview"); }} className="flex items-center gap-2">
               <BrandLogo size="sm" />
             </Link>
           ) : (
-            <Link href="/" className="mx-auto">
+            <Link href="/dashboard/candidate" onClick={(e) => { e.preventDefault(); onTabChange("overview"); }} className="mx-auto">
               <div className="w-9 h-9 rounded-xl bg-[#095964] text-[#00D4BE] flex items-center justify-center font-bold text-xs shadow-sm">
                 SM
               </div>

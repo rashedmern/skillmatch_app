@@ -45,16 +45,6 @@ export const CompanyMarquee: React.FC = () => {
             ))}
           </div>
         </div>
-
-        {/* Centered Headline */}
-        <div className="text-center max-w-3xl mx-auto mt-16 sm:mt-24 space-y-3">
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            The direct network for engineering internships
-          </h2>
-          <p className="text-sm sm:text-base text-zinc-400">
-            Connecting ambitious computer science students with engineering organizations hiring based on working code and problem-solving.
-          </p>
-        </div>
       </div>
     </section>
   );

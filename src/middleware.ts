@@ -84,7 +84,11 @@ export function middleware(request: NextRequest) {
   // RULE 1: ROOT LANDING PAGE (/)
   // =========================================================================
   if (pathname === "/") {
-    // Landing page is public and always visible to everyone
+    // If user is actively authenticated, lock them to their dashboard unless they explicitly log out
+    if (isAuthenticated) {
+      const target = currentRole === "RECRUITER" ? "/dashboard/recruiter" : "/dashboard/candidate";
+      return attachRoleCookie(NextResponse.redirect(new URL(target, request.url)));
+    }
     return NextResponse.next();
   }
 
