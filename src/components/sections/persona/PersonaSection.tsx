@@ -6,18 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   GraduationCap,
   Building2,
-  CheckCircle2,
   ArrowRight,
   MessageSquare,
-  Sparkles,
   Search,
-  Filter,
   ShieldCheck,
   TrendingUp,
   Briefcase,
-  Users,
   Code2,
-  GitBranch,
 } from "lucide-react";
 
 export const PersonaSection: React.FC = () => {
@@ -32,14 +27,14 @@ export const PersonaSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12 sm:mb-16">
           <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#00D4BE] px-3.5 py-1.5 rounded-full bg-[#00D4BE]/10 border border-[#00D4BE]/30">
-            Engineered For Real Results
+            Platform Overview
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            No resume black hole. <br className="hidden sm:inline" />
-            Just verified engineering skills.
+            Designed for candidates <br className="hidden sm:inline" />
+            and hiring teams.
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Whether you&apos;re a college student hunting for your first summer engineering internship or a tech lead tired of screening unverified resumes, SkillMatch connects you directly through working code.
+            Whether you are looking for an engineering role or searching for developers with verified project experience, SkillMatch simplifies the connection.
           </p>
 
           {/* Persona Segmented Switcher */}
@@ -53,7 +48,7 @@ export const PersonaSection: React.FC = () => {
               }`}
             >
               <GraduationCap className="w-4 h-4" />
-              <span>For Students &amp; Grads</span>
+              <span>For Candidates</span>
             </button>
 
             <button
@@ -65,7 +60,7 @@ export const PersonaSection: React.FC = () => {
               }`}
             >
               <Building2 className="w-4 h-4" />
-              <span>For Engineering Teams</span>
+              <span>For Recruiters</span>
             </button>
           </div>
         </div>
@@ -81,7 +76,7 @@ export const PersonaSection: React.FC = () => {
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
             >
-              {/* Left: 3 Practical Value Props for Students */}
+              {/* Left: Value Props for Students */}
               <div className="lg:col-span-6 space-y-4 sm:space-y-5">
                 <div className="p-6 rounded-2xl bg-[#121920] border border-white/10 hover:border-[#00D4BE]/50 hover:bg-[#152321] transition-all group">
                   <div className="flex items-start gap-4">
@@ -90,10 +85,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Direct outreach from tech leads
+                        Direct outreach from recruiters
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Engineering managers message you directly based on your verified code solutions and GitHub projects—bypassing automated ATS filters.
+                        Hiring managers and recruiters contact you directly based on your verified skills, projects, and portfolio links.
                       </p>
                     </div>
                   </div>
@@ -106,10 +101,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        No previous corporate internships needed
+                        Showcase real engineering projects
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Don&apos;t have a brand-name company on your CV? Your code speaks for itself. Prove how you handle real databases, APIs, and edge cases.
+                        Highlight your practical codebases, relational databases, backend APIs, and web applications.
                       </p>
                     </div>
                   </div>
@@ -122,10 +117,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Clear skill benchmarks &amp; practice
+                        Structured skill matching
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Get specific, automated feedback on where your code has performance bottlenecks or concurrency issues, with guided tracks to level up.
+                        View how your technical skills match against active job requirements with transparent scoring.
                       </p>
                     </div>
                   </div>
@@ -136,13 +131,13 @@ export const PersonaSection: React.FC = () => {
                     href="/register"
                     className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm sm:text-base font-extrabold text-[#051C19] bg-[#00D4BE] hover:bg-[#00bda8] shadow-lg hover:shadow-[0_0_20px_rgba(0,212,190,0.4)] transition-all"
                   >
-                    <span>Create Your Free Student Profile</span>
+                    <span>Create Candidate Profile</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
 
-              {/* Right: Student Dashboard Preview */}
+              {/* Right: Candidate Dashboard Preview */}
               <div className="lg:col-span-6">
                 <div className="rounded-3xl bg-[#121920] border border-white/10 shadow-2xl p-6 sm:p-8 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -151,49 +146,35 @@ export const PersonaSection: React.FC = () => {
                         Candidate Dashboard
                       </span>
                       <h4 className="font-bold text-lg text-white mt-0.5">
-                        Matched Internships For You
+                        Matched Engineering Roles
                       </h4>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-[#00D4BE]/15 text-[#00D4BE] font-bold text-xs border border-[#00D4BE]/30">
-                      3 Active Inbound Invites
+                      Live Matching
                     </span>
                   </div>
 
-                  {/* Sample Job Match 1 */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-[#0b1015] border border-white/10 hover:border-[#00D4BE]/40 transition-colors space-y-2.5">
-                    <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
                       <div>
-                        <span className="text-xs font-bold text-[#00D4BE]">Datadog</span>
-                        <h5 className="font-bold text-sm sm:text-base text-white">Backend Distributed Systems Intern</h5>
-                        <p className="text-xs text-zinc-400">$48/hr • Remote / NYC • Summer 2026</p>
+                        <span className="font-bold text-sm text-white block">Backend Systems Engineer</span>
+                        <span className="text-xs text-zinc-400">ScaleOps Inc. • PostgreSQL, Go, Docker</span>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full bg-[#00D4BE]/15 text-[#00D4BE] font-mono font-bold text-xs shrink-0">
-                        98% Match
-                      </span>
+                      <span className="text-xs font-bold text-[#00D4BE] bg-[#00D4BE]/10 px-2.5 py-1 rounded-lg">95% Match</span>
                     </div>
-                    <div className="flex items-center gap-2 pt-1 text-xs">
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">Go</span>
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">PostgreSQL</span>
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">Distributed Systems</span>
-                    </div>
-                  </div>
-
-                  {/* Sample Job Match 2 */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-[#0b1015] border border-white/10 hover:border-[#00D4BE]/40 transition-colors space-y-2.5">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
                       <div>
-                        <span className="text-xs font-bold text-[#00D4BE]">Stripe</span>
-                        <h5 className="font-bold text-sm sm:text-base text-white">Platform Infrastructure Intern</h5>
-                        <p className="text-xs text-zinc-400">$55/hr • San Francisco / Remote • Summer 2026</p>
+                        <span className="font-bold text-sm text-white block">Full-Stack Platform Engineer</span>
+                        <span className="text-xs text-zinc-400">CloudScale Labs • React, TypeScript, Prisma</span>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full bg-[#00D4BE]/15 text-[#00D4BE] font-mono font-bold text-xs shrink-0">
-                        95% Match
-                      </span>
+                      <span className="text-xs font-bold text-[#00D4BE] bg-[#00D4BE]/10 px-2.5 py-1 rounded-lg">92% Match</span>
                     </div>
-                    <div className="flex items-center gap-2 pt-1 text-xs">
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">TypeScript</span>
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">Docker</span>
-                      <span className="px-2.5 py-0.5 rounded-md bg-white/5 font-mono text-zinc-300 border border-white/10">Kubernetes</span>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-sm text-white block">Database Administrator / SRE</span>
+                        <span className="text-xs text-zinc-400">Veritas Cloud • PostgreSQL, Query Tuning</span>
+                      </div>
+                      <span className="text-xs font-bold text-[#00D4BE] bg-[#00D4BE]/10 px-2.5 py-1 rounded-lg">89% Match</span>
                     </div>
                   </div>
                 </div>
@@ -208,7 +189,7 @@ export const PersonaSection: React.FC = () => {
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
             >
-              {/* Left: 3 Practical Employer Value Props */}
+              {/* Left: Recruiter Value Props */}
               <div className="lg:col-span-6 space-y-4 sm:space-y-5">
                 <div className="p-6 rounded-2xl bg-[#121920] border border-white/10 hover:border-[#00D4BE]/50 hover:bg-[#152321] transition-all group">
                   <div className="flex items-start gap-4">
@@ -217,10 +198,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Filter by code quality, not keywords
+                        Filter by verified technical skills
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Search candidates by specific competencies—like writing concurrent Go, optimizing SQL queries, or containerization—with verified code attached.
+                        Search candidates based on specific technologies like PostgreSQL, Docker, Next.js, and API engineering.
                       </p>
                     </div>
                   </div>
@@ -233,10 +214,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Cut through 1,000+ unverified resumes
+                        Comprehensive candidate dossiers
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Instead of wading through flooded inboxes and keyword-stuffed CVs, evaluate students who have already proven they can write clean, functioning code.
+                        View academic credentials, verified skills, GitHub repositories, and resumes in one unified interface.
                       </p>
                     </div>
                   </div>
@@ -249,10 +230,10 @@ export const PersonaSection: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-[#00D4BE] transition-colors">
-                        Direct pipeline from campus to team
+                        Integrated ATS pipeline
                       </h3>
                       <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
-                        Reach talented computer science students across university programs before traditional career fairs even start.
+                        Track applicants through Review, Interview, and Offer stages with relational database stage history tracking.
                       </p>
                     </div>
                   </div>
@@ -263,13 +244,13 @@ export const PersonaSection: React.FC = () => {
                     href="/register?role=recruiter"
                     className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm sm:text-base font-extrabold text-[#051C19] bg-[#00D4BE] hover:bg-[#00bda8] shadow-lg hover:shadow-[0_0_20px_rgba(0,212,190,0.4)] transition-all"
                   >
-                    <span>Start Hiring Verified Interns</span>
+                    <span>Post a Job &amp; Find Talent</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
 
-              {/* Right: Recruiter ATS Pipeline Preview */}
+              {/* Right: Recruiter Pipeline Preview */}
               <div className="lg:col-span-6">
                 <div className="rounded-3xl bg-[#121920] border border-white/10 shadow-2xl p-6 sm:p-8 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -278,47 +259,35 @@ export const PersonaSection: React.FC = () => {
                         Employer Pipeline
                       </span>
                       <h4 className="font-bold text-lg text-white mt-0.5">
-                        Active Engineering Candidates
+                        Applicant Tracking
                       </h4>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-[#00D4BE]/15 text-[#00D4BE] font-bold text-xs border border-[#00D4BE]/30">
-                      Live Sourcing Active
+                      Active Jobs
                     </span>
                   </div>
 
-                  {/* ATS Stage Columns Preview */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3.5 rounded-xl bg-[#0b1015] border border-white/10 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
-                        <span>Code Verified</span>
-                        <span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white">14</span>
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-sm text-white block">Rashed Molla</span>
+                        <span className="text-xs text-zinc-400">Software Engineer • University of Asia Pacific</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-[#141b22] border border-white/5 text-xs">
-                        <p className="font-bold text-white truncate">Alex Chen</p>
-                        <p className="text-[10px] text-[#00D4BE] font-semibold">98% Match</p>
-                      </div>
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">Interview Scheduled</span>
                     </div>
-
-                    <div className="p-3.5 rounded-xl bg-[#0b1015] border border-white/10 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
-                        <span>Tech Screen</span>
-                        <span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white">6</span>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-sm text-white block">Alex Chen</span>
+                        <span className="text-xs text-zinc-400">Distributed Systems • UC Berkeley</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-[#141b22] border border-white/5 text-xs">
-                        <p className="font-bold text-white truncate">Sarah Khan</p>
-                        <p className="text-[10px] text-[#00D4BE] font-semibold">94% Match</p>
-                      </div>
+                      <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg">Under Review</span>
                     </div>
-
-                    <div className="p-3.5 rounded-xl bg-[#0b1015] border border-white/10 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
-                        <span>Offer Sent</span>
-                        <span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white">2</span>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-sm text-white block">Elena Rostova</span>
+                        <span className="text-xs text-zinc-400">Database Internals • ETH Zurich</span>
                       </div>
-                      <div className="p-2.5 rounded-lg bg-[#00D4BE]/15 border border-[#00D4BE]/30 text-xs">
-                        <p className="font-bold text-white truncate">Rashed M.</p>
-                        <p className="text-[10px] text-[#00D4BE] font-semibold">Accepted</p>
-                      </div>
+                      <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg">Offer Extended</span>
                     </div>
                   </div>
                 </div>
