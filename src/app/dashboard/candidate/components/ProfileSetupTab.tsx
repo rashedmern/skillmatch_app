@@ -178,7 +178,7 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
@@ -193,15 +193,11 @@ export const ProfileSetupTab: React.FC<ProfileSetupTabProps> = ({
       console.warn("Could not write to localStorage in ProfileSetupTab", err);
     }
 
-    setTimeout(() => {
-      onUpdateProfile(formData);
+    try {
+      await onUpdateProfile(formData);
+    } finally {
       setIsSaving(false);
-      onTriggerToast(
-        language === "bn"
-          ? "প্রোফাইল পরিবর্তন সফলভাবে সংরক্ষিত ও সিঙ্ক হয়েছে!"
-          : "Candidate profile changes saved and synced across network!"
-      );
-    }, 400);
+    }
   };
 
   return (

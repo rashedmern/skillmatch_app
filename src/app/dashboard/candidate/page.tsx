@@ -523,9 +523,11 @@ function CandidateDashboardContent() {
             console.warn("Failed to write merged profile to localStorage", e);
           }
         }
+        triggerToast("✅ Profile saved to live PostgreSQL database!");
       }
     } catch (err) {
       console.error("[CandidateDashboard] Failed to persist profile to Supabase:", err);
+      triggerToast("❌ Database error: " + (err instanceof Error ? err.message : "Check connection"));
     }
   };
 
